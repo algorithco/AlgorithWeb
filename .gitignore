@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Generated output
+.next/
+out/
+.turbo/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment and secrets - keep only the public example
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*-jwks.json
+*private-key*.json
+secrets/
+
+# Databases, dumps, and user exports
+*.sqlite
+*.sqlite-journal
+*.db
+*.dump
+*.sql.gz
+imports/
+exports/
+data/
+*.csv
+*user-export*.json
+
+# Logs and temporary files
+*.log
+tmp/
+
+# Editor and OS junk
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini

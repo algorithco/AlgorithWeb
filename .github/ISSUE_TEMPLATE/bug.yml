@@ -1,0 +1,25 @@
+---
+name: Bug report
+description: Report a defect
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      placeholder: Expected versus actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      placeholder: Commands and steps starting from a clean checkout
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      placeholder: Redacted logs, versions, and environment

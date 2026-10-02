@@ -1,0 +1,28 @@
+#!/bin/sh
+# Scan staged changes with Gitleaks. Keep POSIX-sh compatible for Git for Windows.
+
+gitleaks_bin="$(command -v gitleaks 2>/dev/null || true)"
+
+if [ -z "$gitleaks_bin" ] && [ -n "${LOCALAPPDATA:-}" ] && command -v cygpath >/dev/null 2>&1; then
+  local_app_data="$(cygpath -u "$LOCALAPPDATA")"
+  for candidate in "$local_app_data"/Microsoft/WinGet/Packages/Gitleaks.Gitleaks_*/gitleaks.exe; do
+    if [ -x "$candidate" ]; then
+      gitleaks_bin="$candidate"
+      break
+    fi
+  done
+fi
+
+if [ -z "$gitleaks_bin" ]; then
+  echo "pre-commit: gitleaks is not installed; refusing to commit." >&2
+  echo "Install it: winget install --id Gitleaks.Gitleaks -e  (then reopen your shell)" >&2
+  exit 1
+fi
+
+"$gitleaks_bin" git --staged --redact --no-banner --no-color
+status=$?
+if [ $status -ne 0 ]; then
+  echo "pre-commit: gitleaks found possible secrets in staged changes. Remove them and retry." >&2
+  exit $status
+fi
+exit 0

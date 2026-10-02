@@ -1,0 +1,31 @@
+import Link from "next/link";
+import { siteConfig } from "@/config/site";
+import { Container } from "./container";
+import { ProductSwitcher } from "./product-switcher";
+import { ThemeToggle } from "./theme-toggle";
+
+export function Header() {
+  return (
+    <header className="site-header">
+      <Container className="site-header__inner">
+        <Link className="wordmark" href="/" aria-label="Algorithco home">
+          <span className="wordmark__mark" aria-hidden="true">
+            A
+          </span>
+          <span>algorithco</span>
+        </Link>
+        <nav aria-label="Main navigation" className="site-nav">
+          <ProductSwitcher />
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
+        </nav>
+        <div className="header-actions">
+          <ThemeToggle />
+          <Link className="sign-in" href={siteConfig.authUrl}>
+            Sign in
+          </Link>
+        </div>
+      </Container>
+    </header>
+  );
+}

@@ -1,0 +1,14 @@
+#!/bin/sh
+# Block direct pushes to main after the initial publication.
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  case "$remote_ref" in
+    refs/heads/main)
+      echo "pre-push: direct pushes to 'main' are blocked by convention." >&2
+      echo "Open a short-lived branch + PR and squash-merge instead." >&2
+      echo "To bypass once (initial publish), run: git push --no-verify" >&2
+      exit 1
+      ;;
+  esac
+done
+exit 0
