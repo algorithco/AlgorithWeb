@@ -31,7 +31,7 @@ All public destinations are configured in `.env.local` and documented in `.env.e
 | `NEXT_PUBLIC_SITE_URL` | `https://algorithco.com` | Canonical site URL and sitemap origin |
 | `NEXT_PUBLIC_VOICE_URL` | `https://voice.algorithco.com` | Algorith Voice website |
 | `NEXT_PUBLIC_GUARD_URL` | `https://guard.algorithco.com` | algorithco guard website |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.algorithco.com` | Future account-system sign-in destination |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.algorithco.com` | Account-system origin; Sign in links to its `/signin` route |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | empty | Public email; hidden when empty |
 
 These values are compiled into the public client bundle. Do not put secrets in them.
