@@ -64,9 +64,9 @@ export const products = [
     accent: "violet",
     externalUrl: externalUrl(
       process.env.NEXT_PUBLIC_GUARD_URL,
-      "https://guard.algorithco.com",
+      "https://trqsh.uz/app/guard",
     ),
-    externalLabel: "Explore the early preview",
+    externalLabel: "Open Guard",
   },
 ] as const satisfies readonly Product[];
 

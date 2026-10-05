@@ -5,6 +5,7 @@ import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { MotionController } from "@/components/motion-controller";
 import { absoluteUrl, siteConfig } from "@/config/site";
+import { Providers } from "./providers";
 import "./tokens.css";
 import "./globals.css";
 
@@ -46,16 +47,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <a className="skip-link" href="#main">
-          Skip to content
-        </a>
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
-        <MotionController />
-        <script type="application/ld+json">
-          {JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c")}
-        </script>
+        <Providers>
+          <a className="skip-link" href="#main">
+            Skip to content
+          </a>
+          <Header />
+          <main id="main">{children}</main>
+          <Footer />
+          <MotionController />
+          <script type="application/ld+json">
+            {JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c")}
+          </script>
+        </Providers>
       </body>
     </html>
   );

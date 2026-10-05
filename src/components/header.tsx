@@ -1,10 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
+import { usePlatformSession } from "@/hooks/use-platform-session";
 import { Container } from "./container";
 import { ProductSwitcher } from "./product-switcher";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
+  const session = usePlatformSession();
   return (
     <header className="site-header">
       <Container className="site-header__inner">
@@ -21,8 +25,11 @@ export function Header() {
         </nav>
         <div className="header-actions">
           <ThemeToggle />
-          <Link className="sign-in" href={siteConfig.authUrl}>
-            Sign in
+          <Link
+            className="sign-in"
+            href={session.signedIn ? "/app" : siteConfig.authUrl}
+          >
+            {session.signedIn ? "Dashboard" : "Sign in"}
           </Link>
         </div>
       </Container>

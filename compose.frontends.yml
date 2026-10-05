@@ -1,0 +1,54 @@
+# Topology (two stacks, one shared network):
+#   1. Account stack FIRST:  (in algorithco-account)
+#      docker compose -f infra/docker-compose.yml up --build -d
+#      owns postgres/redis/api/caddy + creates network `algorithco-platform`.
+#   2. This gateway SECOND:  (here)
+#      docker compose -f compose.frontends.yml up --build -d
+#      company-web proxies /api/guard/* -> guard-backend (same stack) and
+#      /api/account/* -> algorithco-account-api (account stack, shared net).
+# Boot order matters: the shared network is created by the account stack.
+name: algorithco
+
+services:
+  guard-backend:
+    build:
+      context: ../algorithco-guard/backend
+    restart: unless-stopped
+    env_file:
+      - ../algorithco-guard/backend/.env.tunnel
+
+  company-web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: https://trqsh.uz
+        NEXT_PUBLIC_VOICE_URL: https://voice.algorithco.com
+        NEXT_PUBLIC_GUARD_URL: https://trqsh.uz/app/guard
+        NEXT_PUBLIC_AUTH_URL: https://auth.trqsh.uz
+        NEXT_PUBLIC_ACCOUNT_ISSUER: https://trqsh.uz/account
+        NEXT_PUBLIC_ACCOUNT_CLIENT_ID: algorithco-platform-web
+        NEXT_PUBLIC_ACCOUNT_REDIRECT_URI: https://trqsh.uz/auth/callback
+        NEXT_PUBLIC_ACCOUNT_BILLING_URL: https://trqsh.uz/account
+        NEXT_PUBLIC_GUARD_API_BASE: /api/guard
+        NEXT_PUBLIC_ACCOUNT_API_BASE: /api/account
+        NEXT_PUBLIC_VOICE_API_BASE: /api/voice
+    restart: unless-stopped
+    networks:
+      - default
+      - platform
+    depends_on:
+      # Unordered on purpose (no service_healthy gate): single-host auth
+      # makes guard depend on this gateway for OIDC discovery
+      # (trqsh.uz/account/.well-known), so gating the gateway on guard
+      # readiness deadlocks both. /api/guard/* briefly 502s until guard
+      # is up; the gateway itself is fully static otherwise.
+      - guard-backend
+    ports:
+      - "127.0.0.1:3000:80"
+      # Compatibility listener while the managed tunnel route is moved to 3000.
+      - "127.0.0.1:3007:80"
+
+networks:
+  platform:
+    name: algorithco-platform
+    external: true
