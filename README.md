@@ -2,9 +2,7 @@
 
 [![CI](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml)
 
-The company website for Algorithco and the front door to its products. It is a static-friendly Next.js application with no backend, database, authentication implementation, tracking, cookies, or runtime API calls.
-
-Status: pre-production. Deployment and production configuration are intentionally out of scope for this repository-publication phase.
+The unified Algorithco platform frontend. It serves the company site, central-account sign-in flow, Guard console, and Guard documentation from one Next.js static export. Guard API calls stay same-origin through the production Nginx proxy.
 
 ## Requirements
 
@@ -28,10 +26,14 @@ All public destinations are configured in `.env.local` and documented in `.env.e
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `https://algorithco.com` | Canonical site URL and sitemap origin |
+| `NEXT_PUBLIC_SITE_URL` | `https://trqsh.uz` | Canonical site URL and sitemap origin |
 | `NEXT_PUBLIC_VOICE_URL` | `https://voice.algorithco.com` | Algorith Voice website |
-| `NEXT_PUBLIC_GUARD_URL` | `https://guard.algorithco.com` | algorithco guard website |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.algorithco.com` | Account-system origin; Sign in links to its `/signin` route |
+| `NEXT_PUBLIC_GUARD_URL` | `https://trqsh.uz/app/guard` | Guard console inside the unified platform |
+| `NEXT_PUBLIC_AUTH_URL` | `https://auth.trqsh.uz` | Central account-system origin |
+| `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://auth.trqsh.uz` | OIDC issuer used for sign-in and discovery |
+| `NEXT_PUBLIC_ACCOUNT_REDIRECT_URI` | `https://trqsh.uz/auth/callback` | Unified platform OIDC callback |
+| `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://auth.trqsh.uz/account` | Account and billing destination |
+| `NEXT_PUBLIC_GUARD_API_BASE` | `/api/guard` | Same-origin Guard API prefix |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | empty | Public email; hidden when empty |
 
 These values are compiled into the public client bundle. Do not put secrets in them.
@@ -80,28 +82,41 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `.github/` — CI, Dependabot, ownership, and contribution templates.
 - `docs/` — repository setup record.
 
-## Deployment
+## Unified routes
 
-1. Set the production environment variables on the hosting provider.
-2. Run `pnpm build`.
-3. Publish the generated `out/` directory.
-4. Configure the host to serve `404.html` for missing routes.
+- `/products/guard` — Guard product page.
+- `/signin` and `/auth/callback` — central Account OIDC flow.
+- `/app` — unified account, subscription, and product dashboard.
+- `/app/guard/*` — authenticated Guard console.
+- `/docs/guard/*` — Guard documentation.
+- `/api/guard/*` — reverse proxy to the Guard backend; not part of the static export.
 
-No special infrastructure is required.
+The browser uses the public OIDC client `algorithco-platform-web`. The Account
+service must register `https://trqsh.uz/auth/callback` as an exact redirect URI
+and `https://trqsh.uz` as an allowed origin. The client requests
+`entitlements:read` and `billing:write` for the unified dashboard. A short-lived access token is kept
+in per-tab `sessionStorage` so reloads retain the session; refresh and ID tokens
+remain memory-only. When local state is unavailable, protected Guard routes
+start the Account authorization flow automatically and reuse its SSO session.
+
+## Docker deployment
+
+The repository-level compose file builds the static frontend, serves it with Nginx, and starts the Guard backend from the sibling `algorithco-guard/backend` directory:
+
+```powershell
+docker compose -f compose.frontends.yml up -d --build --wait
+```
+
+Create `../algorithco-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` over the private Compose network. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
 ## Human decisions / TODO
 
 - Set the public contact email.
 - Replace the Privacy and Terms placeholders with text approved by legal counsel.
-- Confirm the final production domains for the company site, Voice, Guard, and the future account system.
+- Rotate temporary deployment credentials after the platform cutover.
 - Review and approve the short company-description wording used on Home and About.
 
-## Next steps (not implemented)
-
-- **Step 2:** central account system and single sign-on.
-- **Step 3:** unified billing.
-
-No authentication or billing behavior is included in this project.
+The Account service owns identities and billing. This repository only implements its browser OIDC client and links to Account for billing management; it never stores provider secrets.
 
 ## Contributing and security
 

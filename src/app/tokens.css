@@ -40,9 +40,9 @@
     --color-border-strong: #555550;
     --color-inverse: #f4f4f1;
     --color-inverse-text: #111111;
-    --color-guard: #8e77ff;
+    --color-guard: #ffd300;
     --color-guard-soft: #261f4d;
-    --color-focus: #8e77ff;
+    --color-focus: #ffd300;
   }
 }
 
@@ -71,7 +71,7 @@
   --color-border-strong: #555550;
   --color-inverse: #f4f4f1;
   --color-inverse-text: #111111;
-  --color-guard: #8e77ff;
+  --color-guard: #ffd300;
   --color-guard-soft: #261f4d;
-  --color-focus: #8e77ff;
+  --color-focus: #ffd300;
 }

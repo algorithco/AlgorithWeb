@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { StatusBadge } from "@/components/status-badge";
 import { getProduct, products } from "@/config/products";
+import { siteConfig } from "@/config/site";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -52,7 +53,13 @@ export default async function ProductPage({ params }: Props) {
               <p className="product-name">{product.name}</p>
               <p>{product.description}</p>
             </div>
-            <ButtonLink external href={product.externalUrl}>
+            <ButtonLink
+              external={
+                new URL(product.externalUrl).origin !==
+                new URL(siteConfig.siteUrl).origin
+              }
+              href={product.externalUrl}
+            >
               {product.externalLabel}
             </ButtonLink>
           </div>

@@ -1,0 +1,101 @@
+"use client";
+
+export const PLATFORM_SESSION_EVENT = "algorithco-platform-session-change";
+const ACCESS_TOKEN_KEY = "algorithco-platform-access-token";
+const ORG_KEY = "algorithco-guard-org";
+
+let accessToken = "";
+
+function announce(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event(PLATFORM_SESSION_EVENT));
+  }
+}
+
+export function loadAccessToken(): string {
+  if (accessToken) return accessToken;
+  if (typeof window === "undefined") return "";
+  try {
+    const stored = window.sessionStorage.getItem(ACCESS_TOKEN_KEY) ?? "";
+    const profile = profileFromAccessToken(stored);
+    if (
+      !profile ||
+      profile.expiresAt === null ||
+      profile.expiresAt <= Math.floor(Date.now() / 1000)
+    ) {
+      window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+      return "";
+    }
+    accessToken = stored;
+  } catch {
+    // Storage is optional. The in-memory session still works when unavailable.
+  }
+  return accessToken;
+}
+
+export function saveAccessToken(token: string): void {
+  accessToken = token;
+  if (typeof window !== "undefined") {
+    try {
+      if (token) window.sessionStorage.setItem(ACCESS_TOKEN_KEY, token);
+      else window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+    } catch {
+      // Storage is optional. Keep the short-lived token in memory instead.
+    }
+  }
+  announce();
+}
+
+export function loadGuardOrgId(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return window.localStorage.getItem(ORG_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function saveGuardOrgId(orgId: string): void {
+  if (typeof window !== "undefined") {
+    try {
+      if (orgId) window.localStorage.setItem(ORG_KEY, orgId);
+      else window.localStorage.removeItem(ORG_KEY);
+    } catch {
+      // Storage is optional; the active view still updates through the event.
+    }
+  }
+  announce();
+}
+
+export type PlatformProfile = {
+  subject: string;
+  name: string | null;
+  email: string | null;
+  expiresAt: number | null;
+};
+
+/**
+ * Decode display claims from an access token WITHOUT verifying its
+ * signature. The result is UNTRUSTED: suitable for UI display (name/email)
+ * and expiry checks only. Never use it for authorization decisions — the
+ * backend must verify the signature, iss/aud/exp on every API call.
+ * Callers must treat a null return (missing sub) as signed-out.
+ */
+export function profileFromAccessToken(token: string): PlatformProfile | null {
+  const payload = token.split(".")[1];
+  if (!payload) return null;
+  try {
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const claims = JSON.parse(atob(padded)) as Record<string, unknown>;
+    if (typeof claims.sub !== "string" || !claims.sub) return null;
+    return {
+      subject: claims.sub,
+      name: typeof claims.name === "string" ? claims.name : null,
+      email: typeof claims.email === "string" ? claims.email : null,
+      expiresAt: typeof claims.exp === "number" ? claims.exp : null,
+    };
+  } catch {
+    return null;
+  }
+}
