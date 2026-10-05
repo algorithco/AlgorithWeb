@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useDashboardSession } from "@/components/dashboard-shell";
 import { AuditTable } from "@/components/guard/audit-table";
 import { ErrorMessage } from "@/components/guard/error-message";
-import { usePlatformSession } from "@/hooks/use-platform-session";
 import { listAudit } from "@/lib/guard-api";
 
 export default function GuardHistoryPage() {
-  const session = usePlatformSession();
+  const session = useDashboardSession();
   const audit = useQuery({
     queryKey: ["guard", "audit", session.orgId, 50],
     queryFn: () =>

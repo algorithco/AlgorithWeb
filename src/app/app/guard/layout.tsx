@@ -1,35 +1,15 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
-import { PlatformAuthBoundary } from "@/components/platform-auth-boundary";
-import type { PlatformSession } from "@/hooks/use-platform-session";
+import {
+  DashboardIcon,
+  useDashboardSession,
+} from "@/components/dashboard-shell";
 import { createGuardOrg, GuardApiError, listGuardOrgs } from "@/lib/guard-api";
 
-const tabs = [
-  ["Overview", "/app/guard"],
-  ["History", "/app/guard/history"],
-  ["Audit", "/app/guard/audit"],
-  ["Policy", "/app/guard/policy"],
-  ["Stats", "/app/guard/stats"],
-] as const;
-
 export default function GuardLayout({ children }: { children: ReactNode }) {
-  return (
-    <PlatformAuthBoundary>
-      {(session) => <GuardConsole session={session}>{children}</GuardConsole>}
-    </PlatformAuthBoundary>
-  );
-}
-
-function GuardConsole({
-  children,
-  session,
-}: {
-  children: ReactNode;
-  session: PlatformSession;
-}) {
+  const session = useDashboardSession();
   const queryClient = useQueryClient();
   const [orgName, setOrgName] = useState("My workspace");
   const orgs = useQuery({
@@ -51,75 +31,89 @@ function GuardConsole({
     }
   }, [orgs.data, session.orgId, session.selectOrg]);
 
+  const activeOrg = orgs.data?.orgs.find((org) => org.org_id === session.orgId);
+  const requestError = orgs.error ?? create.error;
   const error =
-    orgs.error instanceof GuardApiError ? orgs.error.message : undefined;
+    requestError instanceof GuardApiError
+      ? requestError.message
+      : requestError instanceof Error
+        ? requestError.message
+        : undefined;
+
   return (
-    <section className="guard-console">
-      <header className="guard-console__header">
-        <div>
-          <Link className="dashboard-backlink" href="/app">
-            ← Dashboard
-          </Link>
-          <h1>Guard</h1>
-        </div>
-        <div className="guard-account">
-          <span>
-            {session.profile?.name ?? session.profile?.email ?? "Account"}
+    <section className="guard-dashboard-layout">
+      <header className="guard-workspace-toolbar">
+        <div className="guard-workspace-toolbar__identity">
+          <span aria-hidden="true">
+            <DashboardIcon name="guard" />
           </span>
-          <button type="button" onClick={session.logout}>
-            Sign out
-          </button>
+          <div>
+            <p className="eyebrow">Guard workspace</p>
+            <strong>{activeOrg?.org_name ?? "Workspace control"}</strong>
+            <small>
+              {activeOrg
+                ? "Policies, decisions, audit and usage"
+                : "Choose or create a workspace to continue"}
+            </small>
+          </div>
+        </div>
+
+        <div className="guard-workspace-toolbar__control">
+          {orgs.data?.orgs.length ? (
+            <label>
+              <span>Active workspace</span>
+              <select
+                value={session.orgId}
+                onChange={(event) => session.selectOrg(event.target.value)}
+                aria-label="Guard workspace"
+              >
+                {orgs.data.orgs.map((org) => (
+                  <option key={org.org_id} value={org.org_id}>
+                    {org.org_name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : orgs.isPending ? (
+            <span className="guard-workspace-toolbar__loading">
+              Loading workspaces…
+            </span>
+          ) : (
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (orgName.trim()) create.mutate();
+              }}
+            >
+              <label>
+                <span>Workspace name</span>
+                <input
+                  value={orgName}
+                  onChange={(event) => setOrgName(event.target.value)}
+                  maxLength={128}
+                  aria-label="Workspace name"
+                />
+              </label>
+              <button
+                className="button button--primary"
+                type="submit"
+                disabled={!orgName.trim() || create.isPending}
+              >
+                {create.isPending ? "Creating…" : "Create workspace"}
+              </button>
+            </form>
+          )}
         </div>
       </header>
 
-      <div className="guard-workspace">
-        <span className="eyebrow">Workspace</span>
-        {orgs.data?.orgs.length ? (
-          <select
-            value={session.orgId}
-            onChange={(event) => session.selectOrg(event.target.value)}
-            aria-label="Guard workspace"
-          >
-            {orgs.data.orgs.map((org) => (
-              <option key={org.org_id} value={org.org_id}>
-                {org.org_name}
-              </option>
-            ))}
-          </select>
-        ) : orgs.isPending ? (
-          <span className="muted">Loading workspaces…</span>
-        ) : (
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              if (orgName.trim()) create.mutate();
-            }}
-          >
-            <input
-              value={orgName}
-              onChange={(event) => setOrgName(event.target.value)}
-              maxLength={128}
-              aria-label="Workspace name"
-            />
-            <button
-              type="submit"
-              disabled={!orgName.trim() || create.isPending}
-            >
-              {create.isPending ? "Creating…" : "Create workspace"}
-            </button>
-          </form>
-        )}
-        {error ? <span className="form-error">{error}</span> : null}
-      </div>
+      {error ? (
+        <p className="dashboard-alert" role="alert">
+          <strong>Guard workspace is unavailable.</strong>
+          <span>{error}</span>
+        </p>
+      ) : null}
 
-      <nav className="guard-tabs" aria-label="Guard console">
-        {tabs.map(([label, href]) => (
-          <Link key={href} href={href}>
-            {label}
-          </Link>
-        ))}
-      </nav>
-      <div className="guard-console__content">{children}</div>
+      <div className="guard-dashboard-content">{children}</div>
     </section>
   );
 }

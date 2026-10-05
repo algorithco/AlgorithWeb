@@ -187,8 +187,7 @@ export async function discoverAccount(
   fetcher: typeof fetch = fetch,
 ): Promise<OidcMetadata> {
   const discoveryUrl = new URL(
-    "/.well-known/openid-configuration",
-    `${issuer}/`,
+    `${issuer.replace(/\/+$/, "")}/.well-known/openid-configuration`,
   );
   const metadata = await boundedJson<OidcMetadata>(
     await fetcher(discoveryUrl, {
@@ -607,6 +606,29 @@ export async function accountLogout(
         throw new Error(`Account token revocation failed (${revoked.status})`);
       }
     }
+    const csrfResponse = await boundedJson<{ csrf?: unknown }>(
+      await fetcher(`${config.issuer}/api/auth/csrf`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+        signal: AbortSignal.timeout(AUTH_FETCH_TIMEOUT_MS),
+      }),
+      MAX_DISCOVERY_BYTES,
+    );
+    if (typeof csrfResponse.csrf !== "string" || !csrfResponse.csrf) {
+      throw new Error("Account logout CSRF response is invalid");
+    }
+    const browserLogout = await fetcher(`${config.issuer}/api/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ csrf: csrfResponse.csrf }),
+      signal: AbortSignal.timeout(AUTH_FETCH_TIMEOUT_MS),
+    });
+    if (!browserLogout.ok) {
+      throw new Error(
+        `Account browser logout failed (${browserLogout.status})`,
+      );
+    }
     saveAccessToken("");
     refreshToken = "";
     idToken = "";
@@ -617,7 +639,7 @@ export async function accountLogout(
       navigate(endSession.href);
       return;
     }
-    navigate(new URL("/signin", `${config.issuer}/`).href);
+    navigate(new URL("/signin", config.redirectUri).href);
   } catch (error) {
     logoutPending = false;
     throw error;

@@ -8,7 +8,7 @@ import {
   type OidcMetadata,
 } from "./account-auth";
 
-const issuer = "https://auth.trqsh.uz";
+const issuer = "https://trqsh.uz/account";
 const metadata: OidcMetadata = {
   issuer,
   authorization_endpoint: `${issuer}/auth`,
@@ -24,7 +24,7 @@ describe("platform Account client", () => {
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
       "https://trqsh.uz/auth/callback",
     );
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", `${issuer}/account`);
+    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", issuer);
   });
 
   afterEach(() => vi.unstubAllEnvs());
@@ -33,7 +33,7 @@ describe("platform Account client", () => {
     expect(accountWebConfig()).toEqual({
       issuer,
       redirectUri: "https://trqsh.uz/auth/callback",
-      billingUrl: `${issuer}/account`,
+      billingUrl: issuer,
     });
   });
 
@@ -98,6 +98,17 @@ describe("platform Account client", () => {
     ) as unknown as typeof fetch;
     await expect(discoverAccount(issuer, fetcher)).rejects.toThrow(
       "issuer mismatch",
+    );
+  });
+
+  it("keeps the issuer path when loading discovery", async () => {
+    const fetcher = vi.fn(
+      async () => new Response(JSON.stringify(metadata)),
+    ) as unknown as typeof fetch;
+    await discoverAccount(issuer, fetcher);
+    expect(fetcher).toHaveBeenCalledWith(
+      new URL("https://trqsh.uz/account/.well-known/openid-configuration"),
+      expect.any(Object),
     );
   });
 });

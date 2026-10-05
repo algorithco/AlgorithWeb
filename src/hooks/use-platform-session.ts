@@ -40,6 +40,8 @@ const EMPTY_SESSION: SessionSnapshot = {
 
 export function usePlatformSession() {
   const [session, setSession] = useState<SessionSnapshot>(EMPTY_SESSION);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
 
   useEffect(() => {
     const sync = () => setSession({ ...snapshot(), ready: true });
@@ -79,17 +81,29 @@ export function usePlatformSession() {
   }, [session.profile?.expiresAt, session.token]);
 
   const selectOrg = useCallback((orgId: string) => saveGuardOrgId(orgId), []);
-  const logout = useCallback(() => {
-    saveGuardOrgId("");
-    saveAccessToken("");
-    void accountLogout().catch(() => undefined);
-  }, []);
+  const logout = useCallback(async () => {
+    if (loggingOut) return;
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      await accountLogout();
+      saveGuardOrgId("");
+    } catch (error) {
+      setLogoutError(
+        error instanceof Error ? error.message : "Account sign out failed",
+      );
+      setLoggingOut(false);
+      throw error;
+    }
+  }, [loggingOut]);
 
   return {
     ...session,
     signedIn: session.token !== "",
     selectOrg,
     logout,
+    loggingOut,
+    logoutError,
   };
 }
 

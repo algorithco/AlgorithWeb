@@ -10,12 +10,37 @@
 name: algorithco
 
 services:
+  # Guard's own Postgres (separate from the account stack's database: guard
+  # must never share tables with identity/billing). No host port published;
+  # reachable only inside this compose network as guard-postgres:5432.
+  # Local-dev password only; production uses the secret manager + external DB.
+  guard-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: guard
+      POSTGRES_PASSWORD: ${GUARD_POSTGRES_PASSWORD:-guard-dev-pw-change-me}
+      POSTGRES_DB: guard
+    volumes:
+      - guard-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guard -d guard"]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 20s
+
   guard-backend:
     build:
       context: ../algorithco-guard/backend
     restart: unless-stopped
     env_file:
       - ../algorithco-guard/backend/.env.tunnel
+    environment:
+      DATABASE_URL: postgresql://guard:${GUARD_POSTGRES_PASSWORD:-guard-dev-pw-change-me}@guard-postgres:5432/guard
+    depends_on:
+      guard-postgres:
+        condition: service_healthy
 
   company-web:
     build:
@@ -24,7 +49,6 @@ services:
         NEXT_PUBLIC_SITE_URL: https://trqsh.uz
         NEXT_PUBLIC_VOICE_URL: https://voice.algorithco.com
         NEXT_PUBLIC_GUARD_URL: https://trqsh.uz/app/guard
-        NEXT_PUBLIC_AUTH_URL: https://auth.trqsh.uz
         NEXT_PUBLIC_ACCOUNT_ISSUER: https://trqsh.uz/account
         NEXT_PUBLIC_ACCOUNT_CLIENT_ID: algorithco-platform-web
         NEXT_PUBLIC_ACCOUNT_REDIRECT_URI: https://trqsh.uz/auth/callback
@@ -52,3 +76,6 @@ networks:
   platform:
     name: algorithco-platform
     external: true
+
+volumes:
+  guard-postgres-data:

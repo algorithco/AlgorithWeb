@@ -11,7 +11,7 @@ export type Product = {
   statusLabel: string;
   platforms: readonly string[];
   features: readonly string[];
-  accent: "mono" | "violet";
+  accent: "mono" | "yellow";
   externalUrl: string;
   externalLabel: string;
 };
@@ -61,7 +61,7 @@ export const products = [
       "A local audit log keeps activity inspectable.",
       "CLI command: algo.",
     ],
-    accent: "violet",
+    accent: "yellow",
     externalUrl: externalUrl(
       process.env.NEXT_PUBLIC_GUARD_URL,
       "https://trqsh.uz/app/guard",

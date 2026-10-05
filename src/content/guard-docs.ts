@@ -110,7 +110,7 @@ export const guardDocs = {
       ],
       [
         "Account sign-in",
-        "Sign in again if the short-lived browser or CLI token expired. Confirm auth.trqsh.uz is reachable.",
+        "Sign in again if the short-lived browser or CLI token expired. Confirm trqsh.uz/account is reachable.",
       ],
       [
         "No dashboard data",

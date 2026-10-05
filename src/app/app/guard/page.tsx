@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useDashboardSession } from "@/components/dashboard-shell";
 import { ErrorMessage } from "@/components/guard/error-message";
 import { MetricCard } from "@/components/guard/metric-card";
-import { siteConfig } from "@/config/site";
-import { usePlatformSession } from "@/hooks/use-platform-session";
+import { dashboardRoutes } from "@/config/dashboard";
 import {
   getGuardEntitlement,
   getGuardOrg,
@@ -14,7 +14,7 @@ import {
 } from "@/lib/guard-api";
 
 export default function GuardOverviewPage() {
-  const session = usePlatformSession();
+  const session = useDashboardSession();
   const active = session.signedIn && session.orgId !== "";
   const health = useQuery({
     queryKey: ["guard", "health"],
@@ -85,16 +85,18 @@ export default function GuardOverviewPage() {
             {entitlement.data?.status ?? "Loading"} ·{" "}
             {entitlement.data?.source ?? "Account"}
           </p>
-          <a href={siteConfig.accountUrl}>Manage account and billing →</a>
+          <Link href={dashboardRoutes.account}>
+            Manage account and billing →
+          </Link>
         </article>
       </div>
       <article className="guard-card">
         <p className="eyebrow">Quick actions</p>
         <div className="guard-actions">
-          <Link href="/app/guard/history">View history</Link>
-          <Link href="/app/guard/policy">Edit policy</Link>
-          <Link href="/app/guard/stats">Open usage stats</Link>
-          <Link href="/docs/guard">Connect an agent</Link>
+          <Link href={dashboardRoutes.guardHistory}>View history</Link>
+          <Link href={dashboardRoutes.guardPolicy}>Edit policy</Link>
+          <Link href={dashboardRoutes.guardStats}>Open usage stats</Link>
+          <Link href={dashboardRoutes.guardDocs}>Connect an agent</Link>
         </div>
       </article>
     </div>
