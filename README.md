@@ -29,10 +29,9 @@ All public destinations are configured in `.env.local` and documented in `.env.e
 | `NEXT_PUBLIC_SITE_URL` | `https://trqsh.uz` | Canonical site URL and sitemap origin |
 | `NEXT_PUBLIC_VOICE_URL` | `https://voice.algorithco.com` | Algorith Voice website |
 | `NEXT_PUBLIC_GUARD_URL` | `https://trqsh.uz/app/guard` | Guard console inside the unified platform |
-| `NEXT_PUBLIC_AUTH_URL` | `https://auth.trqsh.uz` | Central account-system origin |
-| `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://auth.trqsh.uz` | OIDC issuer used for sign-in and discovery |
+| `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://trqsh.uz/account` | OIDC issuer used for sign-in and discovery |
 | `NEXT_PUBLIC_ACCOUNT_REDIRECT_URI` | `https://trqsh.uz/auth/callback` | Unified platform OIDC callback |
-| `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://auth.trqsh.uz/account` | Account and billing destination |
+| `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://trqsh.uz/account` | Account and billing destination |
 | `NEXT_PUBLIC_GUARD_API_BASE` | `/api/guard` | Same-origin Guard API prefix |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | empty | Public email; hidden when empty |
 
