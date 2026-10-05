@@ -2,8 +2,8 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useDashboardSession } from "@/components/dashboard-shell";
 import { ErrorMessage } from "@/components/guard/error-message";
-import { usePlatformSession } from "@/hooks/use-platform-session";
 import {
   dryRunGuardPolicy,
   getGuardPolicy,
@@ -26,9 +26,10 @@ rules:
 `;
 
 export default function GuardPolicyPage() {
-  const session = usePlatformSession();
+  const session = useDashboardSession();
   const queryClient = useQueryClient();
   const [content, setContent] = useState(starter);
+  const [validatedContent, setValidatedContent] = useState("");
   const active = session.signedIn && session.orgId !== "";
   const policy = useQuery({
     queryKey: ["guard", "policy", session.orgId],
@@ -61,6 +62,7 @@ export default function GuardPolicyPage() {
         session.token,
       );
     },
+    onSuccess: () => setValidatedContent(content),
   });
   const publish = useMutation({
     mutationFn: () =>
@@ -71,12 +73,19 @@ export default function GuardPolicyPage() {
 
   return (
     <div className="guard-stack">
-      <p className="eyebrow">Guard</p>
-      <h2>Policy</h2>
-      <p className="muted">
-        Dry-run policy changes against redacted history before publishing a
-        signed bundle.
-      </p>
+      <div className="guard-heading">
+        <div>
+          <p className="eyebrow">Guard · Controls</p>
+          <h2>Policy</h2>
+          <p className="muted">
+            Validate policy changes against redacted history before publishing a
+            signed bundle.
+          </p>
+        </div>
+        <span className="status-pill">
+          {validatedContent === content ? "Validated" : "Draft"}
+        </span>
+      </div>
       <ErrorMessage error={policy.error ?? dryRun.error ?? publish.error} />
       <div className="guard-grid guard-grid--policy">
         <article className="guard-card">
@@ -100,14 +109,30 @@ export default function GuardPolicyPage() {
             <button
               type="button"
               onClick={() => publish.mutate()}
-              disabled={!active || publish.isPending}
+              disabled={
+                !active || publish.isPending || validatedContent !== content
+              }
+              title={
+                validatedContent === content
+                  ? "Publish the validated policy"
+                  : "Run a successful dry-run before publishing"
+              }
             >
               {publish.isPending ? "Publishing…" : "Publish"}
             </button>
-            <button type="button" onClick={() => setContent(starter)}>
+            <button
+              type="button"
+              onClick={() => setContent(starter)}
+              disabled={content === starter}
+            >
               Reset
             </button>
           </div>
+          {validatedContent !== content ? (
+            <p className="guard-form-hint">
+              Run a successful dry-run to enable publishing.
+            </p>
+          ) : null}
         </article>
         <div className="guard-stack">
           <article className="guard-card">

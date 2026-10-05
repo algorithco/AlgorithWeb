@@ -9,9 +9,11 @@
   --color-border-strong: #aaaaa3;
   --color-inverse: #111111;
   --color-inverse-text: #ffffff;
-  --color-guard: #6d4aff;
-  --color-guard-soft: #ede9ff;
-  --color-focus: #6d4aff;
+  --color-guard: #ffd300;
+  --color-guard-soft: #fff4b8;
+  --color-guard-ink: #6b5600;
+  --color-on-guard: #111111;
+  --color-focus: #b38f00;
   --radius-sm: 0.35rem;
   --radius-md: 0.7rem;
   --radius-lg: 1rem;
@@ -41,7 +43,9 @@
     --color-inverse: #f4f4f1;
     --color-inverse-text: #111111;
     --color-guard: #ffd300;
-    --color-guard-soft: #261f4d;
+    --color-guard-soft: #2b2500;
+    --color-guard-ink: #ffd300;
+    --color-on-guard: #111111;
     --color-focus: #ffd300;
   }
 }
@@ -56,9 +60,11 @@
   --color-border-strong: #aaaaa3;
   --color-inverse: #111111;
   --color-inverse-text: #ffffff;
-  --color-guard: #6d4aff;
-  --color-guard-soft: #ede9ff;
-  --color-focus: #6d4aff;
+  --color-guard: #ffd300;
+  --color-guard-soft: #fff4b8;
+  --color-guard-ink: #6b5600;
+  --color-on-guard: #111111;
+  --color-focus: #b38f00;
 }
 
 :root[data-theme="dark"] {
@@ -72,6 +78,8 @@
   --color-inverse: #f4f4f1;
   --color-inverse-text: #111111;
   --color-guard: #ffd300;
-  --color-guard-soft: #261f4d;
+  --color-guard-soft: #2b2500;
+  --color-guard-ink: #ffd300;
+  --color-on-guard: #111111;
   --color-focus: #ffd300;
 }

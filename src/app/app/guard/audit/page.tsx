@@ -1,13 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useDashboardSession } from "@/components/dashboard-shell";
 import { AuditTable } from "@/components/guard/audit-table";
 import { ErrorMessage } from "@/components/guard/error-message";
-import { usePlatformSession } from "@/hooks/use-platform-session";
 import { listAudit } from "@/lib/guard-api";
 
 export default function GuardAuditPage() {
-  const session = usePlatformSession();
+  const session = useDashboardSession();
   const audit = useQuery({
     queryKey: ["guard", "audit", session.orgId, 200],
     queryFn: () =>
@@ -16,12 +16,17 @@ export default function GuardAuditPage() {
   });
   return (
     <div className="guard-stack">
-      <p className="eyebrow">Guard</p>
-      <h2>Audit log</h2>
-      <p className="muted">
-        Redacted payloads only. Use <code>algo log --show-egress</code> locally
-        to inspect egress.
-      </p>
+      <div className="guard-heading">
+        <div>
+          <p className="eyebrow">Guard · Audit</p>
+          <h2>Audit log</h2>
+          <p className="muted">
+            Redacted payloads only. Use <code>algo log --show-egress</code>{" "}
+            locally to inspect egress.
+          </p>
+        </div>
+        <span className="status-pill">Latest 200</span>
+      </div>
       <ErrorMessage error={audit.error} />
       {audit.isPending ? (
         <div className="guard-card muted">Loading audit log…</div>

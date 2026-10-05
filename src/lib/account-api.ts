@@ -9,10 +9,14 @@ export type CompanyEntitlement = {
   product: string;
   plan: string;
   status: string;
-  valid_until: string | null;
+  validUntil: string | null;
   limits: Record<string, unknown>;
-  features: Record<string, boolean>;
   source: string;
+  sourceId: string;
+  owner: {
+    type: "user" | "org";
+    id: string;
+  };
 };
 
 export function getMyEntitlements(product: string | undefined, token: string) {
@@ -20,24 +24,6 @@ export function getMyEntitlements(product: string | undefined, token: string) {
     ACCOUNT_API_BASE(),
     `/v1/entitlements${buildQuery({ product })}`,
     { token },
-  );
-}
-
-export function createCheckoutSession(
-  input: {
-    product: string;
-    plan: string;
-    org_id?: string;
-    seats?: number;
-    success_url?: string;
-    cancel_url?: string;
-  },
-  token: string,
-) {
-  return apiFetch<{ url: string; session?: string }>(
-    ACCOUNT_API_BASE(),
-    "/v1/billing/checkout",
-    { method: "POST", token, body: JSON.stringify(input) },
   );
 }
 

@@ -1,16 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useDashboardSession } from "@/components/dashboard-shell";
 import { ErrorMessage } from "@/components/guard/error-message";
 import { MetricCard } from "@/components/guard/metric-card";
-import { usePlatformSession } from "@/hooks/use-platform-session";
 import { queryGuardStats } from "@/lib/guard-api";
 
 const percent = (value: number, total: number) =>
   total ? `${Math.round((value / total) * 100)}%` : "0%";
 
 export default function GuardStatsPage() {
-  const session = usePlatformSession();
+  const session = useDashboardSession();
   const stats = useQuery({
     queryKey: ["guard", "stats", session.orgId, "full"],
     queryFn: () =>
@@ -23,8 +23,16 @@ export default function GuardStatsPage() {
   const data = stats.data;
   return (
     <div className="guard-stack">
-      <p className="eyebrow">Guard</p>
-      <h2>Usage statistics</h2>
+      <div className="guard-heading">
+        <div>
+          <p className="eyebrow">Guard · Insights</p>
+          <h2>Usage statistics</h2>
+          <p className="muted">
+            A 90-day view of decisions, projects, users, and response time.
+          </p>
+        </div>
+        <span className="status-pill">90 days</span>
+      </div>
       <ErrorMessage error={stats.error} />
       <div className="guard-metrics">
         <MetricCard label="Total" value={data?.total ?? 0} />
