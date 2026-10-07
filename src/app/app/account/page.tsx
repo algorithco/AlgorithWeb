@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   DashboardIcon,
+  SignOutButton,
   useDashboardSession,
 } from "@/components/dashboard-shell";
 import { dashboardRoutes } from "@/config/dashboard";
@@ -122,14 +123,7 @@ export default function AccountPage() {
               </dd>
             </div>
           </dl>
-          <button
-            className="button button--secondary"
-            type="button"
-            disabled={session.loggingOut}
-            onClick={() => void session.logout().catch(() => undefined)}
-          >
-            {session.loggingOut ? "Signing out…" : "Sign out of this session"}
-          </button>
+          <SignOutButton>Sign out of this session</SignOutButton>
           {session.logoutError ? (
             <p className="form-error" role="alert">
               {session.logoutError}

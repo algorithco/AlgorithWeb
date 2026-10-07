@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   accountClientId,
+  accountLogout,
   accountWebConfig,
   createAuthorizationRequest,
   discoverAccount,
@@ -27,7 +28,10 @@ describe("platform Account client", () => {
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", issuer);
   });
 
-  afterEach(() => vi.unstubAllEnvs());
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
 
   it("uses the unified platform callback", () => {
     expect(accountWebConfig()).toEqual({
@@ -109,6 +113,39 @@ describe("platform Account client", () => {
     expect(fetcher).toHaveBeenCalledWith(
       new URL("https://trqsh.uz/account/.well-known/openid-configuration"),
       expect.any(Object),
+    );
+  });
+
+  it("finishes logout on the platform sign-in page", async () => {
+    const metadataWithLogout = {
+      ...metadata,
+      end_session_endpoint: `${issuer}/session/end`,
+    };
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/.well-known/openid-configuration")) {
+        return new Response(JSON.stringify(metadataWithLogout));
+      }
+      if (url.endsWith("/api/auth/csrf")) {
+        return new Response(JSON.stringify({ csrf: "logout-csrf" }));
+      }
+      if (url.endsWith("/api/auth/logout")) {
+        return new Response(JSON.stringify({ ok: true }));
+      }
+      return new Response(null, { status: 404 });
+    }) as unknown as typeof fetch;
+    const navigate = vi.fn();
+    vi.stubGlobal("sessionStorage", { removeItem: vi.fn() });
+
+    await accountLogout(fetcher, navigate);
+
+    expect(fetcher).toHaveBeenCalledWith(
+      `${issuer}/api/auth/logout`,
+      expect.objectContaining({ method: "POST", credentials: "include" }),
+    );
+    expect(navigate).toHaveBeenCalledWith("https://trqsh.uz/signin");
+    expect(navigate).not.toHaveBeenCalledWith(
+      metadataWithLogout.end_session_endpoint,
     );
   });
 });

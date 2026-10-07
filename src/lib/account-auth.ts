@@ -71,7 +71,6 @@ export interface AccountSession {
 }
 
 let refreshToken = "";
-let idToken = "";
 let loginStarted = false;
 let logoutPending = false;
 let refreshInFlight: Promise<AccountSession> | null = null;
@@ -508,7 +507,6 @@ export async function handleAccountCallback(
   saveAccessToken(tokens.access_token);
   refreshToken =
     typeof tokens.refresh_token === "string" ? tokens.refresh_token : "";
-  idToken = tokens.id_token;
   return {
     accessToken: tokens.access_token,
     expiresAt: Math.floor(Date.now() / 1000) + tokens.expires_in,
@@ -587,7 +585,6 @@ export async function accountLogout(
 ): Promise<void> {
   logoutPending = true;
   const tokenToRevoke = refreshToken;
-  const logoutHint = idToken;
   try {
     const config = accountWebConfig();
     const metadata = await discoverAccount(config.issuer, fetcher);
@@ -631,14 +628,10 @@ export async function accountLogout(
     }
     saveAccessToken("");
     refreshToken = "";
-    idToken = "";
     sessionStorage.removeItem(TRANSACTION_KEY);
-    if (metadata.end_session_endpoint) {
-      const endSession = new URL(metadata.end_session_endpoint);
-      if (logoutHint) endSession.searchParams.set("id_token_hint", logoutHint);
-      navigate(endSession.href);
-      return;
-    }
+    // The Account API clears both the application and OIDC browser cookies.
+    // Returning straight to the platform sign-in page avoids exposing the
+    // provider's unrelated default end-session UI after our own confirmation.
     navigate(new URL("/signin", config.redirectUri).href);
   } catch (error) {
     logoutPending = false;

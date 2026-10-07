@@ -7,6 +7,7 @@ import {
   type ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import {
@@ -30,6 +31,7 @@ export type DashboardIconName =
   | "guard"
   | "history"
   | "home"
+  | "logout"
   | "menu"
   | "policy"
   | "pulse"
@@ -92,6 +94,11 @@ export function DashboardIcon({ name }: { name: DashboardIconName }) {
         <path d="M5.5 10v10h13V10M9.5 20v-6h5v6" />
       </>
     ),
+    logout: (
+      <>
+        <path d="M10 5H5v14h5M14 8l4 4-4 4M8 12h10" />
+      </>
+    ),
     menu: <path d="M4 7h16M4 12h16M4 17h16" />,
     policy: (
       <>
@@ -138,6 +145,97 @@ export function useDashboardSession() {
     throw new Error("useDashboardSession must be used inside DashboardShell");
   }
   return session;
+}
+
+export function SignOutButton({
+  children = "Sign out",
+}: {
+  children?: ReactNode;
+}) {
+  const session = useDashboardSession();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (confirming && !dialog.open) dialog.showModal();
+    if (!confirming && dialog.open) dialog.close();
+  }, [confirming]);
+
+  const confirmLogout = async () => {
+    try {
+      await session.logout();
+    } catch {
+      // The dialog stays open and presents the shared session error below.
+    }
+  };
+
+  return (
+    <>
+      <button
+        className="button button--secondary"
+        type="button"
+        disabled={session.loggingOut}
+        onClick={() => setConfirming(true)}
+      >
+        {session.loggingOut ? "Signing out…" : children}
+      </button>
+      <dialog
+        aria-labelledby="sign-out-title"
+        aria-describedby="sign-out-description"
+        className="dashboard-confirm-dialog"
+        ref={dialogRef}
+        onCancel={() => setConfirming(false)}
+        onClose={() => setConfirming(false)}
+        onClick={(event) => {
+          if (event.target === event.currentTarget && !session.loggingOut) {
+            setConfirming(false);
+          }
+        }}
+      >
+        <div className="dashboard-confirm-dialog__content">
+          <div className="dashboard-confirm-dialog__heading">
+            <span className="dashboard-confirm-dialog__icon">
+              <DashboardIcon name="logout" />
+            </span>
+            <div>
+              <p className="eyebrow">Confirm sign out</p>
+              <h2 id="sign-out-title">Sign out of Algorithco?</h2>
+            </div>
+          </div>
+          <p id="sign-out-description">
+            Your session on this browser will end. You will need to sign in
+            again to open the dashboard.
+          </p>
+          {session.logoutError ? (
+            <p className="form-error" role="alert">
+              {session.logoutError}
+            </p>
+          ) : null}
+          <div className="dashboard-confirm-dialog__actions">
+            <button
+              autoFocus
+              className="button button--secondary"
+              type="button"
+              disabled={session.loggingOut}
+              onClick={() => setConfirming(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="button button--primary dashboard-confirm-dialog__confirm"
+              type="button"
+              disabled={session.loggingOut}
+              onClick={() => void confirmLogout()}
+            >
+              {session.loggingOut ? "Signing out…" : "Yes, sign out"}
+            </button>
+          </div>
+        </div>
+      </dialog>
+    </>
+  );
 }
 
 function isActive(pathname: string, hash: string, href: string) {

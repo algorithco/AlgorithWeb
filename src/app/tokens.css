@@ -14,6 +14,7 @@
   --color-guard-ink: #6b5600;
   --color-on-guard: #111111;
   --color-focus: #b38f00;
+  --color-modal-overlay: rgb(0 0 0 / 72%);
   --radius-sm: 0.35rem;
   --radius-md: 0.7rem;
   --radius-lg: 1rem;

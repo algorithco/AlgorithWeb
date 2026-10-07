@@ -1,6 +1,9 @@
 # Topology (two stacks, one shared network):
 #   1. Account stack FIRST:  (in algorithco-account)
-#      docker compose -f infra/docker-compose.yml up --build -d
+#      cd infra
+#      docker compose --env-file ../.env --env-file ../.env.tunnel \
+#        --env-file ../apps/api/.env \
+#        -f docker-compose.yml -f docker-compose.tunnel.yml up --build -d
 #      owns postgres/redis/api/caddy + creates network `algorithco-platform`.
 #   2. This gateway SECOND:  (here)
 #      docker compose -f compose.frontends.yml up --build -d
