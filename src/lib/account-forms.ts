@@ -24,6 +24,12 @@ export type AccountFormPage =
 
 export type SocialProvider = "google" | "github";
 
+export interface SocialPasswordChallenge {
+  provider: SocialProvider;
+  email: string;
+  passwordMode: "create" | "verify";
+}
+
 export type FormResult =
   | { ok: true }
   | {
@@ -115,13 +121,13 @@ async function fetchCsrfToken(): Promise<string> {
   return body.csrf;
 }
 
-async function postForm(
-  page: AccountFormPage,
+async function postAuthForm(
+  path: string,
   fields: Record<string, string>,
 ): Promise<{ status: number; error?: string }> {
   const csrf = await fetchCsrfToken();
   const submit = async (token: string) =>
-    fetch(`${issuerBase()}/api/auth/${page}`, {
+    fetch(`${issuerBase()}/api/auth/${path}`, {
       method: "POST",
       credentials: "include",
       headers: {
@@ -146,6 +152,13 @@ async function postForm(
     status: response.status,
     ...(typeof body?.error === "string" ? { error: body.error } : {}),
   };
+}
+
+async function postForm(
+  page: AccountFormPage,
+  fields: Record<string, string>,
+): Promise<{ status: number; error?: string }> {
+  return postAuthForm(page, fields);
 }
 
 function networkError(): FormResult {
@@ -307,6 +320,91 @@ export function takeSocialReturnTo(): string | null {
   sessionStorage.removeItem(SOCIAL_RETURN_KEY);
   if (!value) return null;
   return normalizeReturnTo(value);
+}
+
+export async function socialPasswordChallenge(): Promise<SocialPasswordChallenge | null> {
+  try {
+    const response = await fetch(`${issuerBase()}/api/auth/social/pending`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      signal: timeoutSignal(),
+    });
+    if (!response.ok) return null;
+    const body = (await response.json()) as Partial<SocialPasswordChallenge>;
+    if (
+      (body.provider !== "google" && body.provider !== "github") ||
+      typeof body.email !== "string" ||
+      (body.passwordMode !== "create" && body.passwordMode !== "verify")
+    ) {
+      return null;
+    }
+    return {
+      provider: body.provider,
+      email: body.email,
+      passwordMode: body.passwordMode,
+    } as SocialPasswordChallenge;
+  } catch {
+    return null;
+  }
+}
+
+export async function completeSocialPassword(
+  password: string,
+): Promise<FormResult> {
+  let result: { status: number; error?: string };
+  try {
+    result = await postAuthForm("social/password", { password });
+  } catch {
+    return networkError();
+  }
+  if (result.status === 200) return { ok: true };
+  if (result.status === 401 && result.error === "mfa_required") {
+    return {
+      ok: false,
+      mfaRequired: true,
+      error: "Enter your authenticator or recovery code.",
+    };
+  }
+  if (result.status === 401 && result.error === "invalid_password") {
+    return { ok: false, error: "The account password is incorrect." };
+  }
+  if (result.status === 429) return rateLimited();
+  if (result.status === 403) {
+    return {
+      ok: false,
+      retryable: true,
+      error: "The form expired. Try again.",
+    };
+  }
+  return {
+    ok: false,
+    error: "The social sign-in challenge expired. Start again.",
+  };
+}
+
+export async function completeSocialMfa(code: string): Promise<FormResult> {
+  let result: { status: number; error?: string };
+  try {
+    result = await postAuthForm("social/mfa", { code: code.trim() });
+  } catch {
+    return networkError();
+  }
+  if (result.status === 200) return { ok: true };
+  if (result.status === 401) {
+    return {
+      ok: false,
+      error: "The authenticator or recovery code is invalid.",
+    };
+  }
+  if (result.status === 429) return rateLimited();
+  if (result.status === 403) {
+    return {
+      ok: false,
+      retryable: true,
+      error: "The form expired. Try again.",
+    };
+  }
+  return { ok: false, error: "Social sign-in could not be completed." };
 }
 
 /** Account-service page URLs reused as fallbacks (same flows, full pages). */

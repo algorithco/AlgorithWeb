@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   accountAuthError,
   beginAccountLogin,
   normalizeReturnTo,
 } from "@/lib/account-auth";
 import {
+  completeSocialMfa,
+  completeSocialPassword,
   confirmPasswordReset,
   requestPasswordReset,
+  type SocialPasswordChallenge,
   type SocialProvider,
   signInWithPassword,
   signUpWithPassword,
+  socialPasswordChallenge,
   socialStartUrl,
   takeSocialReturnTo,
   validateEmailOnly,
@@ -219,6 +223,16 @@ export default function SignInPage() {
   const [socialPending, setSocialPending] = useState<SocialProvider | null>(
     null,
   );
+  const [socialChallenge, setSocialChallenge] =
+    useState<SocialPasswordChallenge | null>(null);
+  const [socialStep, setSocialStep] = useState<"password" | "mfa">("password");
+  const [socialPassword, setSocialPassword] = useState("");
+  const [socialMfa, setSocialMfa] = useState("");
+  const [socialError, setSocialError] = useState("");
+  const [socialCompleting, setSocialCompleting] = useState(false);
+  const [socialReturnTo, setSocialReturnTo] = useState("/app");
+  const [showSocialPassword, setShowSocialPassword] = useState(false);
+  const socialDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
@@ -228,12 +242,23 @@ export default function SignInPage() {
       setError("The social sign-in transaction is missing or expired.");
       return;
     }
+    setSocialReturnTo(returnTo);
     setPending(true);
-    void beginAccountLogin(returnTo).catch((reason) => {
+    void socialPasswordChallenge().then((challenge) => {
       setPending(false);
-      setError(accountAuthError(reason));
+      if (!challenge) {
+        setError("The social sign-in transaction is missing or expired.");
+        return;
+      }
+      setEmail(challenge.email);
+      setSocialChallenge(challenge);
     });
   }, []);
+
+  useEffect(() => {
+    const dialog = socialDialogRef.current;
+    if (socialChallenge && dialog && !dialog.open) dialog.showModal();
+  }, [socialChallenge]);
 
   const requestedReturnTo = () => {
     const value = new URLSearchParams(window.location.search).get("returnTo");
@@ -259,6 +284,61 @@ export default function SignInPage() {
     setSocialPending(provider);
     setError("");
     window.location.assign(socialStartUrl(provider, requestedReturnTo()));
+  };
+
+  const finishSocialLogin = async () => {
+    try {
+      await beginAccountLogin(socialReturnTo);
+    } catch (reason) {
+      setSocialCompleting(false);
+      setSocialError(accountAuthError(reason));
+    }
+  };
+
+  const handleSocialSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!socialChallenge || socialCompleting) return;
+    setSocialError("");
+    if (socialStep === "password") {
+      const invalid =
+        socialChallenge.passwordMode === "create"
+          ? validateNewPassword(socialPassword)
+          : !socialPassword || socialPassword.length > 128
+            ? "Enter your Account password."
+            : null;
+      if (invalid) {
+        setSocialError(invalid);
+        return;
+      }
+      setSocialCompleting(true);
+      const result = await completeSocialPassword(socialPassword);
+      if (result.ok) {
+        await finishSocialLogin();
+        return;
+      }
+      setSocialCompleting(false);
+      if (result.mfaRequired) {
+        setSocialStep("mfa");
+        setSocialPassword("");
+        return;
+      }
+      setSocialError(result.error);
+      return;
+    }
+
+    const invalid = validateMfaCode(socialMfa);
+    if (invalid) {
+      setSocialError(invalid);
+      return;
+    }
+    setSocialCompleting(true);
+    const result = await completeSocialMfa(socialMfa);
+    if (result.ok) {
+      await finishSocialLogin();
+      return;
+    }
+    setSocialCompleting(false);
+    setSocialError(result.error);
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -365,7 +445,7 @@ export default function SignInPage() {
     setError(result.error);
   };
 
-  const busy = pending || socialPending !== null;
+  const busy = pending || socialPending !== null || socialChallenge !== null;
   const copy = CARD_COPY[mode];
   const isMfaStep = mode === "signin" && signinStep === "mfa";
   const eyebrow = isMfaStep ? "Security check" : copy.eyebrow;
@@ -730,6 +810,129 @@ export default function SignInPage() {
           )}
         </div>
       </div>
+      {socialChallenge ? (
+        <dialog
+          ref={socialDialogRef}
+          className="social-completion"
+          aria-labelledby="social-completion-title"
+          aria-describedby="social-completion-description"
+          onCancel={(event) => {
+            event.preventDefault();
+            window.location.assign("/signin");
+          }}
+        >
+          <div className="social-completion__card">
+            <p className="eyebrow">
+              {socialChallenge.provider === "github" ? "GitHub" : "Google"}{" "}
+              verified
+            </p>
+            <h2 id="social-completion-title">
+              {socialStep === "mfa"
+                ? "One last security check"
+                : socialChallenge.passwordMode === "create"
+                  ? "Secure your account"
+                  : "Confirm your account"}
+            </h2>
+            <p
+              id="social-completion-description"
+              className="social-completion__copy"
+            >
+              {socialStep === "mfa"
+                ? "Enter your authenticator or recovery code."
+                : socialChallenge.passwordMode === "create"
+                  ? `Create a password for ${socialChallenge.email}. Google, GitHub, and email will all open this same account.`
+                  : `Enter the Account password for ${socialChallenge.email} to securely use the same account.`}
+            </p>
+            {socialError ? (
+              <p className="form-error" role="alert">
+                {socialError}
+              </p>
+            ) : null}
+            <form noValidate onSubmit={handleSocialSubmit}>
+              <div className="field">
+                <label htmlFor="social-completion-secret">
+                  {socialStep === "mfa"
+                    ? "Authenticator or recovery code"
+                    : socialChallenge.passwordMode === "create"
+                      ? "Create password"
+                      : "Account password"}
+                </label>
+                <div className="field__control">
+                  <LockIcon />
+                  <input
+                    id="social-completion-secret"
+                    name={socialStep === "mfa" ? "code" : "password"}
+                    type={
+                      socialStep === "mfa" || showSocialPassword
+                        ? "text"
+                        : "password"
+                    }
+                    inputMode={socialStep === "mfa" ? "numeric" : undefined}
+                    autoComplete={
+                      socialStep === "mfa"
+                        ? "one-time-code"
+                        : socialChallenge.passwordMode === "create"
+                          ? "new-password"
+                          : "current-password"
+                    }
+                    minLength={
+                      socialStep === "mfa"
+                        ? 6
+                        : socialChallenge.passwordMode === "create"
+                          ? 12
+                          : 1
+                    }
+                    maxLength={socialStep === "mfa" ? 64 : 128}
+                    autoFocus
+                    required
+                    value={socialStep === "mfa" ? socialMfa : socialPassword}
+                    disabled={socialCompleting}
+                    aria-invalid={Boolean(socialError)}
+                    onChange={(event) =>
+                      socialStep === "mfa"
+                        ? setSocialMfa(event.target.value)
+                        : setSocialPassword(event.target.value)
+                    }
+                  />
+                  {socialStep === "password" ? (
+                    <button
+                      className="field__toggle"
+                      type="button"
+                      disabled={socialCompleting}
+                      aria-label={
+                        showSocialPassword ? "Hide password" : "Show password"
+                      }
+                      aria-pressed={showSocialPassword}
+                      onClick={() => setShowSocialPassword((value) => !value)}
+                    >
+                      <EyeIcon off={showSocialPassword} />
+                    </button>
+                  ) : null}
+                </div>
+                {socialStep === "password" &&
+                socialChallenge.passwordMode === "create" ? (
+                  <small className="field__hint">Use 12–128 characters.</small>
+                ) : null}
+              </div>
+              <div className="social-completion__actions">
+                <button
+                  className="login-card__submit"
+                  type="submit"
+                  disabled={socialCompleting}
+                >
+                  {socialCompleting
+                    ? "Checking…"
+                    : socialStep === "mfa"
+                      ? "Verify and sign in"
+                      : "Continue"}
+                  <span aria-hidden="true">→</span>
+                </button>
+                <a href="/signin">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </dialog>
+      ) : null}
     </section>
   );
 }
