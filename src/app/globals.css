@@ -1776,6 +1776,66 @@ summary {
 .login-card .form-error a:hover {
   text-decoration: underline;
 }
+dialog.social-completion {
+  position: fixed;
+  z-index: 100;
+  inset: 50% auto auto 50%;
+  width: min(calc(100% - 2rem), 28rem);
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: 0;
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 28px 90px rgb(0 0 0 / 48%);
+  transform: translate(-50%, -50%);
+  animation: dashboard-dialog-enter 220ms var(--ease-out-expo);
+}
+dialog.social-completion::backdrop {
+  background: rgb(0 0 0 / 58%);
+  -webkit-backdrop-filter: blur(14px) saturate(72%);
+  backdrop-filter: blur(14px) saturate(72%);
+}
+.social-completion__card {
+  width: 100%;
+  padding: clamp(1.5rem, 5vw, 2rem);
+}
+.social-completion__card > .eyebrow {
+  margin: 0 0 0.7rem;
+}
+.social-completion__card h2 {
+  margin: 0;
+  font-size: clamp(1.55rem, 5vw, 2rem);
+  letter-spacing: -0.025em;
+}
+.social-completion__copy {
+  margin: 0.7rem 0 1.4rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+.social-completion__card .form-error {
+  margin: 0 0 1rem;
+}
+.social-completion__card form {
+  margin: 0;
+}
+.social-completion__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.social-completion__actions > a {
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.social-completion__actions > a:hover {
+  color: var(--color-text);
+}
 .field {
   display: grid;
   gap: 0.45rem;

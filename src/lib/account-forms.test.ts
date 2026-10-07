@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  completeSocialPassword,
   signInWithPassword,
+  socialPasswordChallenge,
   socialStartUrl,
   takeSocialReturnTo,
   validateMfaCode,
@@ -101,5 +103,49 @@ describe("embedded company sign-in", () => {
     );
     expect(takeSocialReturnTo()).toBe("/app/guard");
     expect(takeSocialReturnTo()).toBeNull();
+  });
+
+  it("loads the password challenge and submits it before social completion", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ok: true,
+            provider: "github",
+            email: "user@example.com",
+            passwordMode: "verify",
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-token" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: "mfa_required" }), {
+          status: 401,
+        }),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(socialPasswordChallenge()).resolves.toEqual({
+      provider: "github",
+      email: "user@example.com",
+      passwordMode: "verify",
+    });
+    await expect(
+      completeSocialPassword("account password"),
+    ).resolves.toMatchObject({
+      ok: false,
+      mfaRequired: true,
+    });
+    expect(fetcher).toHaveBeenNthCalledWith(
+      3,
+      "https://trqsh.uz/account/api/auth/social/password",
+      expect.objectContaining({ method: "POST", credentials: "include" }),
+    );
+    const body = fetcher.mock.calls[2][1].body as URLSearchParams;
+    expect(body.get("password")).toBe("account password");
   });
 });
