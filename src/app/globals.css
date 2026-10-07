@@ -161,7 +161,7 @@ summary {
 .theme-toggle:hover {
   color: var(--color-text);
   border-color: var(--color-border-strong);
-  transform: rotate(-2deg);
+  transform: none;
 }
 .theme-toggle__icon {
   width: 0.8rem;
