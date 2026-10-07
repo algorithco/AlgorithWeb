@@ -17,7 +17,10 @@ import { accountWebConfig, normalizeReturnTo } from "./account-auth";
  */
 
 export type AccountFormPage =
-  "signin" | "signup" | "forgot-password" | "reset-password";
+  | "signin"
+  | "signup"
+  | "forgot-password"
+  | "reset-password";
 
 export type SocialProvider = "google" | "github";
 
