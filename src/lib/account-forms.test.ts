@@ -3,6 +3,7 @@ import {
   signInWithPassword,
   socialStartUrl,
   takeSocialReturnTo,
+  validateMfaCode,
   validateSignIn,
 } from "./account-forms";
 
@@ -56,13 +57,30 @@ describe("embedded company sign-in", () => {
   });
 
   it("validates MFA input before submitting", () => {
+    expect(validateMfaCode("12")).toContain("authenticator");
     expect(
-      validateSignIn({
-        email: "user@example.com",
-        password: "password",
-        totp: "12",
-      }),
-    ).toContain("authenticator");
+      validateSignIn({ email: "user@example.com", password: "password" }),
+    ).toBeNull();
+  });
+
+  it("turns the account MFA challenge into a second sign-in step", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-token" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: "mfa_required" }), {
+          status: 401,
+        }),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(
+      signInWithPassword("user@example.com", "password"),
+    ).resolves.toMatchObject({ ok: false, mfaRequired: true });
+    const body = fetcher.mock.calls[1][1].body as URLSearchParams;
+    expect(body.has("totp")).toBe(false);
   });
 
   it("binds social completion to the browser transaction", () => {

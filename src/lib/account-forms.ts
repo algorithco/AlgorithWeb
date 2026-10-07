@@ -17,16 +17,18 @@ import { accountWebConfig, normalizeReturnTo } from "./account-auth";
  */
 
 export type AccountFormPage =
-  | "signin"
-  | "signup"
-  | "forgot-password"
-  | "reset-password";
+  "signin" | "signup" | "forgot-password" | "reset-password";
 
 export type SocialProvider = "google" | "github";
 
 export type FormResult =
   | { ok: true }
-  | { ok: false; error: string; retryable?: boolean };
+  | {
+      ok: false;
+      error: string;
+      retryable?: boolean;
+      mfaRequired?: boolean;
+    };
 
 const FORM_TIMEOUT_MS = 12_000;
 const SOCIAL_RETURN_KEY = "algorithco-social-return-to";
@@ -48,16 +50,17 @@ function isValidEmailFormat(value: string): boolean {
 export function validateSignIn(input: {
   email: string;
   password: string;
-  totp?: string;
 }): string | null {
   if (!isValidEmailFormat(input.email)) return "Enter a valid email address.";
   if (!input.password) return "Enter your password.";
   if (input.password.length > 128)
     return "Password must be at most 128 characters.";
-  if (
-    input.totp &&
-    (input.totp.trim().length < 6 || input.totp.trim().length > 64)
-  )
+  return null;
+}
+
+export function validateMfaCode(code: string): string | null {
+  const normalized = code.trim();
+  if (normalized.length < 6 || normalized.length > 64)
     return "Enter a valid authenticator or recovery code.";
   return null;
 }
@@ -112,7 +115,7 @@ async function fetchCsrfToken(): Promise<string> {
 async function postForm(
   page: AccountFormPage,
   fields: Record<string, string>,
-): Promise<{ status: number }> {
+): Promise<{ status: number; error?: string }> {
   const csrf = await fetchCsrfToken();
   const submit = async (token: string) =>
     fetch(`${issuerBase()}/api/auth/${page}`, {
@@ -133,7 +136,13 @@ async function postForm(
       return { status: 403 };
     }
   }
-  return { status: response.status };
+  const body = (await response.json().catch(() => null)) as {
+    error?: unknown;
+  } | null;
+  return {
+    status: response.status,
+    ...(typeof body?.error === "string" ? { error: body.error } : {}),
+  };
 }
 
 function networkError(): FormResult {
@@ -158,7 +167,7 @@ export async function signInWithPassword(
   password: string,
   totp?: string,
 ): Promise<FormResult> {
-  let result: { status: number };
+  let result: { status: number; error?: string };
   try {
     result = await postForm("signin", {
       email: email.trim().toLowerCase(),
@@ -170,6 +179,13 @@ export async function signInWithPassword(
   }
   if (result.status === 200) return { ok: true };
   if (result.status === 401) {
+    if (result.error === "mfa_required") {
+      return {
+        ok: false,
+        mfaRequired: true,
+        error: "Enter your authenticator or recovery code.",
+      };
+    }
     return {
       ok: false,
       error: "Invalid email, password, authenticator code, or recovery code.",

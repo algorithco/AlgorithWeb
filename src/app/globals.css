@@ -2355,6 +2355,85 @@ body:has(.app-route-shell) > #main {
 .dashboard-shell .button--secondary:hover {
   border-color: var(--color-border-strong);
 }
+.dashboard-confirm-dialog {
+  position: fixed;
+  inset: 50% auto auto 50%;
+  width: min(calc(100% - 2rem), 29rem);
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--dashboard-line);
+  border-radius: 1.1rem;
+  background: var(--dashboard-panel);
+  color: var(--dashboard-ink);
+  box-shadow: 0 28px 90px var(--color-modal-overlay);
+  transform: translate(-50%, -50%);
+  animation: dashboard-dialog-enter 220ms var(--ease-out-expo);
+}
+.dashboard-confirm-dialog::backdrop {
+  background: var(--color-modal-overlay);
+  -webkit-backdrop-filter: blur(14px) saturate(70%);
+  backdrop-filter: blur(14px) saturate(70%);
+}
+.dashboard-confirm-dialog__content {
+  display: grid;
+  gap: 1rem;
+  padding: 1.6rem 1.7rem 0;
+}
+.dashboard-confirm-dialog__heading {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.9rem;
+}
+.dashboard-confirm-dialog__heading > div {
+  display: grid;
+  gap: 0.35rem;
+}
+.dashboard-confirm-dialog__icon {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  place-items: center;
+  border: 1px solid
+    color-mix(in srgb, var(--dashboard-accent) 38%, var(--dashboard-line));
+  border-radius: 0.8rem;
+  background: var(--dashboard-accent-soft);
+  color: var(--dashboard-accent-ink);
+}
+.dashboard-confirm-dialog__icon .dashboard-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.dashboard-confirm-dialog__content h2,
+.dashboard-confirm-dialog__content p {
+  margin: 0;
+}
+.dashboard-confirm-dialog__content h2 {
+  font-size: 1.35rem;
+  letter-spacing: -0.025em;
+}
+.dashboard-confirm-dialog__content > p:not(.eyebrow, .form-error) {
+  color: var(--dashboard-muted);
+  line-height: 1.6;
+}
+.dashboard-confirm-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  margin: 0.4rem -1.7rem 0;
+  padding: 1rem 1.7rem;
+  border-top: 1px solid var(--dashboard-line);
+  background: var(--dashboard-raised);
+}
+.dashboard-shell .dashboard-confirm-dialog__confirm,
+.dashboard-shell .dashboard-confirm-dialog__confirm:hover {
+  border-color: var(--dashboard-accent);
+  background: var(--dashboard-accent);
+  color: var(--color-on-guard);
+}
 .dashboard-shell .button__mark {
   width: 1.35rem;
   height: 1.35rem;
@@ -3539,6 +3618,16 @@ body:has(.app-route-shell) > #main {
     background-position: -220% 0;
   }
 }
+@keyframes dashboard-dialog-enter {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 10px)) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
 
 @media (max-width: 46rem) {
   .dashboard-topbar__actions {
@@ -3604,6 +3693,10 @@ body:has(.app-route-shell) > #main {
   .account-center__session-list dd {
     text-align: left;
   }
+  .dashboard-confirm-dialog__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3630,5 +3723,8 @@ body:has(.app-route-shell) > #main {
   .guard-workspace-toolbar__identity > span,
   .account-center__icon {
     transition: none;
+  }
+  .dashboard-confirm-dialog {
+    animation: none;
   }
 }

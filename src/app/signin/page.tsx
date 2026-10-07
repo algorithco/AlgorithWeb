@@ -15,6 +15,7 @@ import {
   socialStartUrl,
   takeSocialReturnTo,
   validateEmailOnly,
+  validateMfaCode,
   validateNewPassword,
   validateResetCode,
   validateSignIn,
@@ -207,6 +208,9 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
   const [resetCode, setResetCode] = useState("");
+  const [signinStep, setSigninStep] = useState<"credentials" | "mfa">(
+    "credentials",
+  );
   const [forgotStep, setForgotStep] = useState<1 | 2>(1);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -242,8 +246,12 @@ export default function SignInPage() {
     setSuccess("");
     setPending(false);
     setSocialPending(null);
+    setSigninStep("credentials");
     setForgotStep(1);
+    setPassword("");
+    setTotp("");
     setResetCode("");
+    setShowPassword(false);
   };
 
   const startSocial = (provider: SocialProvider) => {
@@ -260,13 +268,20 @@ export default function SignInPage() {
     setSuccess("");
 
     if (mode === "signin") {
-      const invalid = validateSignIn({ email, password, totp });
+      const invalid =
+        signinStep === "mfa"
+          ? validateMfaCode(totp)
+          : validateSignIn({ email, password });
       if (invalid) {
         setError(invalid);
         return;
       }
       setPending(true);
-      const result = await signInWithPassword(email, password, totp);
+      const result = await signInWithPassword(
+        email,
+        password,
+        signinStep === "mfa" ? totp : undefined,
+      );
       if (result.ok) {
         try {
           await beginAccountLogin(requestedReturnTo());
@@ -277,6 +292,12 @@ export default function SignInPage() {
         return;
       }
       setPending(false);
+      if (result.mfaRequired) {
+        setSigninStep("mfa");
+        setTotp("");
+        setError("");
+        return;
+      }
       setError(result.error);
       return;
     }
@@ -310,6 +331,7 @@ export default function SignInPage() {
       const result = await requestPasswordReset(email);
       setPending(false);
       if (result.ok) {
+        setPassword("");
         setForgotStep(2);
         return;
       }
@@ -345,11 +367,15 @@ export default function SignInPage() {
 
   const busy = pending || socialPending !== null;
   const copy = CARD_COPY[mode];
-  const subtitle =
-    mode === "forgot" && forgotStep === 2
+  const isMfaStep = mode === "signin" && signinStep === "mfa";
+  const eyebrow = isMfaStep ? "Security check" : copy.eyebrow;
+  const title = isMfaStep ? "Verify it’s you" : copy.title;
+  const subtitle = isMfaStep
+    ? "Enter the code from your authenticator app or use a recovery code."
+    : mode === "forgot" && forgotStep === 2
       ? "Enter the 6-digit code from your email, then choose a new password."
       : copy.subtitle;
-  const showSocial = mode !== "forgot";
+  const showSocial = mode !== "forgot" && !isMfaStep;
 
   return (
     <section className="auth-page auth-page--signin">
@@ -381,8 +407,8 @@ export default function SignInPage() {
         </div>
 
         <div className="login-card">
-          <p className="eyebrow">{copy.eyebrow}</p>
-          <h2>{copy.title}</h2>
+          <p className="eyebrow">{eyebrow}</p>
+          <h2>{title}</h2>
           <p className="login-card__subtitle">{subtitle}</p>
 
           {success ? (
@@ -458,7 +484,23 @@ export default function SignInPage() {
                   </div>
                 ) : null}
 
-                {mode === "forgot" && forgotStep === 2 ? (
+                {isMfaStep ? (
+                  <p className="field__hint">
+                    Signing in as {email}.{" "}
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => {
+                        setSigninStep("credentials");
+                        setPassword("");
+                        setTotp("");
+                        setError("");
+                      }}
+                    >
+                      Use a different account
+                    </button>
+                  </p>
+                ) : mode === "forgot" && forgotStep === 2 ? (
                   <p className="field__hint">
                     Code sent to {email}.{" "}
                     <button
@@ -547,7 +589,7 @@ export default function SignInPage() {
                     </div>
                   </>
                 ) : null}
-                {mode !== "forgot" ? (
+                {mode !== "forgot" && !isMfaStep ? (
                   <div className="field">
                     <label htmlFor="login-password">Password</label>
                     <div className="field__control">
@@ -592,10 +634,10 @@ export default function SignInPage() {
                   </div>
                 ) : null}
 
-                {mode === "signin" ? (
+                {isMfaStep ? (
                   <div className="field">
                     <label htmlFor="login-totp">
-                      Authenticator or recovery code <span>(if enabled)</span>
+                      Authenticator or recovery code
                     </label>
                     <div className="field__control">
                       <LockIcon />
@@ -607,6 +649,7 @@ export default function SignInPage() {
                         minLength={6}
                         maxLength={64}
                         placeholder="6-digit or recovery code"
+                        autoFocus
                         value={totp}
                         disabled={busy}
                         aria-invalid={Boolean(error)}
@@ -616,7 +659,7 @@ export default function SignInPage() {
                   </div>
                 ) : null}
 
-                {mode === "signin" ? (
+                {mode === "signin" && !isMfaStep ? (
                   <p className="login-card__forgot">
                     <button
                       type="button"
@@ -640,43 +683,49 @@ export default function SignInPage() {
                         ? forgotStep === 2
                           ? "Changing password…"
                           : "Sending code…"
-                        : "Signing in…"
+                        : isMfaStep
+                          ? "Verifying…"
+                          : "Signing in…"
                     : mode === "signup"
                       ? "Create account"
                       : mode === "forgot"
                         ? forgotStep === 2
                           ? "Change password"
                           : "Send reset code"
-                        : "Sign in"}
+                        : isMfaStep
+                          ? "Verify and sign in"
+                          : "Sign in"}
                   <span aria-hidden="true">→</span>
                 </button>
               </form>
 
-              <p className="login-card__switch">
-                {mode === "signin" ? (
-                  <>
-                    Don&rsquo;t have an account?{" "}
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => switchMode("signup")}
-                    >
-                      Create account
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    Already have an account?{" "}
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => switchMode("signin")}
-                    >
-                      Sign in
-                    </button>
-                  </>
-                )}
-              </p>
+              {!isMfaStep ? (
+                <p className="login-card__switch">
+                  {mode === "signin" ? (
+                    <>
+                      Don&rsquo;t have an account?{" "}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => switchMode("signup")}
+                      >
+                        Create account
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => switchMode("signin")}
+                      >
+                        Sign in
+                      </button>
+                    </>
+                  )}
+                </p>
+              ) : null}
             </>
           )}
         </div>

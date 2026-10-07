@@ -6,6 +6,7 @@ import { ButtonLink } from "@/components/button-link";
 import {
   DashboardIcon,
   type DashboardIconName,
+  SignOutButton,
   useDashboardSession,
 } from "@/components/dashboard-shell";
 import { StatusBadge } from "@/components/status-badge";
@@ -271,14 +272,7 @@ export default function DashboardPage() {
             <ButtonLink href={dashboardRoutes.account}>
               Open account center
             </ButtonLink>
-            <button
-              className="button button--secondary"
-              type="button"
-              disabled={session.loggingOut}
-              onClick={() => void session.logout().catch(() => undefined)}
-            >
-              {session.loggingOut ? "Signing out…" : "Sign out"}
-            </button>
+            <SignOutButton />
           </div>
           {session.logoutError ? (
             <p className="form-error" role="alert">
