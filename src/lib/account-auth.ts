@@ -73,6 +73,14 @@ export interface AccountSession {
 let refreshToken = "";
 let loginStarted = false;
 let logoutPending = false;
+
+export function clearAccountLocalSession(): void {
+  saveAccessToken("");
+  refreshToken = "";
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem(TRANSACTION_KEY);
+  }
+}
 let refreshInFlight: Promise<AccountSession> | null = null;
 
 function env(name: string): string {
@@ -626,9 +634,7 @@ export async function accountLogout(
         `Account browser logout failed (${browserLogout.status})`,
       );
     }
-    saveAccessToken("");
-    refreshToken = "";
-    sessionStorage.removeItem(TRANSACTION_KEY);
+    clearAccountLocalSession();
     // The Account API clears both the application and OIDC browser cookies.
     // Returning straight to the platform sign-in page avoids exposing the
     // provider's unrelated default end-session UI after our own confirmation.

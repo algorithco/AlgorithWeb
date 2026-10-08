@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { usePlatformSession } from "@/hooks/use-platform-session";
 import { Container } from "./container";
@@ -9,6 +10,9 @@ import { ThemeToggle } from "./theme-toggle";
 
 export function Header() {
   const session = usePlatformSession();
+  const pathname = usePathname();
+  const current = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
   return (
     <header className="site-header">
       <Container className="site-header__inner">
@@ -20,8 +24,12 @@ export function Header() {
         </Link>
         <nav aria-label="Main navigation" className="site-nav">
           <ProductSwitcher />
-          <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
+          <Link aria-current={current("/about")} href="/about">
+            About
+          </Link>
+          <Link aria-current={current("/contact")} href="/contact">
+            Contact
+          </Link>
         </nav>
         <div className="header-actions">
           <ThemeToggle />

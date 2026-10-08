@@ -20,7 +20,11 @@ export function ProductSwitcher() {
   const close = () => ref.current?.removeAttribute("open");
 
   return (
-    <details className="switcher" ref={ref}>
+    <details
+      className="switcher"
+      data-active={pathname.startsWith("/products")}
+      ref={ref}
+    >
       <summary>Products</summary>
       <div className="switcher__panel">
         <p className="switcher__eyebrow">Products</p>

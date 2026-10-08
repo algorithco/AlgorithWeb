@@ -1,0 +1,621 @@
+/* ==========================================================================
+   Motion layer — imported after globals.css.
+
+   Principles
+   - Purposeful and quiet: motion explains entry, hierarchy and state; it never
+     blocks interaction or delays content for long.
+   - Cheap: only transform / opacity / clip-path are animated. Scroll-driven
+     effects are progressive enhancement behind @supports.
+   - One vocabulary: durations and easings come from tokens.css.
+   - Accessible: every effect is neutralised by the reduced-motion block at the
+     end of this file.
+   ========================================================================== */
+
+html {
+  scroll-padding-top: 5.5rem;
+}
+
+/* ---------------------------------------------------------------------------
+   1. Route transitions
+   app/template.tsx wraps pages in React's <ViewTransition>; the browser then
+   cross-fades old and new pages. Header and footer are named so they stay put
+   (and keep their backdrop blur) instead of being flattened into the root
+   snapshot.
+   ------------------------------------------------------------------------- */
+.site-header {
+  view-transition-name: site-header;
+}
+.site-footer {
+  view-transition-name: site-footer;
+}
+html.theme-vt .site-header,
+html.theme-vt .site-footer {
+  view-transition-name: none;
+}
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition-group(site-footer) {
+  animation-duration: var(--dur-slow);
+  animation-timing-function: var(--ease-out-expo);
+}
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(.page-exit) {
+    animation: vt-page-out 180ms var(--ease-in-out-quart) both;
+  }
+  ::view-transition-new(.page-enter) {
+    animation: vt-page-in var(--dur-slow) var(--ease-out-expo) 110ms both;
+  }
+}
+@keyframes vt-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@keyframes vt-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+/* Theme switch: a circular reveal from the toggle (see theme-toggle.tsx). */
+html.theme-vt::view-transition-old(root),
+html.theme-vt::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html.theme-vt::view-transition-old(root) {
+  z-index: 1;
+}
+html.theme-vt::view-transition-new(root) {
+  z-index: 2;
+}
+
+/* ---------------------------------------------------------------------------
+   2. Scroll reveal
+   MotionController marks [data-reveal] / [data-stagger] elements with
+   data-visible once they enter the viewport. data-instant skips the animation
+   (used for above-the-fold content during client-side navigation, where the
+   route transition already provides the entrance).
+   ------------------------------------------------------------------------- */
+[data-instant],
+[data-instant] * {
+  transition: none !important;
+}
+[data-stagger][data-instant] > * {
+  animation: none !important;
+}
+
+[data-reveal="fade"] {
+  --reveal-y: 0rem;
+}
+[data-reveal="scale"] {
+  --reveal-y: 1.5rem;
+  transform: translateY(var(--reveal-y)) scale(0.965);
+}
+[data-reveal="scale"][data-visible="true"] {
+  transform: translateY(0) scale(1);
+}
+
+/* Children enter one after another. Animation (not transition) so the
+   children keep their own hover transitions; the fill is `backwards` so the
+   final state is simply the element's normal style. */
+[data-stagger]:not([data-visible="true"]) > * {
+  opacity: 0;
+}
+[data-stagger][data-visible="true"] > * {
+  animation: stagger-in 820ms var(--ease-out-expo) backwards;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+[data-stagger] > :nth-child(1) {
+  --i: 0;
+}
+[data-stagger] > :nth-child(2) {
+  --i: 1;
+}
+[data-stagger] > :nth-child(3) {
+  --i: 2;
+}
+[data-stagger] > :nth-child(4) {
+  --i: 3;
+}
+[data-stagger] > :nth-child(5) {
+  --i: 4;
+}
+[data-stagger] > :nth-child(6) {
+  --i: 5;
+}
+[data-stagger] > :nth-child(7) {
+  --i: 6;
+}
+[data-stagger] > :nth-child(8) {
+  --i: 7;
+}
+[data-stagger] > :nth-child(n + 9) {
+  --i: 8;
+}
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+}
+
+/* Headings split into words that rise out of a mask (components/split-words). */
+.split-word {
+  display: inline-block;
+  overflow: clip;
+  vertical-align: top;
+  padding: 0 0.08em 0.22em 0;
+  margin: 0 -0.08em -0.22em 0;
+}
+.split-word__inner {
+  display: inline-block;
+  transform: translateY(112%);
+  transition: transform 900ms var(--ease-out-expo);
+  transition-delay: calc(var(--w, 0) * 55ms + 90ms);
+}
+[data-visible="true"] .split-word__inner {
+  transform: none;
+}
+
+/* ---------------------------------------------------------------------------
+   3. Hero: ambient glow, cursor-lit grid, scroll exit
+   ------------------------------------------------------------------------- */
+.home-hero {
+  overflow: clip;
+}
+.home-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -22%;
+  right: -14%;
+  width: min(64rem, 92vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--color-guard) 26%, transparent),
+    color-mix(in srgb, var(--color-guard) 8%, transparent) 55%,
+    transparent 72%
+  );
+  opacity: 0.55;
+  animation: glow-drift 24s var(--ease-in-out-quart) infinite alternate;
+  will-change: transform;
+}
+@keyframes glow-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-9%, 7%, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(5%, -3%, 0) scale(0.96);
+  }
+}
+.hero-spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  background-image:
+    linear-gradient(var(--color-text) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-text) 1px, transparent 1px);
+  background-size: clamp(3rem, 7vw, 6rem) clamp(3rem, 7vw, 6rem);
+  -webkit-mask-image: radial-gradient(
+    circle 17rem at var(--mx, 50%) var(--my, 50%),
+    #000,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    circle 17rem at var(--mx, 50%) var(--my, 50%),
+    #000,
+    transparent 72%
+  );
+  transition: opacity 600ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .home-hero:hover .hero-spotlight {
+    opacity: 0.2;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home-hero .hero-title {
+      animation: hero-scroll-exit linear both;
+      animation-timeline: view();
+      animation-range: exit 5% exit 85%;
+    }
+  }
+}
+@keyframes hero-scroll-exit {
+  to {
+    opacity: 0.15;
+    transform: translateY(-3.5rem);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   4. Header: scroll progress + condensed shadow (progressive enhancement)
+   ------------------------------------------------------------------------- */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header {
+      animation: header-condense linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0px 140px;
+    }
+    .site-header::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 -1px;
+      height: 2px;
+      background: var(--color-guard);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      pointer-events: none;
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root block);
+    }
+  }
+}
+@keyframes header-condense {
+  from {
+    box-shadow: 0 0 0 transparent;
+  }
+  to {
+    box-shadow: 0 14px 34px
+      color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+}
+@keyframes scroll-progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   5. Navigation and controls
+   ------------------------------------------------------------------------- */
+.site-nav > a {
+  position: relative;
+}
+.site-nav > a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -0.4rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform var(--dur-slow) var(--ease-out-expo);
+}
+.site-nav > a:hover::after,
+.site-nav > a[aria-current="page"]::after {
+  transform: scaleX(1);
+  transform-origin: 0 50%;
+}
+.site-nav > a[aria-current="page"],
+.switcher[data-active="true"] > summary {
+  color: var(--color-text);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  transition-duration: 80ms;
+}
+.sign-in:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+.button--primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.button--primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, var(--color-inverse-text) 28%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-130%);
+}
+.button--primary:hover:not(:disabled)::after {
+  transform: translateX(130%);
+  transition: transform 900ms var(--ease-out-expo);
+}
+
+/* Busy state: a spinner replaces the arrow. */
+.button[aria-busy="true"],
+.login-card__submit[aria-busy="true"] {
+  pointer-events: none;
+}
+.button[aria-busy="true"]::before,
+.login-card__submit[aria-busy="true"]::before {
+  content: "";
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+.login-card__submit[aria-busy="true"] > span {
+  display: none;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Inputs: a soft focus ring that eases in. */
+.field__control {
+  transition:
+    border-color var(--dur-base) ease,
+    box-shadow var(--dur-base) ease,
+    background-color var(--dur-base) ease;
+}
+.field__control:focus-within {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-focus) 18%, transparent);
+}
+.field__control > svg {
+  transition: color var(--dur-base) ease;
+}
+.field__control:focus-within > svg {
+  color: var(--color-text);
+}
+
+/* Notices and errors arrive instead of snapping in. */
+.form-error,
+.dashboard-alert,
+.login-card__success {
+  animation: notice-in 420ms var(--ease-out-expo) both;
+}
+@keyframes notice-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   6. Sign-in page
+   ------------------------------------------------------------------------- */
+.signin-hero__heading .eyebrow {
+  animation: enter-fade 800ms 60ms var(--ease-out-expo) both;
+}
+.signin-hero__line {
+  animation: enter-up 900ms var(--ease-out-expo) both;
+}
+.signin-hero__line:nth-child(1) {
+  animation-delay: 100ms;
+}
+.signin-hero__line:nth-child(2) {
+  animation-delay: 190ms;
+}
+.signin-hero__line:nth-child(3) {
+  animation-delay: 280ms;
+}
+.signin-hero__lead {
+  animation: enter-up 900ms 380ms var(--ease-out-expo) both;
+}
+.signin-benefits li {
+  animation: enter-up 800ms var(--ease-out-expo) both;
+  animation-delay: calc(480ms + var(--i, 0) * 90ms);
+}
+.signin-benefits li:nth-child(1) {
+  --i: 0;
+}
+.signin-benefits li:nth-child(2) {
+  --i: 1;
+}
+.signin-benefits li:nth-child(3) {
+  --i: 2;
+}
+.signin-benefits li:nth-child(n + 4) {
+  --i: 3;
+}
+.login-card--enter {
+  animation: card-in 820ms var(--ease-out-expo) 160ms both;
+}
+.login-card--swap {
+  animation: card-swap 380ms var(--ease-out-expo) both;
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.985);
+  }
+}
+@keyframes card-swap {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   7. Dashboard
+   ------------------------------------------------------------------------- */
+.dashboard-nav a {
+  position: relative;
+}
+.dashboard-nav a::before {
+  content: "";
+  position: absolute;
+  inset: 24% auto 24% 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--dashboard-accent);
+  transform: scaleY(0);
+  transition: transform 380ms var(--ease-out-expo);
+}
+.dashboard-nav a:hover::before {
+  transform: scaleY(0.45);
+}
+.dashboard-nav a.is-active::before {
+  transform: scaleY(1);
+}
+.dashboard-nav a.is-active {
+  box-shadow: none;
+}
+.dashboard-nav a > .dashboard-icon:first-child {
+  transition: transform 320ms var(--ease-spring);
+}
+.dashboard-nav a:hover > .dashboard-icon:first-child {
+  transform: scale(1.12);
+}
+.dashboard-nav a {
+  animation: nav-in 560ms var(--ease-out-expo) backwards;
+  animation-delay: calc(100ms + var(--i, 0) * 45ms);
+}
+.dashboard-nav a:nth-of-type(1) {
+  --i: 0;
+}
+.dashboard-nav a:nth-of-type(2) {
+  --i: 1;
+}
+.dashboard-nav a:nth-of-type(3) {
+  --i: 2;
+}
+.dashboard-nav a:nth-of-type(4) {
+  --i: 3;
+}
+.dashboard-nav a:nth-of-type(5) {
+  --i: 4;
+}
+@keyframes nav-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+/* Cards light up where the pointer is (MotionController sets --mx / --my). */
+@media (hover: hover) and (pointer: fine) {
+  .dashboard-shell
+    :is(
+      .dashboard-panel,
+      .dashboard-summary-card,
+      .dashboard-product,
+      .guard-card,
+      .account-center__plan-grid article
+    ):hover {
+    background-image: radial-gradient(
+      circle 22rem at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--dashboard-accent) 9%, transparent),
+      transparent 62%
+    );
+  }
+}
+
+/* Dialogs ease in and out (entry via @starting-style, exit via allow-discrete). */
+.dashboard-confirm-dialog,
+dialog.social-completion {
+  animation: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-50% + 14px)) scale(0.97);
+  transition:
+    opacity var(--dur-base) ease,
+    transform var(--dur-slow) var(--ease-out-expo),
+    overlay var(--dur-base) allow-discrete,
+    display var(--dur-base) allow-discrete;
+}
+.dashboard-confirm-dialog[open],
+dialog.social-completion[open] {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+@starting-style {
+  .dashboard-confirm-dialog[open],
+  dialog.social-completion[open] {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 14px)) scale(0.97);
+  }
+}
+.dashboard-confirm-dialog::backdrop,
+dialog.social-completion::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--dur-base) ease,
+    overlay var(--dur-base) allow-discrete,
+    display var(--dur-base) allow-discrete;
+}
+.dashboard-confirm-dialog[open]::backdrop,
+dialog.social-completion[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .dashboard-confirm-dialog[open]::backdrop,
+  dialog.social-completion[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+/* Counting numbers must not jitter the layout. */
+.dashboard-summary-card > strong,
+.guard-metric strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Password rules tick over smoothly. */
+.account-password-rules li::before {
+  transition: transform var(--dur-base) var(--ease-spring);
+}
+.account-password-rules li.is-met::before {
+  transform: scale(1.25);
+}
+
+/* ---------------------------------------------------------------------------
+   8. Reduced motion — keep every state change, drop the travel.
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .hero-spotlight {
+    display: none;
+  }
+  .split-word__inner {
+    transform: none;
+  }
+}

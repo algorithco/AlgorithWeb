@@ -12,7 +12,8 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 export default function Home() {
   return (
     <>
-      <section className="home-hero" data-page-enter>
+      <section className="home-hero" data-page-enter data-spotlight>
+        <div aria-hidden="true" className="hero-spotlight" />
         <Container>
           <div className="hero-kicker">
             <span>Software company</span>
@@ -56,7 +57,7 @@ export default function Home() {
         title="Your machine. Your workflow. Your call."
         className="why-section"
       >
-        <div className="principles-grid">
+        <div className="principles-grid" data-stagger>
           {copy.why.map((item) => (
             <article className="principle" key={item.number}>
               <span>{item.number}</span>

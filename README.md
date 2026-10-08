@@ -79,7 +79,7 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `src/content/` — shared website copy.
 - `public/` — static assets.
 - `.github/` — CI, Dependabot, ownership, and contribution templates.
-- `docs/` — repository setup record.
+- `docs/` — repository setup record and the [motion system guide](docs/motion.md).
 
 ## Unified routes
 

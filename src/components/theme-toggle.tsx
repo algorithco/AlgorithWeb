@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useState } from "react";
+import { flushSync } from "react-dom";
 
 type Theme = "system" | "light" | "dark";
 const themes: Theme[] = ["system", "light", "dark"];
@@ -33,15 +34,60 @@ export function ThemeToggle() {
     applyTheme(initialTheme);
   }, []);
 
-  const cycleTheme = () => {
+  const cycleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     const next = themes[(themes.indexOf(theme) + 1) % themes.length];
-    setTheme(next);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      // Keep the selected theme for the current page session.
+    const commit = () => {
+      setTheme(next);
+      try {
+        window.localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        // Keep the selected theme for the current page session.
+      }
+      applyTheme(next);
+    };
+
+    const root = document.documentElement;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (typeof document.startViewTransition !== "function" || reduceMotion) {
+      commit();
+      return;
     }
-    applyTheme(next);
+
+    // Circular reveal growing from the toggle. The old theme stays on screen
+    // until the new one has been painted inside the expanding circle.
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = bounds.left + bounds.width / 2;
+    const y = bounds.top + bounds.height / 2;
+    const radius = Math.hypot(
+      Math.max(x, window.innerWidth - x),
+      Math.max(y, window.innerHeight - y),
+    );
+    root.classList.add("theme-vt");
+    const transition = document.startViewTransition(() => {
+      flushSync(commit);
+    });
+    transition.ready
+      .then(() => {
+        root.animate(
+          {
+            clipPath: [
+              `circle(0px at ${x}px ${y}px)`,
+              `circle(${radius}px at ${x}px ${y}px)`,
+            ],
+          },
+          {
+            duration: 700,
+            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+            pseudoElement: "::view-transition-new(root)",
+          },
+        );
+      })
+      .catch(() => undefined);
+    transition.finished
+      .catch(() => undefined)
+      .finally(() => root.classList.remove("theme-vt"));
   };
 
   return (

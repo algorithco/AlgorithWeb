@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { AnimatedNumber } from "@/components/animated-number";
 import { ButtonLink } from "@/components/button-link";
 import {
   DashboardIcon,
@@ -326,7 +327,13 @@ function SummaryCard({
         <span>{label}</span>
       </div>
       <strong className={wideValue ? "is-wide" : undefined}>
-        {loading ? "—" : value}
+        {loading ? (
+          "—"
+        ) : /^\d+$/.test(value) ? (
+          <AnimatedNumber value={Number(value)} />
+        ) : (
+          value
+        )}
       </strong>
       <small>{detail}</small>
     </article>
