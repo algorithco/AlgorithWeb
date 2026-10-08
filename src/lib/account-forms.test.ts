@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  accountSessionActive,
   completeSocialEmailCode,
   confirmAccountDeletion,
+  confirmPasswordChange,
   requestAccountDeletionCode,
+  requestPasswordChangeCode,
   signInWithPassword,
   signUpWithPassword,
   socialEmailChallenge,
@@ -218,5 +221,134 @@ describe("embedded company sign-in", () => {
     const body = fetcher.mock.calls[3][1].body as URLSearchParams;
     expect(body.get("code")).toBe("123456");
     expect(body.get("csrf")).toBe("csrf-2");
+  });
+
+  it("emails a password-change code to the signed-in user's address", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-1" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ok: true,
+            email: "user@example.com",
+            expiresAt: "2026-10-08T18:00:00.000Z",
+          }),
+          { status: 200 },
+        ),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(requestPasswordChangeCode()).resolves.toEqual({
+      ok: true,
+      email: "user@example.com",
+      expiresAt: "2026-10-08T18:00:00.000Z",
+    });
+    expect(fetcher.mock.calls[1][0]).toBe(
+      "https://trqsh.uz/account/api/account/password/code",
+    );
+    expect(fetcher.mock.calls[1][1]).toEqual(
+      expect.objectContaining({ credentials: "include", method: "POST" }),
+    );
+    expect((fetcher.mock.calls[1][1].body as URLSearchParams).get("csrf")).toBe(
+      "csrf-1",
+    );
+  });
+
+  it("asks for a fresh sign-in when the session ended or MFA is not satisfied", async () => {
+    const respond = (status: number, error?: string) =>
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ csrf: "csrf" }), { status: 200 }),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify(error ? { error } : {}), { status }),
+        );
+
+    vi.stubGlobal("fetch", respond(401, "authentication_required"));
+    await expect(requestPasswordChangeCode()).resolves.toMatchObject({
+      ok: false,
+      signInRequired: true,
+    });
+
+    vi.stubGlobal("fetch", respond(403, "authenticator_required"));
+    await expect(requestPasswordChangeCode()).resolves.toMatchObject({
+      ok: false,
+      signInRequired: true,
+    });
+
+    vi.stubGlobal("fetch", respond(429));
+    await expect(requestPasswordChangeCode()).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringContaining("Too many attempts"),
+    });
+  });
+
+  it("confirms a password change with the code and maps the failures", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-2" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ok: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(
+      confirmPasswordChange(" 123456 ", "a brand new password"),
+    ).resolves.toEqual({ ok: true });
+    expect(fetcher.mock.calls[1][0]).toBe(
+      "https://trqsh.uz/account/api/account/password/confirm",
+    );
+    const body = fetcher.mock.calls[1][1].body as URLSearchParams;
+    expect(body.get("code")).toBe("123456");
+    expect(body.get("password")).toBe("a brand new password");
+    expect(body.get("csrf")).toBe("csrf-2");
+
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ csrf: "csrf-3" }), { status: 200 }),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error: "invalid_code" }), {
+            status: 400,
+          }),
+        ),
+    );
+    await expect(
+      confirmPasswordChange("000000", "a brand new password"),
+    ).resolves.toEqual({
+      ok: false,
+      error: "The code is invalid, expired, or already used.",
+    });
+  });
+
+  it("reports whether the Account service already holds a browser session", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ authenticated: true, aal: 1 }), {
+          status: 200,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ authenticated: false }), { status: 200 }),
+      )
+      .mockRejectedValueOnce(new Error("offline"));
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(accountSessionActive()).resolves.toBe(true);
+    expect(fetcher.mock.calls[0][0]).toBe(
+      "https://trqsh.uz/account/api/auth/session",
+    );
+    await expect(accountSessionActive()).resolves.toBe(false);
+    await expect(accountSessionActive()).resolves.toBe(false);
   });
 });
