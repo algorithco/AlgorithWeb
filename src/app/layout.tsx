@@ -8,6 +8,7 @@ import { absoluteUrl, siteConfig } from "@/config/site";
 import { Providers } from "./providers";
 import "./tokens.css";
 import "./globals.css";
+import "./motion.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.siteUrl),
@@ -45,7 +46,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
         <Providers>
           <a className="skip-link" href="#main">

@@ -73,7 +73,7 @@ export default async function ProductPage({ params }: Props) {
               <p className="eyebrow">What it does</p>
               <h2>One job, carefully built.</h2>
             </div>
-            <ol className="feature-list">
+            <ol className="feature-list" data-stagger>
               {product.features.map((feature, index) => (
                 <li key={feature}>
                   <span>0{index + 1}</span>
@@ -87,7 +87,7 @@ export default async function ProductPage({ params }: Props) {
               <p className="eyebrow">Works with</p>
               <h2>Platforms</h2>
             </div>
-            <ul className="platform-list">
+            <ul className="platform-list" data-stagger>
               {product.platforms.map((platform) => (
                 <li key={platform}>{platform}</li>
               ))}

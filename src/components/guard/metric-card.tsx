@@ -1,3 +1,5 @@
+import { AnimatedNumber } from "@/components/animated-number";
+
 export function MetricCard({
   label,
   value,
@@ -10,7 +12,15 @@ export function MetricCard({
   return (
     <article className={`guard-card guard-metric guard-metric--${tone}`}>
       <p>{label}</p>
-      <strong>{value}</strong>
+      <strong>
+        {typeof value === "number" && Number.isInteger(value) ? (
+          <AnimatedNumber value={value} />
+        ) : typeof value === "string" && /^\d+$/.test(value) ? (
+          <AnimatedNumber value={Number(value)} />
+        ) : (
+          value
+        )}
+      </strong>
     </article>
   );
 }

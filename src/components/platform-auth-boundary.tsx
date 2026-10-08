@@ -6,6 +6,7 @@ import {
   usePlatformSession,
 } from "@/hooks/use-platform-session";
 import { isAccountLogoutPending } from "@/lib/account-auth";
+import { trySilentSignIn } from "@/lib/silent-signin";
 
 export function PlatformAuthBoundary({
   children,
@@ -22,6 +23,8 @@ export function PlatformAuthBoundary({
         profile: {
           subject: "usr_visual_qa",
           name: "Alex Morgan",
+          firstName: "Alex",
+          lastName: "Morgan",
           email: "alex@algorithco.com",
           expiresAt: 4_102_444_800,
         },
@@ -39,8 +42,17 @@ export function PlatformAuthBoundary({
     )
       return;
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    const query = new URLSearchParams({ returnTo });
-    window.location.replace(`/signin?${query.toString()}`);
+    let cancelled = false;
+    void (async () => {
+      // Expired access token but a live Account session: re-enter silently.
+      if (await trySilentSignIn(returnTo)) return;
+      if (cancelled) return;
+      const query = new URLSearchParams({ returnTo });
+      window.location.replace(`/signin?${query.toString()}`);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [previewEnabled, session.ready, session.signedIn]);
 
   if (!activeSession.signedIn) {

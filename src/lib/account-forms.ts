@@ -24,10 +24,10 @@ export type AccountFormPage =
 
 export type SocialProvider = "google" | "github";
 
-export interface SocialPasswordChallenge {
+export interface SocialEmailChallenge {
   provider: SocialProvider;
   email: string;
-  passwordMode: "create" | "verify";
+  isNewAccount: boolean;
 }
 
 export type FormResult =
@@ -75,13 +75,20 @@ export function validateMfaCode(code: string): string | null {
 }
 
 export function validateSignUp(input: {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }): string | null {
-  const name = input.name.trim();
-  if (!name) return "Enter your name.";
-  if (name.length > 200) return "Name must be at most 200 characters.";
+  const firstName = input.firstName.trim();
+  const lastName = input.lastName.trim();
+  if (!firstName) return "Enter your first name.";
+  if (!lastName) return "Enter your last name.";
+  if (firstName.length > 100)
+    return "First name must be at most 100 characters.";
+  if (lastName.length > 100) return "Last name must be at most 100 characters.";
+  if (`${firstName} ${lastName}`.length > 200)
+    return "Full name must be at most 200 characters.";
   if (!isValidEmailFormat(input.email)) return "Enter a valid email address.";
   const length = Array.from(input.password).length;
   if (length < 12) return "Use a password with 12–128 characters.";
@@ -121,30 +128,21 @@ async function fetchCsrfToken(): Promise<string> {
   return body.csrf;
 }
 
-async function postAuthForm(
+async function postServiceForm(
   path: string,
   fields: Record<string, string>,
 ): Promise<{ status: number; error?: string }> {
   const csrf = await fetchCsrfToken();
-  const submit = async (token: string) =>
-    fetch(`${issuerBase()}/api/auth/${path}`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({ ...fields, csrf: token }),
-      signal: timeoutSignal(),
-    });
-  let response = await submit(csrf);
-  if (response.status === 403) {
-    // CSRF cookie rotated between fetch and submit; retry once with a fresh token.
-    response = await submit(await fetchCsrfToken());
-    if (response.status === 403) {
-      return { status: 403 };
-    }
-  }
+  const response = await fetch(`${issuerBase()}/${path}`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ ...fields, csrf }),
+    signal: timeoutSignal(),
+  });
   const body = (await response.json().catch(() => null)) as {
     error?: unknown;
   } | null;
@@ -152,6 +150,13 @@ async function postAuthForm(
     status: response.status,
     ...(typeof body?.error === "string" ? { error: body.error } : {}),
   };
+}
+
+async function postAuthForm(
+  path: string,
+  fields: Record<string, string>,
+): Promise<{ status: number; error?: string }> {
+  return postServiceForm(`api/auth/${path}`, fields);
 }
 
 async function postForm(
@@ -185,11 +190,12 @@ export async function signInWithPassword(
 ): Promise<FormResult> {
   let result: { status: number; error?: string };
   try {
-    result = await postForm("signin", {
-      email: email.trim().toLowerCase(),
-      password,
-      ...(totp?.trim() ? { totp: totp.trim() } : {}),
-    });
+    result = totp?.trim()
+      ? await postAuthForm("mfa", { code: totp.trim() })
+      : await postForm("signin", {
+          email: email.trim().toLowerCase(),
+          password,
+        });
   } catch {
     return networkError();
   }
@@ -222,14 +228,16 @@ export async function signInWithPassword(
 
 /** Registration against POST /account/signup (sends verification email). */
 export async function signUpWithPassword(input: {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }): Promise<FormResult> {
   let status: number;
   try {
     ({ status } = await postForm("signup", {
-      name: input.name.trim(),
+      firstName: input.firstName.trim(),
+      lastName: input.lastName.trim(),
       email: input.email.trim().toLowerCase(),
       password: input.password,
     }));
@@ -322,7 +330,7 @@ export function takeSocialReturnTo(): string | null {
   return normalizeReturnTo(value);
 }
 
-export async function socialPasswordChallenge(): Promise<SocialPasswordChallenge | null> {
+export async function socialEmailChallenge(): Promise<SocialEmailChallenge | null> {
   try {
     const response = await fetch(`${issuerBase()}/api/auth/social/pending`, {
       credentials: "include",
@@ -330,30 +338,46 @@ export async function socialPasswordChallenge(): Promise<SocialPasswordChallenge
       signal: timeoutSignal(),
     });
     if (!response.ok) return null;
-    const body = (await response.json()) as Partial<SocialPasswordChallenge>;
+    const body = (await response.json()) as Partial<SocialEmailChallenge>;
     if (
       (body.provider !== "google" && body.provider !== "github") ||
       typeof body.email !== "string" ||
-      (body.passwordMode !== "create" && body.passwordMode !== "verify")
+      typeof body.isNewAccount !== "boolean"
     ) {
       return null;
     }
     return {
       provider: body.provider,
       email: body.email,
-      passwordMode: body.passwordMode,
-    } as SocialPasswordChallenge;
+      isNewAccount: body.isNewAccount,
+    };
   } catch {
     return null;
   }
 }
 
-export async function completeSocialPassword(
-  password: string,
+/** True when the Account service already holds a signed-in browser session. */
+export async function accountSessionActive(): Promise<boolean> {
+  try {
+    const response = await fetch(`${issuerBase()}/api/auth/session`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      signal: timeoutSignal(),
+    });
+    if (!response.ok) return false;
+    const body = (await response.json()) as { authenticated?: unknown };
+    return body.authenticated === true;
+  } catch {
+    return false;
+  }
+}
+
+export async function completeSocialEmailCode(
+  code: string,
 ): Promise<FormResult> {
   let result: { status: number; error?: string };
   try {
-    result = await postAuthForm("social/password", { password });
+    result = await postAuthForm("social/code", { code: code.trim() });
   } catch {
     return networkError();
   }
@@ -365,8 +389,8 @@ export async function completeSocialPassword(
       error: "Enter your authenticator or recovery code.",
     };
   }
-  if (result.status === 401 && result.error === "invalid_password") {
-    return { ok: false, error: "The account password is incorrect." };
+  if (result.status === 401 && result.error === "invalid_code") {
+    return { ok: false, error: "That email code is invalid or expired." };
   }
   if (result.status === 429) return rateLimited();
   if (result.status === 403) {
@@ -380,6 +404,217 @@ export async function completeSocialPassword(
     ok: false,
     error: "The social sign-in challenge expired. Start again.",
   };
+}
+
+export async function resendSocialEmailCode(): Promise<FormResult> {
+  let result: { status: number };
+  try {
+    result = await postAuthForm("social/code/resend", {});
+  } catch {
+    return networkError();
+  }
+  if (result.status === 200) return { ok: true };
+  if (result.status === 429) return rateLimited();
+  if (result.status === 403)
+    return {
+      ok: false,
+      retryable: true,
+      error: "The form expired. Try again.",
+    };
+  return {
+    ok: false,
+    error: "The email-code challenge expired. Start again.",
+  };
+}
+
+export type DeletionCodeResult =
+  | { ok: true; email: string; expiresAt: string }
+  | { ok: false; error: string; retryable?: boolean };
+
+export async function requestAccountDeletionCode(): Promise<DeletionCodeResult> {
+  try {
+    const csrf = await fetchCsrfToken();
+    const response = await fetch(`${issuerBase()}/api/account/deletion/code`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ csrf }),
+      signal: timeoutSignal(),
+    });
+    type ResponseBody = {
+      email?: unknown;
+      expiresAt?: unknown;
+      error?: unknown;
+    } | null;
+    const body = (await response.json().catch(() => null)) as ResponseBody;
+    if (
+      response.ok &&
+      typeof body?.email === "string" &&
+      typeof body.expiresAt === "string"
+    ) {
+      return { ok: true, email: body.email, expiresAt: body.expiresAt };
+    }
+    if (response.status === 401)
+      return {
+        ok: false,
+        error: "Sign in again before deleting your account.",
+      };
+    if (response.status === 403 && body?.error === "verified_email_required")
+      return {
+        ok: false,
+        error: "Verify your email before deleting your account.",
+      };
+    if (response.status === 429)
+      return {
+        ok: false,
+        error: "Too many attempts. Wait a little and try again.",
+      };
+    return { ok: false, error: "The deletion code could not be sent." };
+  } catch {
+    return {
+      ok: false,
+      retryable: true,
+      error:
+        "Could not reach the account service. Check your connection and try again.",
+    };
+  }
+}
+
+export type PasswordCodeResult =
+  | { ok: true; email: string; expiresAt: string }
+  | { ok: false; error: string; retryable?: boolean; signInRequired?: boolean };
+
+function passwordChangeFailure(
+  status: number,
+  error: unknown,
+): Extract<PasswordCodeResult, { ok: false }> {
+  if (status === 401)
+    return {
+      ok: false,
+      signInRequired: true,
+      error: "Your session ended. Sign in again to change your password.",
+    };
+  if (status === 403 && error === "authenticator_required")
+    return {
+      ok: false,
+      signInRequired: true,
+      error:
+        "Sign in again with your authenticator code before changing your password.",
+    };
+  if (status === 403 && error === "verified_email_required")
+    return {
+      ok: false,
+      error: "Verify your email before changing your password.",
+    };
+  if (status === 403)
+    return {
+      ok: false,
+      retryable: true,
+      error: "The form expired. Try again.",
+    };
+  if (status === 429)
+    return {
+      ok: false,
+      error: "Too many attempts. Wait a little and try again.",
+    };
+  return { ok: false, error: "The password could not be changed. Try again." };
+}
+
+/** Step 1: email a one-time code to the signed-in user's verified address. */
+export async function requestPasswordChangeCode(): Promise<PasswordCodeResult> {
+  try {
+    const csrf = await fetchCsrfToken();
+    const response = await fetch(`${issuerBase()}/api/account/password/code`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ csrf }),
+      signal: timeoutSignal(),
+    });
+    const body = (await response.json().catch(() => null)) as {
+      email?: unknown;
+      expiresAt?: unknown;
+      error?: unknown;
+    } | null;
+    if (
+      response.ok &&
+      typeof body?.email === "string" &&
+      typeof body.expiresAt === "string"
+    ) {
+      return { ok: true, email: body.email, expiresAt: body.expiresAt };
+    }
+    return passwordChangeFailure(response.status, body?.error);
+  } catch {
+    return {
+      ok: false,
+      retryable: true,
+      error:
+        "Could not reach the account service. Check your connection and try again.",
+    };
+  }
+}
+
+/** Step 2: the emailed code authorises the new password. Ends every session. */
+export async function confirmPasswordChange(
+  code: string,
+  password: string,
+): Promise<FormResult & { signInRequired?: boolean }> {
+  let result: { status: number; error?: string };
+  try {
+    result = await postServiceForm("api/account/password/confirm", {
+      code: code.trim(),
+      password,
+    });
+  } catch {
+    return networkError();
+  }
+  if (result.status === 200) return { ok: true };
+  if (result.status === 400) {
+    return {
+      ok: false,
+      error:
+        result.error === "invalid_code"
+          ? "The code is invalid, expired, or already used."
+          : "Check the code and choose a password of 12–128 characters.",
+    };
+  }
+  const failure = passwordChangeFailure(result.status, result.error);
+  return failure;
+}
+
+export async function confirmAccountDeletion(
+  code: string,
+): Promise<FormResult> {
+  let result: { status: number; error?: string };
+  try {
+    result = await postServiceForm("api/account/deletion/confirm", {
+      code: code.trim(),
+    });
+  } catch {
+    return networkError();
+  }
+  if (result.status === 200) return { ok: true };
+  if (result.status === 400)
+    return {
+      ok: false,
+      error: "The code is invalid, expired, or already used.",
+    };
+  if (result.status === 401)
+    return { ok: false, error: "Sign in again before deleting your account." };
+  if (result.status === 429) return rateLimited();
+  if (result.status === 403)
+    return {
+      ok: false,
+      retryable: true,
+      error: "The form expired. Try again.",
+    };
+  return { ok: false, error: "Account deletion could not be confirmed." };
 }
 
 export async function completeSocialMfa(code: string): Promise<FormResult> {

@@ -70,6 +70,8 @@ export function saveGuardOrgId(orgId: string): void {
 export type PlatformProfile = {
   subject: string;
   name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   email: string | null;
   expiresAt: number | null;
 };
@@ -92,6 +94,10 @@ export function profileFromAccessToken(token: string): PlatformProfile | null {
     return {
       subject: claims.sub,
       name: typeof claims.name === "string" ? claims.name : null,
+      firstName:
+        typeof claims.given_name === "string" ? claims.given_name : null,
+      lastName:
+        typeof claims.family_name === "string" ? claims.family_name : null,
       email: typeof claims.email === "string" ? claims.email : null,
       expiresAt: typeof claims.exp === "number" ? claims.exp : null,
     };

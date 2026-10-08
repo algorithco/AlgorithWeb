@@ -1,4 +1,5 @@
 import { Container } from "./container";
+import { SplitWords } from "./split-words";
 
 export function PageHero({
   eyebrow,
@@ -10,10 +11,14 @@ export function PageHero({
   description: string;
 }) {
   return (
-    <section className="page-hero" data-reveal>
+    <section className="page-hero" data-reveal="fade">
       <Container>
         <p className="eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
+        <h1 aria-label={title}>
+          <span aria-hidden="true">
+            <SplitWords text={title} />
+          </span>
+        </h1>
         <p className="page-hero__description">{description}</p>
       </Container>
     </section>

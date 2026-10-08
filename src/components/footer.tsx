@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { products } from "@/config/products";
 import { Container } from "./container";
+import { SplitWords } from "./split-words";
 
 export function Footer() {
   return (
@@ -8,12 +9,16 @@ export function Footer() {
       <Container>
         <div className="footer-cta" data-reveal>
           <p className="eyebrow">Two tools. One point of view.</p>
-          <h2>Software should give you leverage, not take control.</h2>
+          <h2 aria-label="Software should give you leverage, not take control.">
+            <span aria-hidden="true">
+              <SplitWords text="Software should give you leverage, not take control." />
+            </span>
+          </h2>
           <Link className="footer-cta__link" href="/products">
             Explore our products <span aria-hidden="true">→</span>
           </Link>
         </div>
-        <div className="footer-grid">
+        <div className="footer-grid" data-stagger>
           <div>
             <Link className="wordmark" href="/">
               algorithco

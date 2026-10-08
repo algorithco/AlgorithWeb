@@ -1819,6 +1819,12 @@ dialog.social-completion::backdrop {
 .social-completion__card .form-error {
   margin: 0 0 1rem;
 }
+.social-completion__notice {
+  margin: 0 0 1rem;
+  color: var(--color-success);
+  font-size: 0.88rem;
+  font-weight: 650;
+}
 .social-completion__card form {
   margin: 0;
 }
@@ -1835,6 +1841,28 @@ dialog.social-completion::backdrop {
 }
 .social-completion__actions > a:hover {
   color: var(--color-text);
+}
+.auth-inline-action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.auth-inline-action:hover:not(:disabled) {
+  color: var(--color-text);
+}
+.auth-inline-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.login-card__name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
 }
 .field {
   display: grid;
@@ -3364,6 +3392,48 @@ body:has(.app-route-shell) > #main {
   font-size: 0.78rem;
   font-weight: 650;
 }
+.account-center__danger {
+  margin-top: 0.9rem;
+  border-color: color-mix(in srgb, #ef4444 42%, var(--color-border));
+}
+.account-center__danger .dashboard-panel__heading {
+  align-items: center;
+}
+.account-center__delete-button {
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, #ef4444 62%, transparent);
+  background: color-mix(in srgb, #ef4444 12%, var(--color-surface));
+  color: #ef4444;
+}
+.account-center__delete-button:hover:not(:disabled) {
+  border-color: #ef4444;
+  background: #ef4444;
+  color: #fff;
+}
+.account-delete-dialog form {
+  display: grid;
+  gap: 0.65rem;
+}
+.account-delete-dialog form > label {
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+.account-delete-dialog form > input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.7rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1.25rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+}
+.account-delete-dialog__expiry {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
 
 @media (max-width: 62rem) {
   .guard-dashboard-layout {
@@ -3375,6 +3445,10 @@ body:has(.app-route-shell) > #main {
 }
 
 @media (max-width: 46rem) {
+  .login-card__name-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
   .guard-dashboard-layout {
     width: min(calc(100% - 2rem), 92rem);
     padding-block: 1rem 3rem;
@@ -3787,4 +3861,142 @@ body:has(.app-route-shell) > #main {
   .dashboard-confirm-dialog {
     animation: none;
   }
+}
+
+/* Account center: security controls and password dialog */
+.account-center__security {
+  margin-top: 0.9rem;
+  padding: 1.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+}
+.account-security-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.account-security-list > li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+}
+.account-security-list > li > div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.account-security-list strong {
+  font-size: 0.9rem;
+}
+.account-security-list small {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.account-security-list .button {
+  flex: none;
+  justify-content: center;
+}
+.account-copy {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.account-copy code {
+  overflow: hidden;
+  max-width: 14rem;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.account-copy__button {
+  flex: none;
+  padding: 0.3rem 0.65rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.account-copy__button:hover {
+  border-color: var(--color-text);
+}
+.account-copy__button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.account-password-dialog form {
+  display: grid;
+  gap: 0.6rem;
+}
+.account-password-dialog form > label {
+  font-size: 0.8rem;
+  font-weight: 650;
+}
+.account-password-dialog input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 0.7rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font: inherit;
+}
+.account-password-dialog input:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.account-password-dialog__code {
+  font-size: 1.25rem;
+  letter-spacing: 0.35em;
+  text-align: center;
+}
+.account-password-dialog__field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.account-password-rules {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.2rem 0 0;
+  padding: 0;
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  list-style: none;
+}
+.account-password-rules li::before {
+  display: inline-block;
+  width: 1.1em;
+  content: "○";
+}
+.account-password-rules li.is-met {
+  color: var(--color-text);
+}
+.account-password-rules li.is-met::before {
+  content: "✓";
+}
+@media (max-width: 46rem) {
+  .account-security-list > li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .account-copy {
+    justify-content: flex-start;
+  }
+}
+
+.dashboard-shell .dashboard-alert--success {
+  border-color: color-mix(in srgb, #22c55e 55%, var(--color-border));
+  background: color-mix(in srgb, #22c55e 10%, var(--color-surface));
 }

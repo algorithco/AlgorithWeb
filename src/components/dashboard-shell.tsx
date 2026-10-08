@@ -306,8 +306,10 @@ export function DashboardShell({
         >
           <div className="dashboard-sidebar__brand">
             <Link
-              href={dashboardRoutes.overview}
-              aria-label="Algorithco dashboard"
+              href="/"
+              aria-label="Algorithco home page"
+              title="Back to the main page"
+              onClick={closeMenu}
             >
               <span aria-hidden="true">A</span>
               <strong>algorithco</strong>

@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  completeSocialPassword,
+  completeSocialEmailCode,
+  confirmAccountDeletion,
+  requestAccountDeletionCode,
   signInWithPassword,
-  socialPasswordChallenge,
+  signUpWithPassword,
+  socialEmailChallenge,
   socialStartUrl,
   takeSocialReturnTo,
   validateMfaCode,
@@ -25,7 +28,7 @@ describe("embedded company sign-in", () => {
     vi.unstubAllEnvs();
   });
 
-  it("uses the stable Account API and sends an optional MFA code", async () => {
+  it("sends the second factor to the pending-MFA endpoint", async () => {
     const fetcher = vi
       .fn()
       .mockResolvedValueOnce(
@@ -46,15 +49,16 @@ describe("embedded company sign-in", () => {
     );
     expect(fetcher).toHaveBeenNthCalledWith(
       2,
-      "https://trqsh.uz/account/api/auth/signin",
+      "https://trqsh.uz/account/api/auth/mfa",
       expect.objectContaining({
         credentials: "include",
         method: "POST",
       }),
     );
     const body = fetcher.mock.calls[1][1].body as URLSearchParams;
-    expect(body.get("email")).toBe("user@example.com");
-    expect(body.get("totp")).toBe("123456");
+    expect(body.get("email")).toBeNull();
+    expect(body.get("password")).toBeNull();
+    expect(body.get("code")).toBe("123456");
     expect(body.get("csrf")).toBe("csrf-token");
   });
 
@@ -105,7 +109,7 @@ describe("embedded company sign-in", () => {
     expect(takeSocialReturnTo()).toBeNull();
   });
 
-  it("loads the password challenge and submits it before social completion", async () => {
+  it("loads the email-code challenge and submits it before social completion", async () => {
     const fetcher = vi
       .fn()
       .mockResolvedValueOnce(
@@ -114,7 +118,7 @@ describe("embedded company sign-in", () => {
             ok: true,
             provider: "github",
             email: "user@example.com",
-            passwordMode: "verify",
+            isNewAccount: false,
           }),
           { status: 200 },
         ),
@@ -129,23 +133,90 @@ describe("embedded company sign-in", () => {
       );
     vi.stubGlobal("fetch", fetcher);
 
-    await expect(socialPasswordChallenge()).resolves.toEqual({
+    await expect(socialEmailChallenge()).resolves.toEqual({
       provider: "github",
       email: "user@example.com",
-      passwordMode: "verify",
+      isNewAccount: false,
     });
-    await expect(
-      completeSocialPassword("account password"),
-    ).resolves.toMatchObject({
+    await expect(completeSocialEmailCode("123456")).resolves.toMatchObject({
       ok: false,
       mfaRequired: true,
     });
     expect(fetcher).toHaveBeenNthCalledWith(
       3,
-      "https://trqsh.uz/account/api/auth/social/password",
+      "https://trqsh.uz/account/api/auth/social/code",
       expect.objectContaining({ method: "POST", credentials: "include" }),
     );
     const body = fetcher.mock.calls[2][1].body as URLSearchParams;
-    expect(body.get("password")).toBe("account password");
+    expect(body.get("code")).toBe("123456");
+  });
+
+  it("submits structured profile names with the signup password", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-token" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ok: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(
+      signUpWithPassword({
+        firstName: " Ada ",
+        lastName: " Lovelace ",
+        email: " ADA@example.com ",
+        password: "long enough password",
+      }),
+    ).resolves.toEqual({ ok: true });
+    const body = fetcher.mock.calls[1][1].body as URLSearchParams;
+    expect(body.get("firstName")).toBe("Ada");
+    expect(body.get("lastName")).toBe("Lovelace");
+    expect(body.get("email")).toBe("ada@example.com");
+    expect(body.get("password")).toBe("long enough password");
+  });
+
+  it("requests and confirms a purpose-specific account deletion code", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-1" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            ok: true,
+            email: "user@example.com",
+            expiresAt: "2026-10-07T18:00:00.000Z",
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ csrf: "csrf-2" }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ok: true }), { status: 200 }),
+      );
+    vi.stubGlobal("fetch", fetcher);
+
+    await expect(requestAccountDeletionCode()).resolves.toEqual({
+      ok: true,
+      email: "user@example.com",
+      expiresAt: "2026-10-07T18:00:00.000Z",
+    });
+    await expect(confirmAccountDeletion(" 123456 ")).resolves.toEqual({
+      ok: true,
+    });
+    expect(fetcher.mock.calls[1][0]).toBe(
+      "https://trqsh.uz/account/api/account/deletion/code",
+    );
+    expect(fetcher.mock.calls[3][0]).toBe(
+      "https://trqsh.uz/account/api/account/deletion/confirm",
+    );
+    const body = fetcher.mock.calls[3][1].body as URLSearchParams;
+    expect(body.get("code")).toBe("123456");
+    expect(body.get("csrf")).toBe("csrf-2");
   });
 });

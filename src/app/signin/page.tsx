@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import {
   accountAuthError,
   beginAccountLogin,
   normalizeReturnTo,
 } from "@/lib/account-auth";
 import {
+  accountSessionActive,
+  completeSocialEmailCode,
   completeSocialMfa,
-  completeSocialPassword,
   confirmPasswordReset,
   requestPasswordReset,
-  type SocialPasswordChallenge,
+  resendSocialEmailCode,
+  type SocialEmailChallenge,
   type SocialProvider,
   signInWithPassword,
   signUpWithPassword,
-  socialPasswordChallenge,
+  socialEmailChallenge,
   socialStartUrl,
   takeSocialReturnTo,
   validateEmailOnly,
@@ -25,6 +27,7 @@ import {
   validateSignIn,
   validateSignUp,
 } from "@/lib/account-forms";
+import { trySilentSignIn } from "@/lib/silent-signin";
 
 type Mode = "signin" | "signup" | "forgot";
 
@@ -205,9 +208,22 @@ const CARD_COPY: Record<
   },
 };
 
+// The first card entrance is slower and staggered with the hero copy; later
+// remounts (mode or step changes) use a short swap animation instead.
+let loginCardShown = false;
+
+function LoginCardShell({ children }: { children: ReactNode }) {
+  const [variant] = useState(() => (loginCardShown ? "swap" : "enter"));
+  useEffect(() => {
+    loginCardShown = true;
+  }, []);
+  return <div className={`login-card login-card--${variant}`}>{children}</div>;
+}
+
 export default function SignInPage() {
   const [mode, setMode] = useState<Mode>("signin");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
@@ -224,35 +240,66 @@ export default function SignInPage() {
     null,
   );
   const [socialChallenge, setSocialChallenge] =
-    useState<SocialPasswordChallenge | null>(null);
-  const [socialStep, setSocialStep] = useState<"password" | "mfa">("password");
-  const [socialPassword, setSocialPassword] = useState("");
+    useState<SocialEmailChallenge | null>(null);
+  const [socialStep, setSocialStep] = useState<"email" | "mfa">("email");
+  const [socialCode, setSocialCode] = useState("");
   const [socialMfa, setSocialMfa] = useState("");
   const [socialError, setSocialError] = useState("");
+  const [socialNotice, setSocialNotice] = useState("");
   const [socialCompleting, setSocialCompleting] = useState(false);
   const [socialReturnTo, setSocialReturnTo] = useState("/app");
-  const [showSocialPassword, setShowSocialPassword] = useState(false);
   const socialDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    if (query.get("social") !== "complete") return;
-    const returnTo = takeSocialReturnTo();
-    if (!returnTo) {
-      setError("The social sign-in transaction is missing or expired.");
-      return;
+    if (query.get("account") === "deletion-scheduled") {
+      setSuccess(
+        "Your account is scheduled for deletion. Access and active sessions have been revoked.",
+      );
     }
+    if (query.get("password") === "changed") {
+      setSuccess(
+        "Your password was changed and every session was signed out. Sign in with the new password.",
+      );
+    }
+    if (
+      query.get("social") !== "complete" &&
+      !query.get("account") &&
+      !query.get("password")
+    ) {
+      // Already signed in to the Account service (e.g. the dashboard token
+      // expired): continue instead of asking for credentials again.
+      void trySilentSignIn(
+        normalizeReturnTo(query.get("returnTo") ?? undefined),
+      );
+    }
+    if (query.get("social") !== "complete") return;
+    const returnTo = takeSocialReturnTo() ?? "/app";
     setSocialReturnTo(returnTo);
     setPending(true);
-    void socialPasswordChallenge().then((challenge) => {
-      setPending(false);
-      if (!challenge) {
-        setError("The social sign-in transaction is missing or expired.");
+    void (async () => {
+      const challenge = await socialEmailChallenge();
+      if (challenge) {
+        setPending(false);
+        setEmail(challenge.email);
+        setSocialChallenge(challenge);
         return;
       }
-      setEmail(challenge.email);
-      setSocialChallenge(challenge);
-    });
+      // A provider identity that is already linked (or a brand-new verified one)
+      // is signed in directly; there is no email code to collect. Continue the
+      // OIDC login with the session the Account service just created.
+      if (await accountSessionActive()) {
+        try {
+          await beginAccountLogin(returnTo);
+        } catch (reason) {
+          setPending(false);
+          setError(accountAuthError(reason));
+        }
+        return;
+      }
+      setPending(false);
+      setError("The social sign-in transaction is missing or expired.");
+    })();
   }, []);
 
   useEffect(() => {
@@ -299,19 +346,15 @@ export default function SignInPage() {
     event.preventDefault();
     if (!socialChallenge || socialCompleting) return;
     setSocialError("");
-    if (socialStep === "password") {
-      const invalid =
-        socialChallenge.passwordMode === "create"
-          ? validateNewPassword(socialPassword)
-          : !socialPassword || socialPassword.length > 128
-            ? "Enter your Account password."
-            : null;
+    setSocialNotice("");
+    if (socialStep === "email") {
+      const invalid = validateResetCode(socialCode);
       if (invalid) {
         setSocialError(invalid);
         return;
       }
       setSocialCompleting(true);
-      const result = await completeSocialPassword(socialPassword);
+      const result = await completeSocialEmailCode(socialCode);
       if (result.ok) {
         await finishSocialLogin();
         return;
@@ -319,7 +362,7 @@ export default function SignInPage() {
       setSocialCompleting(false);
       if (result.mfaRequired) {
         setSocialStep("mfa");
-        setSocialPassword("");
+        setSocialCode("");
         return;
       }
       setSocialError(result.error);
@@ -338,6 +381,21 @@ export default function SignInPage() {
       return;
     }
     setSocialCompleting(false);
+    setSocialError(result.error);
+  };
+
+  const resendSocialCode = async () => {
+    if (socialCompleting) return;
+    setSocialCompleting(true);
+    setSocialError("");
+    setSocialNotice("");
+    const result = await resendSocialEmailCode();
+    setSocialCompleting(false);
+    if (result.ok) {
+      setSocialCode("");
+      setSocialNotice("A new sign-in code was sent to your email.");
+      return;
+    }
     setSocialError(result.error);
   };
 
@@ -383,13 +441,18 @@ export default function SignInPage() {
     }
 
     if (mode === "signup") {
-      const invalid = validateSignUp({ name, email, password });
+      const invalid = validateSignUp({ firstName, lastName, email, password });
       if (invalid) {
         setError(invalid);
         return;
       }
       setPending(true);
-      const result = await signUpWithPassword({ name, email, password });
+      const result = await signUpWithPassword({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
       setPending(false);
       if (result.ok) {
         setSuccess(
@@ -456,6 +519,8 @@ export default function SignInPage() {
       ? "Enter the 6-digit code from your email, then choose a new password."
       : copy.subtitle;
   const showSocial = mode !== "forgot" && !isMfaStep;
+  // A new key remounts the card so every mode or step change animates in.
+  const cardKey = `${mode}:${signinStep}:${forgotStep}:${success ? "done" : "form"}`;
 
   return (
     <section className="auth-page auth-page--signin">
@@ -486,7 +551,7 @@ export default function SignInPage() {
           </ul>
         </div>
 
-        <div className="login-card">
+        <LoginCardShell key={cardKey}>
           <p className="eyebrow">{eyebrow}</p>
           <h2>{title}</h2>
           <p className="login-card__subtitle">{subtitle}</p>
@@ -544,22 +609,42 @@ export default function SignInPage() {
 
               <form noValidate onSubmit={handleSubmit}>
                 {mode === "signup" ? (
-                  <div className="field">
-                    <label htmlFor="login-name">Name</label>
-                    <div className="field__control">
-                      <UserIcon />
-                      <input
-                        id="login-name"
-                        name="name"
-                        type="text"
-                        autoComplete="name"
-                        maxLength={200}
-                        placeholder="Ada Lovelace"
-                        value={name}
-                        disabled={busy}
-                        aria-invalid={Boolean(error)}
-                        onChange={(event) => setName(event.target.value)}
-                      />
+                  <div className="login-card__name-grid">
+                    <div className="field">
+                      <label htmlFor="login-first-name">First name</label>
+                      <div className="field__control">
+                        <UserIcon />
+                        <input
+                          id="login-first-name"
+                          name="firstName"
+                          type="text"
+                          autoComplete="given-name"
+                          maxLength={100}
+                          placeholder="Ada"
+                          value={firstName}
+                          disabled={busy}
+                          aria-invalid={Boolean(error)}
+                          onChange={(event) => setFirstName(event.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="field">
+                      <label htmlFor="login-last-name">Last name</label>
+                      <div className="field__control">
+                        <UserIcon />
+                        <input
+                          id="login-last-name"
+                          name="lastName"
+                          type="text"
+                          autoComplete="family-name"
+                          maxLength={100}
+                          placeholder="Lovelace"
+                          value={lastName}
+                          disabled={busy}
+                          aria-invalid={Boolean(error)}
+                          onChange={(event) => setLastName(event.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
                 ) : null}
@@ -755,6 +840,7 @@ export default function SignInPage() {
                   className="login-card__submit"
                   type="submit"
                   disabled={busy}
+                  aria-busy={pending}
                 >
                   {pending
                     ? mode === "signup"
@@ -808,7 +894,7 @@ export default function SignInPage() {
               ) : null}
             </>
           )}
-        </div>
+        </LoginCardShell>
       </div>
       {socialChallenge ? (
         <dialog
@@ -829,9 +915,7 @@ export default function SignInPage() {
             <h2 id="social-completion-title">
               {socialStep === "mfa"
                 ? "One last security check"
-                : socialChallenge.passwordMode === "create"
-                  ? "Secure your account"
-                  : "Confirm your account"}
+                : "Check your email"}
             </h2>
             <p
               id="social-completion-description"
@@ -839,13 +923,16 @@ export default function SignInPage() {
             >
               {socialStep === "mfa"
                 ? "Enter your authenticator or recovery code."
-                : socialChallenge.passwordMode === "create"
-                  ? `Create a password for ${socialChallenge.email}. Google, GitHub, and email will all open this same account.`
-                  : `Enter the Account password for ${socialChallenge.email} to securely use the same account.`}
+                : `Enter the 6-digit code sent to ${socialChallenge.email}. This confirms that every sign-in method opens the one account for that email.`}
             </p>
             {socialError ? (
               <p className="form-error" role="alert">
                 {socialError}
+              </p>
+            ) : null}
+            {socialNotice ? (
+              <p className="social-completion__notice" role="status">
+                {socialNotice}
               </p>
             ) : null}
             <form noValidate onSubmit={handleSocialSubmit}>
@@ -853,65 +940,39 @@ export default function SignInPage() {
                 <label htmlFor="social-completion-secret">
                   {socialStep === "mfa"
                     ? "Authenticator or recovery code"
-                    : socialChallenge.passwordMode === "create"
-                      ? "Create password"
-                      : "Account password"}
+                    : "Email verification code"}
                 </label>
                 <div className="field__control">
                   <LockIcon />
                   <input
                     id="social-completion-secret"
-                    name={socialStep === "mfa" ? "code" : "password"}
-                    type={
-                      socialStep === "mfa" || showSocialPassword
-                        ? "text"
-                        : "password"
-                    }
-                    inputMode={socialStep === "mfa" ? "numeric" : undefined}
-                    autoComplete={
-                      socialStep === "mfa"
-                        ? "one-time-code"
-                        : socialChallenge.passwordMode === "create"
-                          ? "new-password"
-                          : "current-password"
-                    }
-                    minLength={
-                      socialStep === "mfa"
-                        ? 6
-                        : socialChallenge.passwordMode === "create"
-                          ? 12
-                          : 1
-                    }
-                    maxLength={socialStep === "mfa" ? 64 : 128}
+                    name="code"
+                    type="text"
+                    inputMode={socialStep === "email" ? "numeric" : undefined}
+                    autoComplete="one-time-code"
+                    minLength={6}
+                    maxLength={socialStep === "mfa" ? 64 : 6}
+                    pattern={socialStep === "email" ? "[0-9]{6}" : undefined}
                     autoFocus
                     required
-                    value={socialStep === "mfa" ? socialMfa : socialPassword}
+                    value={socialStep === "mfa" ? socialMfa : socialCode}
                     disabled={socialCompleting}
                     aria-invalid={Boolean(socialError)}
-                    onChange={(event) =>
-                      socialStep === "mfa"
-                        ? setSocialMfa(event.target.value)
-                        : setSocialPassword(event.target.value)
-                    }
-                  />
-                  {socialStep === "password" ? (
-                    <button
-                      className="field__toggle"
-                      type="button"
-                      disabled={socialCompleting}
-                      aria-label={
-                        showSocialPassword ? "Hide password" : "Show password"
+                    onChange={(event) => {
+                      if (socialStep === "mfa") {
+                        setSocialMfa(event.target.value);
+                      } else {
+                        setSocialCode(
+                          event.target.value.replace(/\D/g, "").slice(0, 6),
+                        );
                       }
-                      aria-pressed={showSocialPassword}
-                      onClick={() => setShowSocialPassword((value) => !value)}
-                    >
-                      <EyeIcon off={showSocialPassword} />
-                    </button>
-                  ) : null}
+                    }}
+                  />
                 </div>
-                {socialStep === "password" &&
-                socialChallenge.passwordMode === "create" ? (
-                  <small className="field__hint">Use 12–128 characters.</small>
+                {socialStep === "email" ? (
+                  <small className="field__hint">
+                    The code expires in 10 minutes and can be used once.
+                  </small>
                 ) : null}
               </div>
               <div className="social-completion__actions">
@@ -924,9 +985,19 @@ export default function SignInPage() {
                     ? "Checking…"
                     : socialStep === "mfa"
                       ? "Verify and sign in"
-                      : "Continue"}
+                      : "Verify and continue"}
                   <span aria-hidden="true">→</span>
                 </button>
+                {socialStep === "email" ? (
+                  <button
+                    className="auth-inline-action"
+                    type="button"
+                    disabled={socialCompleting}
+                    onClick={() => void resendSocialCode()}
+                  >
+                    Send a new code
+                  </button>
+                ) : null}
                 <a href="/signin">Cancel</a>
               </div>
             </form>
