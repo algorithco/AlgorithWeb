@@ -11,6 +11,7 @@ import {
   socialEmailChallenge,
   socialStartUrl,
   takeSocialReturnTo,
+  validateEmailCode,
   validateMfaCode,
   validateSignIn,
 } from "./account-forms";
@@ -284,6 +285,68 @@ describe("embedded company sign-in", () => {
     await expect(requestPasswordChangeCode()).resolves.toMatchObject({
       ok: false,
       error: expect.stringContaining("Too many attempts"),
+    });
+  });
+
+  it("accepts the longer emailed code and explains spent attempt budgets", async () => {
+    expect(validateEmailCode("123456")).toBeNull();
+    expect(validateEmailCode("abcde-fgh23")).toBeNull();
+    expect(validateEmailCode("ABCDE-FGH10")).not.toBeNull();
+    const limited = (error: string) =>
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ csrf: "csrf" }), { status: 200 }),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error }), { status: 429 }),
+        );
+    vi.stubGlobal("fetch", limited("mfa_locked"));
+    await expect(
+      signInWithPassword("ada@example.test", "", "123456"),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringContaining("recovery code"),
+    });
+    vi.stubGlobal("fetch", limited("too_many_attempts"));
+    await expect(
+      confirmPasswordChange("123456", "a strong new password"),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringContaining("Request a new code"),
+    });
+  });
+
+  it("explains a password rejected as common or breached", async () => {
+    const weak = () =>
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ csrf: "csrf" }), { status: 200 }),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ error: "weak_password" }), {
+            status: 400,
+          }),
+        );
+    vi.stubGlobal("fetch", weak());
+    await expect(
+      signUpWithPassword({
+        firstName: "Ada",
+        lastName: "Lovelace",
+        email: "ada@example.test",
+        password: "password1234",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringContaining("data breach"),
+    });
+    vi.stubGlobal("fetch", weak());
+    await expect(
+      confirmPasswordChange("123456", "password1234"),
+    ).resolves.toMatchObject({
+      ok: false,
+      error: expect.stringContaining("data breach"),
     });
   });
 

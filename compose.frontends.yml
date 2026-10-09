@@ -45,12 +45,108 @@ services:
       guard-postgres:
         condition: service_healthy
 
+  # ---- Algorith Voice backend (VOICE_INTEGRATION_PLAN.md, phase 3) ----
+  # Own Postgres and Redis: Voice never shares tables with identity/billing.
+  # Identity and plans come from the account service (issuer + service key);
+  # the account reaches voice-backend for entitlement.changed webhooks over
+  # the shared platform network. No host ports: traffic enters through the
+  # gateway at /api/voice.
+  voice-postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: voice
+      POSTGRES_PASSWORD: ${VOICE_POSTGRES_PASSWORD:-voice-dev-pw-change-me}
+      POSTGRES_DB: voice
+    volumes:
+      - voice-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # TCP, not the socket: during first-boot init the temporary server only
+      # listens on the socket, so a socket check passes too early.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U voice -d voice"]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+      start_period: 20s
+
+  voice-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - voice-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 8
+
+  voice-migrate:
+    build:
+      context: ../algorithco-voice
+      dockerfile: apps/backend/Dockerfile
+    image: algorithco-voice-backend:local
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://voice:${VOICE_POSTGRES_PASSWORD:-voice-dev-pw-change-me}@voice-postgres:5432/voice
+    command: ["prisma", "migrate", "deploy", "--schema", "infra/prisma/schema.prisma"]
+    depends_on:
+      voice-postgres:
+        condition: service_healthy
+
+  voice-backend:
+    image: algorithco-voice-backend:local
+    restart: unless-stopped
+    env_file:
+      # VOICE_ACCOUNT_SERVICE_KEY, VOICE_ACCOUNT_WEBHOOK_SECRET (issued by the
+      # account CLI), VOICE_ADMIN_SUBJECTS and provider keys such as
+      # OPENROUTER_API_KEY. Optional so
+      # the gateway still builds without it; voice-backend then refuses to
+      # start (production requires the service key).
+      - path: ../algorithco-voice/.env.gateway.local
+        required: false
+    environment: &voice-env
+      NODE_ENV: production
+      PORT: "3001"
+      DATABASE_URL: postgresql://voice:${VOICE_POSTGRES_PASSWORD:-voice-dev-pw-change-me}@voice-postgres:5432/voice
+      REDIS_URL: redis://voice-redis:6379
+      APP_URL: https://trqsh.uz
+      VOICE_ACCOUNT_ISSUER: https://trqsh.uz/account
+      VOICE_ACCOUNT_AUDIENCES: algorithco-platform-api
+      VOICE_ACCOUNT_CLIENT_IDS: algorithco-platform-web,voice-desktop
+      VOICE_ACCOUNT_REQUIRED_SCOPES: voice:access
+      LOG_LEVEL: info
+    networks:
+      - default
+      - platform
+    depends_on:
+      voice-migrate:
+        condition: service_completed_successfully
+      voice-redis:
+        condition: service_healthy
+
+  voice-worker:
+    image: algorithco-voice-backend:local
+    restart: unless-stopped
+    env_file:
+      - path: ../algorithco-voice/.env.gateway.local
+        required: false
+    environment: *voice-env
+    command: ["node", "apps/backend/dist/queues/worker.js"]
+    healthcheck:
+      disable: true
+    depends_on:
+      voice-migrate:
+        condition: service_completed_successfully
+      voice-redis:
+        condition: service_healthy
+
   company-web:
     build:
       context: .
       args:
         NEXT_PUBLIC_SITE_URL: https://trqsh.uz
-        NEXT_PUBLIC_VOICE_URL: https://voice.algorithco.com
+        NEXT_PUBLIC_VOICE_URL: https://trqsh.uz/app/voice
         NEXT_PUBLIC_GUARD_URL: https://trqsh.uz/app/guard
         NEXT_PUBLIC_ACCOUNT_ISSUER: https://trqsh.uz/account
         NEXT_PUBLIC_ACCOUNT_CLIENT_ID: algorithco-platform-web
@@ -68,7 +164,9 @@ services:
       # makes guard depend on this gateway for OIDC discovery
       # (trqsh.uz/account/.well-known), so gating the gateway on guard
       # readiness deadlocks both. /api/guard/* briefly 502s until guard
-      # is up; the gateway itself is fully static otherwise.
+      # is up; the gateway itself is fully static otherwise. Voice is not
+      # listed at all: nginx resolves voice-backend per request, and a Voice
+      # failure (e.g. a migration) must never keep the site down.
       - guard-backend
     ports:
       - "127.0.0.1:3000:80"
@@ -82,3 +180,5 @@ networks:
 
 volumes:
   guard-postgres-data:
+  voice-postgres-data:
+  voice-redis-data:

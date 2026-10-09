@@ -12,7 +12,7 @@ export default function GuardDocsPage() {
       </p>
       <div className="docs-grid">
         {Object.entries(guardDocs).map(([slug, doc]) => (
-          <Link className="guard-card" href={`/docs/guard/${slug}`} key={slug}>
+          <Link className="guard-card" href={`/guard/docs/${slug}`} key={slug}>
             <h2>{doc.title}</h2>
             <p className="muted">{doc.intro}</p>
           </Link>

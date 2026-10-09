@@ -11,15 +11,20 @@ import {
   completeSocialEmailCode,
   completeSocialMfa,
   confirmPasswordReset,
+  rememberContinue,
   requestPasswordReset,
   resendSocialEmailCode,
   type SocialEmailChallenge,
   type SocialProvider,
+  safeContinueUrl,
   signInWithPassword,
   signUpWithPassword,
   socialEmailChallenge,
+  socialMfaPending,
   socialStartUrl,
+  takeContinue,
   takeSocialReturnTo,
+  validateEmailCode,
   validateEmailOnly,
   validateMfaCode,
   validateNewPassword,
@@ -30,6 +35,29 @@ import {
 import { trySilentSignIn } from "@/lib/silent-signin";
 
 type Mode = "signin" | "signup" | "forgot";
+
+const SOCIAL_FAILURES: Record<string, string> = {
+  failed: "Social sign-in did not complete. Try again.",
+  unavailable: "That sign-in provider is not available right now.",
+  account_deleting:
+    "This account is scheduled for deletion, so it can no longer sign in. Contact support within the 30-day grace period if this was a mistake.",
+  account_unavailable:
+    "This account cannot sign in right now. Contact support for help.",
+  email_mismatch:
+    "That provider account's email no longer matches your Algorithco account. Sign in with your email, then connect it again from your account settings.",
+};
+
+/**
+ * After a successful sign-in, either return to the Algorithco app that asked
+ * for it (an OIDC interaction on the Account service) or enter this website.
+ */
+async function finishSignIn(returnTo: string, next: string | null) {
+  if (next) {
+    window.location.assign(next);
+    return;
+  }
+  await beginAccountLogin(returnTo);
+}
 
 const BENEFITS = [
   {
@@ -239,8 +267,14 @@ export default function SignInPage() {
   const [socialPending, setSocialPending] = useState<SocialProvider | null>(
     null,
   );
-  const [socialChallenge, setSocialChallenge] =
-    useState<SocialEmailChallenge | null>(null);
+  // `provider` is null when only the authenticator step of a provider sign-in
+  // remains: the Account service does not reveal which provider it was.
+  const [socialChallenge, setSocialChallenge] = useState<
+    | (Omit<SocialEmailChallenge, "provider"> & {
+        provider: SocialEmailChallenge["provider"] | null;
+      })
+    | null
+  >(null);
   const [socialStep, setSocialStep] = useState<"email" | "mfa">("email");
   const [socialCode, setSocialCode] = useState("");
   const [socialMfa, setSocialMfa] = useState("");
@@ -248,10 +282,21 @@ export default function SignInPage() {
   const [socialNotice, setSocialNotice] = useState("");
   const [socialCompleting, setSocialCompleting] = useState(false);
   const [socialReturnTo, setSocialReturnTo] = useState("/app");
+  const [continueTo, setContinueTo] = useState<string | null>(null);
   const socialDialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
+    const requestedMode = query.get("mode");
+    if (requestedMode === "signup" || requestedMode === "forgot")
+      setMode(requestedMode);
+    const next =
+      query.get("social") === "complete"
+        ? takeContinue()
+        : safeContinueUrl(query.get("continue"));
+    setContinueTo(next);
+    const socialFailure = SOCIAL_FAILURES[query.get("social") ?? ""];
+    if (socialFailure) setError(socialFailure);
     if (query.get("account") === "deletion-scheduled") {
       setSuccess(
         "Your account is scheduled for deletion. Access and active sessions have been revoked.",
@@ -264,6 +309,9 @@ export default function SignInPage() {
     }
     if (
       query.get("social") !== "complete" &&
+      !socialFailure &&
+      !next &&
+      query.get("reauth") !== "1" &&
       !query.get("account") &&
       !query.get("password")
     ) {
@@ -285,12 +333,20 @@ export default function SignInPage() {
         setSocialChallenge(challenge);
         return;
       }
+      // An already-linked provider identity whose account has an authenticator:
+      // only the second factor is left.
+      if (await socialMfaPending()) {
+        setPending(false);
+        setSocialStep("mfa");
+        setSocialChallenge({ provider: null, email: "", isNewAccount: false });
+        return;
+      }
       // A provider identity that is already linked (or a brand-new verified one)
       // is signed in directly; there is no email code to collect. Continue the
       // OIDC login with the session the Account service just created.
       if (await accountSessionActive()) {
         try {
-          await beginAccountLogin(returnTo);
+          await finishSignIn(returnTo, next);
         } catch (reason) {
           setPending(false);
           setError(accountAuthError(reason));
@@ -330,12 +386,13 @@ export default function SignInPage() {
     if (socialPending) return;
     setSocialPending(provider);
     setError("");
+    rememberContinue(continueTo);
     window.location.assign(socialStartUrl(provider, requestedReturnTo()));
   };
 
   const finishSocialLogin = async () => {
     try {
-      await beginAccountLogin(socialReturnTo);
+      await finishSignIn(socialReturnTo, continueTo);
     } catch (reason) {
       setSocialCompleting(false);
       setSocialError(accountAuthError(reason));
@@ -422,7 +479,7 @@ export default function SignInPage() {
       );
       if (result.ok) {
         try {
-          await beginAccountLogin(requestedReturnTo());
+          await finishSignIn(requestedReturnTo(), continueTo);
         } catch (reason) {
           setPending(false);
           setError(accountAuthError(reason));
@@ -481,7 +538,7 @@ export default function SignInPage() {
       setError(result.error);
       return;
     }
-    const badCode = validateResetCode(resetCode);
+    const badCode = validateEmailCode(resetCode);
     if (badCode) {
       setError(badCode);
       return;
@@ -516,7 +573,7 @@ export default function SignInPage() {
   const subtitle = isMfaStep
     ? "Enter the code from your authenticator app or use a recovery code."
     : mode === "forgot" && forgotStep === 2
-      ? "Enter the 6-digit code from your email, then choose a new password."
+      ? "Enter the code from your email, then choose a new password."
       : copy.subtitle;
   const showSocial = mode !== "forgot" && !isMfaStep;
   // A new key remounts the card so every mode or step change animates in.
@@ -703,17 +760,20 @@ export default function SignInPage() {
                 {mode === "forgot" && forgotStep === 2 ? (
                   <>
                     <div className="field">
-                      <label htmlFor="login-reset-code">6-digit code</label>
+                      <label htmlFor="login-reset-code">
+                        Code from your email
+                      </label>
                       <div className="field__control">
                         <LockIcon />
                         <input
                           id="login-reset-code"
                           name="code"
                           type="text"
-                          inputMode="numeric"
                           autoComplete="one-time-code"
+                          autoCapitalize="characters"
+                          spellCheck={false}
                           minLength={6}
-                          maxLength={6}
+                          maxLength={11}
                           placeholder="123456"
                           value={resetCode}
                           disabled={busy}
@@ -909,8 +969,11 @@ export default function SignInPage() {
         >
           <div className="social-completion__card">
             <p className="eyebrow">
-              {socialChallenge.provider === "github" ? "GitHub" : "Google"}{" "}
-              verified
+              {socialChallenge.provider === "github"
+                ? "GitHub verified"
+                : socialChallenge.provider === "google"
+                  ? "Google verified"
+                  : "Provider verified"}
             </p>
             <h2 id="social-completion-title">
               {socialStep === "mfa"

@@ -2,17 +2,38 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { products } from "@/config/products";
 import { siteConfig } from "@/config/site";
 import { usePlatformSession } from "@/hooks/use-platform-session";
 import { Container } from "./container";
-import { ProductSwitcher } from "./product-switcher";
 import { ThemeToggle } from "./theme-toggle";
+
+const companyLinks = [
+  { label: "About", href: "/about" },
+  { label: "Contact", href: "/contact" },
+] as const;
 
 export function Header() {
   const session = usePlatformSession();
   const pathname = usePathname();
+  const menuRef = useRef<HTMLDetailsElement>(null);
   const current = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
+  const links = [
+    ...products.map((product) => ({
+      label: product.shortName,
+      href: product.href,
+    })),
+    ...companyLinks,
+  ];
+
+  // The header never remounts on client navigation; close the mobile menu
+  // whenever the route changes.
+  useEffect(() => {
+    if (pathname) menuRef.current?.removeAttribute("open");
+  }, [pathname]);
+
   return (
     <header className="site-header">
       <Container className="site-header__inner">
@@ -23,13 +44,15 @@ export function Header() {
           <span>algorithco</span>
         </Link>
         <nav aria-label="Main navigation" className="site-nav">
-          <ProductSwitcher />
-          <Link aria-current={current("/about")} href="/about">
-            About
-          </Link>
-          <Link aria-current={current("/contact")} href="/contact">
-            Contact
-          </Link>
+          {links.map((link) => (
+            <Link
+              aria-current={current(link.href)}
+              href={link.href}
+              key={link.href}
+            >
+              {link.label}
+            </Link>
+          ))}
         </nav>
         <div className="header-actions">
           <ThemeToggle />
@@ -39,6 +62,26 @@ export function Header() {
           >
             {session.signedIn ? "Dashboard" : "Sign in"}
           </Link>
+          <details className="site-menu" ref={menuRef}>
+            <summary aria-label="Menu">
+              <span aria-hidden="true" />
+            </summary>
+            <nav
+              aria-label="Main navigation (mobile)"
+              className="site-menu__panel"
+            >
+              {links.map((link) => (
+                <Link
+                  aria-current={current(link.href)}
+                  href={link.href}
+                  key={link.href}
+                  onClick={() => menuRef.current?.removeAttribute("open")}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </details>
         </div>
       </Container>
     </header>

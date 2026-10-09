@@ -42,7 +42,7 @@ export type FormResult =
 const FORM_TIMEOUT_MS = 12_000;
 const SOCIAL_RETURN_KEY = "algorithco-social-return-to";
 
-function issuerBase(): string {
+export function issuerBase(): string {
   return accountWebConfig().issuer.replace(/\/+$/, "");
 }
 
@@ -101,6 +101,23 @@ export function validateEmailOnly(email: string): string | null {
   return null;
 }
 
+/**
+ * Emailed recovery/password codes: six digits, or the longer XXXXX-XXXXX code
+ * the account service sends once an address has seen too many wrong guesses.
+ */
+export function validateEmailCode(code: string): string | null {
+  const normalized = code.trim();
+  if (
+    !/^\d{6}$/.test(normalized) &&
+    !/^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{10}$/.test(
+      normalized.toUpperCase().replace(/[\s-]/g, ""),
+    )
+  )
+    return "Enter the code from your email.";
+  return null;
+}
+
+/** Six-digit-only codes (social email check, account deletion). */
 export function validateResetCode(code: string): string | null {
   if (!/^\d{6}$/.test(code.trim()))
     return "Enter the 6-digit code from your email.";
@@ -128,10 +145,14 @@ async function fetchCsrfToken(): Promise<string> {
   return body.csrf;
 }
 
-async function postServiceForm(
+export async function postServiceForm(
   path: string,
   fields: Record<string, string>,
-): Promise<{ status: number; error?: string }> {
+): Promise<{
+  status: number;
+  error?: string;
+  body: Record<string, unknown> | null;
+}> {
   const csrf = await fetchCsrfToken();
   const response = await fetch(`${issuerBase()}/${path}`, {
     method: "POST",
@@ -143,11 +164,13 @@ async function postServiceForm(
     body: new URLSearchParams({ ...fields, csrf }),
     signal: timeoutSignal(),
   });
-  const body = (await response.json().catch(() => null)) as {
-    error?: unknown;
-  } | null;
+  const body = (await response.json().catch(() => null)) as Record<
+    string,
+    unknown
+  > | null;
   return {
     status: response.status,
+    body,
     ...(typeof body?.error === "string" ? { error: body.error } : {}),
   };
 }
@@ -175,7 +198,26 @@ function networkError(): FormResult {
   };
 }
 
-function rateLimited(): FormResult {
+const WEAK_PASSWORD_MESSAGE =
+  "This password is too common or appeared in a data breach. Choose a different one.";
+
+function weakPassword(): FormResult {
+  return { ok: false, error: WEAK_PASSWORD_MESSAGE };
+}
+
+function rateLimited(error?: string): Extract<FormResult, { ok: false }> {
+  if (error === "mfa_locked")
+    return {
+      ok: false,
+      error:
+        "Too many authenticator codes were tried for this account. Use a recovery code, or try again tomorrow.",
+    };
+  if (error === "too_many_attempts")
+    return {
+      ok: false,
+      error:
+        "Too many wrong codes were entered. Request a new code; it will be longer and will still work.",
+    };
   return {
     ok: false,
     error: "Too many attempts. Wait a little and try again.",
@@ -215,7 +257,7 @@ export async function signInWithPassword(
   }
   if (result.status === 400)
     return { ok: false, error: "Sign in could not be completed." };
-  if (result.status === 429) return rateLimited();
+  if (result.status === 429) return rateLimited(result.error);
   if (result.status === 403) {
     return {
       ok: false,
@@ -234,8 +276,9 @@ export async function signUpWithPassword(input: {
   password: string;
 }): Promise<FormResult> {
   let status: number;
+  let error: string | undefined;
   try {
-    ({ status } = await postForm("signup", {
+    ({ status, error } = await postForm("signup", {
       firstName: input.firstName.trim(),
       lastName: input.lastName.trim(),
       email: input.email.trim().toLowerCase(),
@@ -245,6 +288,7 @@ export async function signUpWithPassword(input: {
     return networkError();
   }
   if (status === 200) return { ok: true };
+  if (status === 400 && error === "weak_password") return weakPassword();
   if (status === 400)
     return { ok: false, error: "Check the form and try again." };
   if (status === 429) return rateLimited();
@@ -286,7 +330,7 @@ export async function confirmPasswordReset(input: {
   code: string;
   password: string;
 }): Promise<FormResult> {
-  let result: { status: number };
+  let result: { status: number; error?: string };
   try {
     result = await postForm("reset-password", {
       email: input.email.trim().toLowerCase(),
@@ -297,9 +341,11 @@ export async function confirmPasswordReset(input: {
     return networkError();
   }
   if (result.status === 200) return { ok: true };
+  if (result.status === 400 && result.error === "weak_password")
+    return weakPassword();
   if (result.status === 400)
     return { ok: false, error: "This reset code is invalid or expired." };
-  if (result.status === 429) return rateLimited();
+  if (result.status === 429) return rateLimited(result.error);
   if (result.status === 403)
     return {
       ok: false,
@@ -321,6 +367,72 @@ export function socialStartUrl(
   const start = new URL(`${issuerBase()}/auth/social/${provider}`);
   start.searchParams.set("return_to", callback.href);
   return start.href;
+}
+
+const CONTINUE_KEY = "algorithco-signin-continue";
+
+/**
+ * A sign-in started by another Algorithco app (OIDC interaction) carries a
+ * `continue` URL back to the Account service. Only interaction URLs on the
+ * configured issuer are honoured, so the parameter cannot redirect elsewhere.
+ */
+export function safeContinueUrl(
+  value: string | null | undefined,
+): string | null {
+  if (!value) return null;
+  try {
+    const issuer = new URL(issuerBase());
+    const target = new URL(value);
+    const prefix = `${issuer.pathname.replace(/\/+$/, "")}/interaction/`;
+    if (
+      target.origin !== issuer.origin ||
+      !target.pathname.startsWith(prefix) ||
+      target.username ||
+      target.password ||
+      target.search ||
+      target.hash
+    )
+      return null;
+    return target.href;
+  } catch {
+    return null;
+  }
+}
+
+/** Keep the continuation across a provider round-trip (same tab only). */
+export function rememberContinue(value: string | null): void {
+  try {
+    if (value) sessionStorage.setItem(CONTINUE_KEY, value);
+    else sessionStorage.removeItem(CONTINUE_KEY);
+  } catch {
+    // Storage is optional; the website falls back to its own dashboard.
+  }
+}
+
+export function takeContinue(): string | null {
+  try {
+    const value = sessionStorage.getItem(CONTINUE_KEY);
+    sessionStorage.removeItem(CONTINUE_KEY);
+    return safeContinueUrl(value);
+  } catch {
+    return null;
+  }
+}
+
+/** True when a provider sign-in is waiting for the authenticator step. */
+export async function socialMfaPending(): Promise<boolean> {
+  try {
+    const response = await fetch(`${issuerBase()}/api/auth/social/mfa`, {
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      signal: timeoutSignal(),
+    });
+    if (!response.ok) return false;
+    const body = (await response.json()) as { pending?: unknown };
+    return body.pending === true;
+  } catch {
+    return false;
+  }
 }
 
 export function takeSocialReturnTo(): string | null {
@@ -457,7 +569,10 @@ export async function requestAccountDeletionCode(): Promise<DeletionCodeResult> 
     ) {
       return { ok: true, email: body.email, expiresAt: body.expiresAt };
     }
-    if (response.status === 401)
+    if (
+      response.status === 401 ||
+      (response.status === 403 && body?.error === "authenticator_required")
+    )
       return {
         ok: false,
         error: "Sign in again before deleting your account.",
@@ -518,7 +633,7 @@ function passwordChangeFailure(
   if (status === 429)
     return {
       ok: false,
-      error: "Too many attempts. Wait a little and try again.",
+      error: rateLimited(typeof error === "string" ? error : undefined).error,
     };
   return { ok: false, error: "The password could not be changed. Try again." };
 }
@@ -575,6 +690,8 @@ export async function confirmPasswordChange(
     return networkError();
   }
   if (result.status === 200) return { ok: true };
+  if (result.status === 400 && result.error === "weak_password")
+    return weakPassword();
   if (result.status === 400) {
     return {
       ok: false,
@@ -631,7 +748,7 @@ export async function completeSocialMfa(code: string): Promise<FormResult> {
       error: "The authenticator or recovery code is invalid.",
     };
   }
-  if (result.status === 429) return rateLimited();
+  if (result.status === 429) return rateLimited(result.error);
   if (result.status === 403) {
     return {
       ok: false,

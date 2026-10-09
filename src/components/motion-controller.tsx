@@ -10,15 +10,9 @@ const useBrowserLayoutEffect =
   typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 const REVEAL_SELECTOR = "[data-reveal], [data-stagger]";
-// Surfaces that light up around the pointer (--mx / --my, see motion.css).
-const SPOTLIGHT_SELECTOR = [
-  "[data-spotlight]",
-  ".dashboard-panel",
-  ".dashboard-summary-card",
-  ".dashboard-product",
-  ".guard-card",
-  ".account-center__plan-grid article",
-].join(", ");
+// Surfaces that track the pointer (--mx / --my): the home hero grid and the
+// footer wordmark. Cards deliberately have no pointer glow.
+const SPOTLIGHT_SELECTOR = "[data-spotlight]";
 
 function prefersReducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -107,8 +101,6 @@ export function MotionController() {
         const bounds = item.getBoundingClientRect();
         const x = (event.clientX - bounds.left) / bounds.width;
         const y = (event.clientY - bounds.top) / bounds.height;
-        item.style.setProperty("--pointer-x", `${x * 100}%`);
-        item.style.setProperty("--pointer-y", `${y * 100}%`);
         item.style.setProperty("--tilt-x", `${(0.5 - y) * 2.4}deg`);
         item.style.setProperty("--tilt-y", `${(x - 0.5) * 2.4}deg`);
       };

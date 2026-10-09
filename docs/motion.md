@@ -23,7 +23,7 @@ All animation lives in one layer so it stays consistent and easy to tune.
 
 - `data-reveal` fades a block up when it scrolls into view. Variants: `data-reveal="fade"` (opacity only) and `data-reveal="scale"`.
 - `data-stagger` on a container reveals its direct children one after another (up to eight steps). It uses animations, not transitions, so children keep their own hover transitions. Do not combine it with `data-reveal` on the children.
-- `data-spotlight` makes an element track the pointer (`--mx` / `--my`). Dashboard cards are matched by class in `motion-controller.tsx`, so they need no attribute.
+- `data-spotlight` makes an element track the pointer (`--mx` / `--my`). It is used only by the home hero grid and the footer wordmark; cards (product cards, dashboard panels) have no pointer glow by design.
 - `<SplitWords text="…" />` inside a `data-reveal` ancestor renders a heading whose words rise out of a mask. Give the heading `aria-label` and wrap the output in `aria-hidden`.
 - `<AnimatedNumber value={n} />` counts up to an integer.
 

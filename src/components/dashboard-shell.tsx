@@ -14,6 +14,7 @@ import {
   dashboardPageLabels,
   dashboardRoutes,
   guardNavigation,
+  voiceNavigation,
   workspaceNavigation,
 } from "@/config/dashboard";
 import type { PlatformSession } from "@/hooks/use-platform-session";
@@ -33,6 +34,7 @@ export type DashboardIconName =
   | "home"
   | "logout"
   | "menu"
+  | "mic"
   | "policy"
   | "pulse"
   | "settings"
@@ -100,6 +102,12 @@ export function DashboardIcon({ name }: { name: DashboardIconName }) {
       </>
     ),
     menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+    mic: (
+      <>
+        <rect x="9" y="3" width="6" height="11" rx="3" />
+        <path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7" />
+      </>
+    ),
     policy: (
       <>
         <path d="M7 3.5h10v17H7z" />
@@ -327,6 +335,25 @@ export function DashboardShell({
           <nav className="dashboard-nav" aria-label="Workspace">
             <p>Workspace</p>
             {workspaceNavigation.map((item) => {
+              const active = isActive(pathname, hash, item.href);
+              return (
+                <Link
+                  aria-current={active ? "page" : undefined}
+                  className={active ? "is-active" : undefined}
+                  href={item.href}
+                  key={item.href}
+                  onClick={closeMenu}
+                >
+                  <DashboardIcon name={item.icon} />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <nav className="dashboard-nav" aria-label="Voice product">
+            <p>Voice</p>
+            {voiceNavigation.map((item) => {
               const active = isActive(pathname, hash, item.href);
               return (
                 <Link

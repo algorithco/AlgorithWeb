@@ -8,8 +8,10 @@ export const dashboardRoutes = {
   guardAudit: "/app/guard/audit",
   guardPolicy: "/app/guard/policy",
   guardStats: "/app/guard/stats",
-  guardDocs: "/docs/guard",
-  productsCatalog: "/products",
+  guardDocs: "/guard/docs",
+  voice: "/app/voice",
+  voiceAdmin: "/app/voice/admin",
+  productsCatalog: "/#products",
 } as const;
 
 export const dashboardPageLabels: Record<
@@ -26,6 +28,8 @@ export const dashboardPageLabels: Record<
   [dashboardRoutes.guardAudit]: { section: "Guard", page: "Audit log" },
   [dashboardRoutes.guardPolicy]: { section: "Guard", page: "Policy" },
   [dashboardRoutes.guardStats]: { section: "Guard", page: "Usage & stats" },
+  [dashboardRoutes.voice]: { section: "Voice", page: "Overview" },
+  [dashboardRoutes.voiceAdmin]: { section: "Voice", page: "Admin" },
 };
 
 export const workspaceNavigation = [
@@ -51,6 +55,10 @@ export const guardNavigation = [
   { label: "Usage & stats", href: dashboardRoutes.guardStats, icon: "pulse" },
 ] as const;
 
+export const voiceNavigation = [
+  { label: "Voice overview", href: dashboardRoutes.voice, icon: "mic" },
+] as const;
+
 export function productDetailsRoute(slug: string) {
-  return `/products/${encodeURIComponent(slug)}`;
+  return `/${encodeURIComponent(slug)}`;
 }

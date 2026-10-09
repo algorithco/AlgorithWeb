@@ -5,7 +5,14 @@ import { type CSSProperties, Fragment } from "react";
  * place (styles in motion.css). The caller keeps the full text available to
  * assistive tech via aria-label on the heading and aria-hidden on this output.
  */
-export function SplitWords({ text }: { text: string }) {
+export function SplitWords({
+  text,
+  offset = 0,
+}: {
+  text: string;
+  /** Words already rendered before this run, so the stagger continues. */
+  offset?: number;
+}) {
   const words = text.split(" ");
   return (
     <>
@@ -14,7 +21,7 @@ export function SplitWords({ text }: { text: string }) {
         <Fragment key={`${index}-${word}`}>
           <span
             className="split-word"
-            style={{ "--w": index } as CSSProperties}
+            style={{ "--w": offset + index } as CSSProperties}
           >
             <span className="split-word__inner">{word}</span>
           </span>
