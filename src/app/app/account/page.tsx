@@ -15,19 +15,28 @@ import {
   getMyEntitlements,
 } from "@/lib/account-api";
 import {
-  accountWebConfig,
   beginAccountLogin,
   clearAccountLocalSession,
 } from "@/lib/account-auth";
+import { getAccountOverview } from "@/lib/account-center";
 import {
   confirmAccountDeletion,
   confirmPasswordChange,
   requestAccountDeletionCode,
   requestPasswordChangeCode,
+  validateEmailCode,
   validateNewPassword,
   validateResetCode,
 } from "@/lib/account-forms";
 import { displayDate, displayPlan } from "@/lib/dashboard-format";
+import {
+  ActiveSessions,
+  ConnectedAccounts,
+  PlansAndSubscriptions,
+  ProfileEditor,
+  SECURITY_CHANGED_KEY,
+  TwoStepControl,
+} from "./account-center-sections";
 
 const PASSWORD_CHANGED_KEY = "algorithco-password-changed";
 
@@ -108,14 +117,9 @@ function DeleteAccountControl({ email }: { email: string }) {
         className="dashboard-confirm-dialog account-delete-dialog"
         aria-labelledby="account-delete-title"
         aria-describedby="account-delete-description"
-        onCancel={(event) => {
-          event.preventDefault();
-          close();
-        }}
-        onClose={close}
-        onClick={(event) => {
-          if (event.target === event.currentTarget) close();
-        }}
+        // A half-typed code must survive a stray click or Esc; only the
+        // explicit Cancel button dismisses this dialog.
+        onCancel={(event) => event.preventDefault()}
       >
         <div className="dashboard-confirm-dialog__content">
           <p className="eyebrow">Danger zone</p>
@@ -181,6 +185,14 @@ function DeleteAccountControl({ email }: { email: string }) {
                 }
               />
               <div className="dashboard-confirm-dialog__actions">
+                <button
+                  className="button button--secondary"
+                  type="button"
+                  disabled={pending}
+                  onClick={close}
+                >
+                  Cancel
+                </button>
                 <button
                   className="button button--secondary"
                   type="button"
@@ -299,7 +311,7 @@ function ChangePasswordControl({ email }: { email: string }) {
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const invalidCode = validateResetCode(code);
+    const invalidCode = validateEmailCode(code);
     const invalidPassword = validateNewPassword(password);
     if (invalidCode || invalidPassword) {
       setError(invalidCode ?? invalidPassword ?? "");
@@ -369,7 +381,7 @@ function ChangePasswordControl({ email }: { email: string }) {
           </div>
           <p id="account-password-description">
             {step === "intro"
-              ? `We’ll email a 6-digit code to ${destination} to confirm it’s you. After the change, your other devices are signed out; you stay signed in here.`
+              ? `We’ll email a code to ${destination} to confirm it’s you. After the change, your other devices are signed out; you stay signed in here.`
               : `Enter the code sent to ${destination}${
                   expiresAt ? ` (valid until ${formatTime(expiresAt)})` : ""
                 } and choose a new password.`}
@@ -412,19 +424,27 @@ function ChangePasswordControl({ email }: { email: string }) {
             </div>
           ) : (
             <form onSubmit={submit} noValidate>
-              <label htmlFor="account-password-code">6-digit code</label>
+              <label htmlFor="account-password-code">
+                Code from your email
+              </label>
               <input
                 id="account-password-code"
                 className="account-password-dialog__code"
                 type="text"
-                inputMode="numeric"
                 autoComplete="one-time-code"
-                maxLength={6}
+                autoCapitalize="characters"
+                spellCheck={false}
+                maxLength={11}
                 autoFocus
                 value={code}
                 disabled={pending}
                 onChange={(event) =>
-                  setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                  setCode(
+                    event.target.value
+                      .toUpperCase()
+                      .replace(/[^0-9A-Z-]/g, "")
+                      .slice(0, 11),
+                  )
                 }
               />
               <label htmlFor="account-password-new">New password</label>
@@ -499,7 +519,10 @@ function ChangePasswordControl({ email }: { email: string }) {
                     className="button button--primary dashboard-confirm-dialog__confirm"
                     type="submit"
                     disabled={
-                      pending || !lengthOk || !matches || code.length !== 6
+                      pending ||
+                      !lengthOk ||
+                      !matches ||
+                      validateEmailCode(code) !== null
                     }
                     aria-busy={pending}
                   >
@@ -521,6 +544,11 @@ export default function AccountPage() {
     queryKey: ["account", "entitlements", session.profile?.subject],
     queryFn: () => getMyEntitlements(undefined, session.token),
   });
+  const overview = useQuery({
+    queryKey: ["account", "overview", session.profile?.subject],
+    queryFn: getAccountOverview,
+  });
+  const refreshOverview = () => void overview.refetch();
   const billingPortal = useMutation({
     mutationFn: () =>
       createPortalSession(
@@ -530,26 +558,56 @@ export default function AccountPage() {
     onSuccess: ({ url }) => window.location.assign(url),
   });
   const [passwordChanged, setPasswordChanged] = useState(false);
+  const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(
+    null,
+  );
   useEffect(() => {
     try {
       if (window.sessionStorage.getItem(PASSWORD_CHANGED_KEY)) {
         window.sessionStorage.removeItem(PASSWORD_CHANGED_KEY);
         setPasswordChanged(true);
       }
+      const security = window.sessionStorage.getItem(SECURITY_CHANGED_KEY);
+      if (security) {
+        window.sessionStorage.removeItem(SECURITY_CHANGED_KEY);
+        setNotice({ ok: true, text: security });
+      }
     } catch {
       // Storage is optional.
     }
+    // Result of a Google/GitHub connection started from this page.
+    const query = new URLSearchParams(window.location.search);
+    const social = query.get("social");
+    if (social) {
+      setNotice(
+        social === "linked"
+          ? { ok: true, text: "Sign-in provider connected." }
+          : social === "email_mismatch"
+            ? {
+                ok: false,
+                text: "That provider account uses a different email address.",
+              }
+            : {
+                ok: false,
+                text: "The provider could not be connected. Try again.",
+              },
+      );
+      query.delete("social");
+      const rest = query.toString();
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${rest ? `?${rest}` : ""}`,
+      );
+    }
   }, []);
   const items = entitlements.data?.entitlements ?? [];
-  const accountServiceUrl = (() => {
-    try {
-      return `${accountWebConfig().issuer}/`;
-    } catch {
-      return "/signin";
-    }
-  })();
+  const account = overview.data;
   const displayName =
-    session.profile?.name ?? session.profile?.email ?? "Algorithco account";
+    account?.profile.name ??
+    session.profile?.name ??
+    session.profile?.email ??
+    "Algorithco account";
   const initial = displayName.trim().charAt(0).toUpperCase() || "A";
   const sessionExpiry = session.profile?.expiresAt
     ? new Date(session.profile.expiresAt * 1000)
@@ -581,6 +639,22 @@ export default function AccountPage() {
         </p>
       ) : null}
 
+      {notice ? (
+        <p
+          className={`dashboard-alert${notice.ok ? " dashboard-alert--success" : ""}`}
+          role={notice.ok ? "status" : "alert"}
+        >
+          <strong>{notice.text}</strong>
+        </p>
+      ) : null}
+
+      {overview.error ? (
+        <p className="dashboard-alert" role="alert">
+          <strong>Account settings are unavailable.</strong>
+          <span>{overview.error.message}</span>
+        </p>
+      ) : null}
+
       {entitlements.error ? (
         <p className="dashboard-alert" role="alert">
           <strong>Subscription data is unavailable.</strong>
@@ -598,12 +672,22 @@ export default function AccountPage() {
               <h2>Personal details</h2>
               <p>This profile is shared across every Algorithco product.</p>
             </div>
-            <span className="dashboard-secure-badge">Authenticated</span>
+            {account ? (
+              <ProfileEditor
+                key={`${account.profile.firstName}|${account.profile.lastName}`}
+                profile={account.profile}
+                onSaved={refreshOverview}
+              />
+            ) : (
+              <span className="dashboard-secure-badge">Authenticated</span>
+            )}
           </div>
           <dl className="dashboard-account-list">
             <div>
               <dt>Full name</dt>
-              <dd>{session.profile?.name ?? "Not set"}</dd>
+              <dd>
+                {account?.profile.name ?? session.profile?.name ?? "Not set"}
+              </dd>
             </div>
             <div>
               <dt>Email address</dt>
@@ -694,17 +778,57 @@ export default function AccountPage() {
           </li>
           <li>
             <div>
-              <strong>Two-step verification</strong>
+              <strong>
+                Two-step verification
+                {account ? (
+                  <span className="account-badge">
+                    {account.security.mfaEnabled ? "On" : "Off"}
+                  </span>
+                ) : null}
+              </strong>
               <small>
-                Add an authenticator app and recovery codes in the Account
-                service.
+                {account?.security.mfaEnabled
+                  ? "Sign-ins also need a code from your authenticator app or a recovery code."
+                  : "Require a code from an authenticator app in addition to your password or provider."}
               </small>
             </div>
-            <a className="button button--secondary" href={accountServiceUrl}>
-              Manage in Account
-            </a>
+            {account ? <TwoStepControl security={account.security} /> : null}
           </li>
         </ul>
+      </section>
+
+      <section
+        className="dashboard-panel account-center__security"
+        id="connected-accounts"
+        aria-labelledby="connected-title"
+      >
+        <div className="dashboard-panel__heading">
+          <div>
+            <p className="eyebrow">Sign-in methods</p>
+            <h2 id="connected-title">Connected accounts</h2>
+            <p>Sign in with Google or GitHub in addition to your password.</p>
+          </div>
+        </div>
+        {account ? (
+          <ConnectedAccounts overview={account} onChanged={refreshOverview} />
+        ) : null}
+      </section>
+
+      <section
+        className="dashboard-panel account-center__security"
+        id="devices"
+        aria-labelledby="devices-title"
+      >
+        <div className="dashboard-panel__heading">
+          <div>
+            <p className="eyebrow">Devices</p>
+            <h2 id="devices-title">Where you are signed in</h2>
+            <p>Sign out any device you do not recognise.</p>
+          </div>
+        </div>
+        {account ? (
+          <ActiveSessions overview={account} onChanged={refreshOverview} />
+        ) : null}
       </section>
 
       <section className="dashboard-panel account-center__plans">
@@ -754,6 +878,16 @@ export default function AccountPage() {
             );
           })}
         </div>
+        {account ? (
+          <PlansAndSubscriptions
+            overview={account}
+            token={session.token}
+            onChanged={() => {
+              refreshOverview();
+              void entitlements.refetch();
+            }}
+          />
+        ) : null}
         {billingPortal.error ? (
           <p className="form-error" role="alert">
             Billing portal could not be opened. Try again shortly.

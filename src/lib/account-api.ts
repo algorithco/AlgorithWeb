@@ -37,3 +37,32 @@ export function createPortalSession(
     body: JSON.stringify(input),
   });
 }
+
+export function createCheckoutSession(
+  input: {
+    product: string;
+    plan: string;
+    org_id?: string;
+    success_url?: string;
+    cancel_url?: string;
+  },
+  token: string,
+) {
+  return apiFetch<{ url: string }>(ACCOUNT_API_BASE(), "/v1/billing/checkout", {
+    method: "POST",
+    token,
+    body: JSON.stringify(input),
+  });
+}
+
+export function setSubscriptionCancellation(
+  subscriptionId: string,
+  action: "cancel" | "resume",
+  token: string,
+) {
+  return apiFetch<void>(
+    ACCOUNT_API_BASE(),
+    `/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}/${action}`,
+    { method: "POST", token },
+  );
+}
