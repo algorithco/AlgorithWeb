@@ -9,10 +9,13 @@ export const siteConfig = {
     env(process.env.NEXT_PUBLIC_SITE_URL, "https://trqsh.uz"),
   ).toString(),
   accountUrl: new URL(
-    "/account/",
+    "/app/account",
     env(process.env.NEXT_PUBLIC_SITE_URL, "https://trqsh.uz"),
   ).toString(),
-  contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || "",
+  contactEmail: env(
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL,
+    "hello@algorithco.com",
+  ),
 } as const;
 
 export function absoluteUrl(path = "/") {

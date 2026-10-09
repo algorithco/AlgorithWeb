@@ -7,14 +7,16 @@ export function Section({
   title,
   children,
   className = "",
+  id,
 }: {
   eyebrow?: string;
   title?: string;
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <section className={`section ${className}`} data-reveal>
+    <section className={`section ${className}`} data-reveal id={id}>
       <Container>
         {(eyebrow || title) && (
           <header className="section__header">

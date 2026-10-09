@@ -1,30 +1,20 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { StatusBadge } from "@/components/status-badge";
-import { getProduct, products } from "@/config/products";
+import type { Product } from "@/config/products";
 import { siteConfig } from "@/config/site";
 
-type Props = { params: Promise<{ slug: string }> };
-
-export function generateStaticParams() {
-  return products.map(({ slug }) => ({ slug }));
-}
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
-  const product = getProduct(slug);
-  if (!product) return {};
+export function productMetadata(product: Product): Metadata {
   const title = product.name;
   return {
     title,
     description: product.description,
-    alternates: { canonical: `/products/${product.slug}` },
+    alternates: { canonical: product.href },
     openGraph: {
       title: `${title} — Algorithco`,
       description: product.description,
-      url: `/products/${product.slug}`,
+      url: product.href,
     },
     twitter: {
       card: "summary",
@@ -34,11 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function ProductPage({ params }: Props) {
-  const { slug } = await params;
-  const product = getProduct(slug);
-  if (!product) notFound();
-
+/** Overview page of a product section (/voice, /guard). */
+export function ProductOverview({ product }: { product: Product }) {
   return (
     <div className={`product-page product-page--${product.accent}`}>
       <section className="product-hero" data-reveal>

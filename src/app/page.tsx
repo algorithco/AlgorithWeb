@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
-import { ProductCard } from "@/components/product-card";
 import { Section } from "@/components/section";
+import { StatusBadge } from "@/components/status-badge";
 import { products } from "@/config/products";
+import { companyFacts, companyPrinciples } from "@/content/company";
 import { copy } from "@/content/copy";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
@@ -35,40 +36,79 @@ export default function Home() {
           </h1>
           <div className="hero-foot">
             <p>{copy.companyDescription}</p>
-            <ButtonLink href="/products">Explore products</ButtonLink>
+            <ButtonLink href="/about">About the company</ButtonLink>
           </div>
         </Container>
       </section>
 
-      <Section
-        eyebrow="Products"
-        title="Small tools. Serious intent."
-        className="products-section"
-      >
-        <div className="product-grid">
-          {products.map((product, index) => (
-            <ProductCard product={product} index={index} key={product.slug} />
-          ))}
+      <Section className="home-company" eyebrow="The company">
+        <div className="editorial-grid">
+          <p className="eyebrow">Who we are</p>
+          <div className="large-prose">
+            <p>
+              An independent, founder-led software company based in Uzbekistan.
+              We build a small number of tools and hold each one to the same
+              standard: fast to use, private by default, honest about what it
+              does.
+            </p>
+          </div>
         </div>
+        <dl className="about-facts" data-stagger>
+          {companyFacts.map((fact) => (
+            <div key={fact.label}>
+              <dt>{fact.label}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
       </Section>
 
       <Section
-        eyebrow="Why Algorithco"
+        eyebrow="How we build"
         title="Your machine. Your workflow. Your call."
         className="why-section"
       >
-        <div className="principles-grid" data-stagger>
-          {copy.why.map((item) => (
-            <article className="principle" key={item.number}>
-              <span>{item.number}</span>
-              <h3>{item.title}</h3>
-              <p>{item.body}</p>
+        <div className="principles-grid principles-grid--four" data-stagger>
+          {companyPrinciples.map((principle, index) => (
+            <article className="principle" key={principle.title}>
+              <span>0{index + 1}</span>
+              <h3>{principle.title}</h3>
+              <p>{principle.body}</p>
             </article>
           ))}
         </div>
         <Link className="text-link" href="/about">
-          More about the company <span aria-hidden="true">→</span>
+          What these mean in practice <span aria-hidden="true">→</span>
         </Link>
+      </Section>
+
+      <Section
+        eyebrow="Products"
+        title="What we make."
+        className="home-products-section"
+        id="products"
+      >
+        <ul className="home-products">
+          {products.map((product, index) => (
+            <li
+              className={`home-product home-product--${product.accent}`}
+              key={product.slug}
+            >
+              <span className="home-product__index">0{index + 1}</span>
+              <div className="home-product__name">
+                <h3>{product.name}</h3>
+                <StatusBadge
+                  label={product.statusLabel}
+                  status={product.status}
+                />
+              </div>
+              <p>{product.description}</p>
+              <Link className="text-link" href={product.href}>
+                Explore {product.shortName} <span aria-hidden="true">→</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </Section>
     </>
   );

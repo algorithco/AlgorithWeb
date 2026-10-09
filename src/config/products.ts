@@ -1,8 +1,16 @@
 export const productStatuses = ["available", "preview", "coming-soon"] as const;
 export type ProductStatus = (typeof productStatuses)[number];
 
+export type ProductLink = { label: string; href: string };
+
 export type Product = {
   slug: string;
+  /** Root of the product's own section of the site (/voice, /guard). */
+  href: string;
+  /** Links of the product navbar under the site header, in order. */
+  sections: readonly ProductLink[];
+  /** The one action at the right end of the product navbar. */
+  cta: ProductLink;
   name: string;
   shortName: string;
   tagline: string;
@@ -22,6 +30,9 @@ const externalUrl = (value: string | undefined, fallback: string) =>
 export const products = [
   {
     slug: "voice",
+    href: "/voice",
+    sections: [{ label: "Overview", href: "/voice" }],
+    cta: { label: "Download", href: "/voice/download" },
     name: "Algorith Voice",
     shortName: "Voice",
     tagline: "Talk faster. Type never.",
@@ -40,12 +51,18 @@ export const products = [
     accent: "mono",
     externalUrl: externalUrl(
       process.env.NEXT_PUBLIC_VOICE_URL,
-      "https://voice.algorithco.com",
+      "https://trqsh.uz/app/voice",
     ),
-    externalLabel: "Visit Algorith Voice",
+    externalLabel: "Open Voice",
   },
   {
     slug: "guard",
+    href: "/guard",
+    sections: [
+      { label: "Overview", href: "/guard" },
+      { label: "Docs", href: "/guard/docs" },
+    ],
+    cta: { label: "Install", href: "/guard/docs/install" },
     name: "algorithco guard",
     shortName: "Guard",
     tagline: "Control for coding agents.",
@@ -74,4 +91,12 @@ export type ProductSlug = (typeof products)[number]["slug"];
 
 export function getProduct(slug: string) {
   return products.find((product) => product.slug === slug);
+}
+
+/** The product whose section contains this path, if any. */
+export function productForPath(pathname: string) {
+  return products.find(
+    (product) =>
+      pathname === product.href || pathname.startsWith(`${product.href}/`),
+  );
 }

@@ -10,6 +10,7 @@ import {
   SignOutButton,
   useDashboardSession,
 } from "@/components/dashboard-shell";
+import { SummaryCard } from "@/components/dashboard-summary-card";
 import { StatusBadge } from "@/components/status-badge";
 import { dashboardRoutes, productDetailsRoute } from "@/config/dashboard";
 import { type Product, products } from "@/config/products";
@@ -31,6 +32,13 @@ function productDestination(product: Product) {
       href: dashboardRoutes.guard,
       external: false,
       label: "Open Guard",
+    };
+  }
+  if (product.slug === "voice") {
+    return {
+      href: dashboardRoutes.voice,
+      external: false,
+      label: "Open Voice",
     };
   }
   return {
@@ -300,43 +308,6 @@ export default function DashboardPage() {
         </ButtonLink>
       </section>
     </div>
-  );
-}
-
-function SummaryCard({
-  detail,
-  icon,
-  label,
-  loading,
-  value,
-  wideValue = false,
-}: {
-  detail: string;
-  icon: DashboardIconName;
-  label: string;
-  loading: boolean;
-  value: string;
-  wideValue?: boolean;
-}) {
-  return (
-    <article className="dashboard-summary-card" aria-busy={loading}>
-      <div>
-        <span className="dashboard-summary-card__icon">
-          <DashboardIcon name={icon} />
-        </span>
-        <span>{label}</span>
-      </div>
-      <strong className={wideValue ? "is-wide" : undefined}>
-        {loading ? (
-          "—"
-        ) : /^\d+$/.test(value) ? (
-          <AnimatedNumber value={Number(value)} />
-        ) : (
-          value
-        )}
-      </strong>
-      <small>{detail}</small>
-    </article>
   );
 }
 

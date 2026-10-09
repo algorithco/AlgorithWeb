@@ -273,6 +273,23 @@ html.theme-vt::view-transition-new(root) {
       animation: scroll-progress linear both;
       animation-timeline: scroll(root block);
     }
+    /* In a product section the bar rides the product navbar, which stays
+       visible when the site header tucks away. */
+    html[data-product-section] .site-header::after {
+      display: none;
+    }
+    .product-nav::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 -1px;
+      height: 2px;
+      background: var(--product-accent);
+      transform: scaleX(0);
+      transform-origin: 0 50%;
+      pointer-events: none;
+      animation: scroll-progress linear both;
+      animation-timeline: scroll(root block);
+    }
   }
 }
 @keyframes header-condense {
@@ -311,8 +328,7 @@ html.theme-vt::view-transition-new(root) {
   transform: scaleX(1);
   transform-origin: 0 50%;
 }
-.site-nav > a[aria-current="page"],
-.switcher[data-active="true"] > summary {
+.site-nav > a[aria-current="page"] {
   color: var(--color-text);
 }
 
@@ -517,24 +533,6 @@ html.theme-vt::view-transition-new(root) {
   }
 }
 
-/* Cards light up where the pointer is (MotionController sets --mx / --my). */
-@media (hover: hover) and (pointer: fine) {
-  .dashboard-shell
-    :is(
-      .dashboard-panel,
-      .dashboard-summary-card,
-      .dashboard-product,
-      .guard-card,
-      .account-center__plan-grid article
-    ):hover {
-    background-image: radial-gradient(
-      circle 22rem at var(--mx, 50%) var(--my, 50%),
-      color-mix(in srgb, var(--dashboard-accent) 9%, transparent),
-      transparent 62%
-    );
-  }
-}
-
 /* Dialogs ease in and out (entry via @starting-style, exit via allow-discrete). */
 .dashboard-confirm-dialog,
 dialog.social-completion {
@@ -593,7 +591,65 @@ dialog.social-completion[open]::backdrop {
 }
 
 /* ---------------------------------------------------------------------------
-   8. Reduced motion — keep every state change, drop the travel.
+   8. Footer: rising wordmark, one-time sweep, scroll-lit glow
+   ------------------------------------------------------------------------- */
+.footer-giant__char {
+  transform: translateY(105%);
+  transition: transform 1100ms var(--ease-out-expo);
+  transition-delay: calc(var(--c, 0) * 45ms + 120ms);
+}
+[data-visible="true"] .footer-giant__char {
+  transform: none;
+}
+/* Once the letters have landed, a band of light passes over them. */
+[data-visible="true"] .footer-giant__word--sweep {
+  animation: giant-sweep 1500ms var(--ease-in-out-quart) 1250ms both;
+}
+@keyframes giant-sweep {
+  0% {
+    clip-path: inset(0 100% 0 0);
+  }
+  50% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+.back-to-top svg {
+  animation: orbit 24s linear infinite;
+}
+.back-to-top:hover svg {
+  animation-play-state: paused;
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* The glow hangs below the footer, so it tracks the footer's own entry and
+   is fully risen by the time the page bottoms out. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .site-footer {
+      view-timeline: --site-footer block;
+    }
+    .footer-glow {
+      animation: footer-glow-rise linear both;
+      animation-timeline: --site-footer;
+      animation-range: entry 0% entry 100%;
+    }
+  }
+}
+@keyframes footer-glow-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8rem) scale(0.8);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   9. Reduced motion — keep every state change, drop the travel.
    ------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -615,7 +671,8 @@ dialog.social-completion[open]::backdrop {
   .hero-spotlight {
     display: none;
   }
-  .split-word__inner {
+  .split-word__inner,
+  .footer-giant__char {
     transform: none;
   }
 }

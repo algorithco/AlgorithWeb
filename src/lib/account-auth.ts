@@ -7,7 +7,7 @@ import {
 } from "./platform-session";
 
 const SCOPES =
-  "openid profile email offline_access entitlements:read billing:write guard:access";
+  "openid profile email offline_access entitlements:read billing:write guard:access voice:access";
 const RESOURCE = "urn:algorithco:platform-api";
 const AUTH_FETCH_TIMEOUT_MS = 8_000;
 

@@ -5,16 +5,21 @@ export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
     "",
-    "/products",
-    ...products.map((p) => `/products/${p.slug}`),
+    ...products.flatMap((p) => [
+      p.href,
+      ...p.sections.map((s) => s.href),
+      p.cta.href,
+    ]),
     "/about",
     "/contact",
     "/privacy",
     "/terms",
   ];
-  return routes.map((route) => ({
+  return [...new Set(routes)].map((route) => ({
     url: absoluteUrl(route || "/"),
-    changeFrequency: route.startsWith("/products") ? "monthly" : "yearly",
+    changeFrequency: products.some((p) => route.startsWith(p.href))
+      ? "monthly"
+      : "yearly",
     priority: route === "" ? 1 : 0.7,
   }));
 }
