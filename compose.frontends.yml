@@ -35,10 +35,10 @@ services:
 
   guard-backend:
     build:
-      context: ../algorithco-guard/backend
+      context: ../algo/backend
     restart: unless-stopped
     env_file:
-      - ../algorithco-guard/backend/.env.tunnel
+      - ../algo/backend/.env.tunnel
     environment:
       DATABASE_URL: postgresql://guard:${GUARD_POSTGRES_PASSWORD:-guard-dev-pw-change-me}@guard-postgres:5432/guard
     depends_on:
@@ -83,7 +83,7 @@ services:
 
   voice-migrate:
     build:
-      context: ../algorithco-voice
+      context: ../algorithvoice
       dockerfile: apps/backend/Dockerfile
     image: algorithco-voice-backend:local
     restart: "no"
@@ -103,7 +103,7 @@ services:
       # OPENROUTER_API_KEY. Optional so
       # the gateway still builds without it; voice-backend then refuses to
       # start (production requires the service key).
-      - path: ../algorithco-voice/.env.gateway.local
+      - path: ../algorithvoice/.env.gateway.local
         required: false
     environment: &voice-env
       NODE_ENV: production
@@ -115,6 +115,9 @@ services:
       VOICE_ACCOUNT_AUDIENCES: algorithco-platform-api
       VOICE_ACCOUNT_CLIENT_IDS: algorithco-platform-web,voice-desktop
       VOICE_ACCOUNT_REQUIRED_SCOPES: voice:access
+      # The gateway and the Docker host hop in front of it (see
+      # algorithvoice/infra/docker-compose.yml): rate limits per visitor.
+      TRUST_PROXY_HOPS: "2"
       LOG_LEVEL: info
     networks:
       - default
@@ -129,7 +132,7 @@ services:
     image: algorithco-voice-backend:local
     restart: unless-stopped
     env_file:
-      - path: ../algorithco-voice/.env.gateway.local
+      - path: ../algorithvoice/.env.gateway.local
         required: false
     environment: *voice-env
     command: ["node", "apps/backend/dist/queues/worker.js"]

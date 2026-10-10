@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml)
 
-The unified Algorithco platform frontend. It serves the company site, central-account sign-in flow, Guard console, and Guard documentation from one Next.js static export. Guard API calls stay same-origin through the production Nginx proxy.
+The unified Algorithco platform frontend. It serves the company site, central-account sign-in flow, the Voice and Guard product sections with their documentation, and the Voice and Guard consoles from one Next.js static export. Voice and Guard API calls stay same-origin through the production Nginx proxy.
 
 ## Requirements
 
@@ -27,12 +27,13 @@ All public destinations are configured in `.env.local` and documented in `.env.e
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | `https://trqsh.uz` | Canonical site URL and sitemap origin |
-| `NEXT_PUBLIC_VOICE_URL` | `https://voice.algorithco.com` | Algorith Voice website |
+| `NEXT_PUBLIC_VOICE_URL` | `https://trqsh.uz/app/voice` | Voice dashboard inside the unified platform |
 | `NEXT_PUBLIC_GUARD_URL` | `https://trqsh.uz/app/guard` | Guard console inside the unified platform |
 | `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://trqsh.uz/account` | OIDC issuer used for sign-in and discovery |
 | `NEXT_PUBLIC_ACCOUNT_REDIRECT_URI` | `https://trqsh.uz/auth/callback` | Unified platform OIDC callback |
 | `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://trqsh.uz/account` | Account and billing destination |
 | `NEXT_PUBLIC_GUARD_API_BASE` | `/api/guard` | Same-origin Guard API prefix |
+| `NEXT_PUBLIC_VOICE_API_BASE` | `/api/voice` | Same-origin Voice API prefix |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | empty | Public email; hidden when empty |
 
 These values are compiled into the public client bundle. Do not put secrets in them.
@@ -83,12 +84,13 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 
 ## Unified routes
 
-- `/products/guard` — Guard product page.
+- `/voice`, `/voice/docs/*`, `/voice/download` — Voice product section. This is the only Voice website; the `algorithvoice` repository holds the desktop app and backend.
+- `/guard`, `/guard/docs/*` — Guard product section.
 - `/signin` and `/auth/callback` — central Account OIDC flow.
 - `/app` — unified account, subscription, and product dashboard.
+- `/app/voice`, `/app/voice/admin/*` — authenticated Voice dashboard and operator pages.
 - `/app/guard/*` — authenticated Guard console.
-- `/docs/guard/*` — Guard documentation.
-- `/api/guard/*` — reverse proxy to the Guard backend; not part of the static export.
+- `/api/voice/*`, `/api/guard/*` — reverse proxies to the Voice and Guard backends; not part of the static export.
 
 The browser uses the public OIDC client `algorithco-platform-web`. The Account
 service must register `https://trqsh.uz/auth/callback` as an exact redirect URI
@@ -100,13 +102,13 @@ start the Account authorization flow automatically and reuse its SSO session.
 
 ## Docker deployment
 
-The repository-level compose file builds the static frontend, serves it with Nginx, and starts the Guard backend from the sibling `algorithco-guard/backend` directory:
+The repository-level compose file builds the static frontend, serves it with Nginx, and starts the Guard backend from the sibling `algo/backend` directory and the Voice backend from the sibling `algorithvoice` directory:
 
 ```powershell
 docker compose -f compose.frontends.yml up -d --build --wait
 ```
 
-Create `../algorithco-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` over the private Compose network. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
+Create `../algo/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
 ## Human decisions / TODO
 
