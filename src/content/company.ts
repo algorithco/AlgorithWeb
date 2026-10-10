@@ -20,7 +20,7 @@ export const companyPrinciples = [
     title: "Local by default",
     body: "If a job can be done on your machine, it should be.",
     practice:
-      "AlgorithVoice transcribes offline, so in local mode audio never leaves your device and no account is needed. AlgorithGuard’s default privacy mode is local-only: decisions are made and logged on your machine.",
+      "AlgorithVoice transcribes offline, so in local mode audio never leaves your device. AlgorithGuard’s default privacy mode is local-only: decisions are made and logged on your machine.",
   },
   {
     title: "Opt-in, not assumed",

@@ -47,8 +47,8 @@ export default async function VoiceDownloadPage() {
         title="Get AlgorithVoice."
         description={
           release
-            ? `Version ${release.version}, released ${published}. Free to install; local dictation needs no account.`
-            : "Free to install; local dictation needs no account."
+            ? `Version ${release.version}, released ${published}. Free to install; sign in with a free Algorithco account to start.`
+            : "Free to install; sign in with a free Algorithco account to start."
         }
       />
       <Section className="voice-download">
@@ -98,6 +98,12 @@ export default async function VoiceDownloadPage() {
         <div className="voice-download__next">
           <p className="eyebrow">After installing</p>
           <ol>
+            <li>
+              <span>
+                Sign in with your Algorithco account. The app opens your browser
+                for it, and a Free account is enough.
+              </span>
+            </li>
             <li>
               <span>
                 Pick an on-device speech model. The app downloads it once and
