@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 const topics = [
   {
     title: "Products and support",
-    body: "Questions about Algorith Voice or algorithco guard, a bug, or a feature you need. Tell us your operating system and product version.",
+    body: "Questions about AlgorithVoice or AlgorithGuard, a bug, or a feature you need. Tell us your operating system and product version.",
   },
   {
     title: "Your account",

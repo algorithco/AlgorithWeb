@@ -5,6 +5,6 @@ export function ErrorMessage({ error }: { error: unknown }) {
   const message =
     error instanceof GuardApiError || error instanceof Error
       ? error.message
-      : "Guard request failed.";
+      : "AlgorithGuard request failed.";
   return <p className="form-error">{message}</p>;
 }

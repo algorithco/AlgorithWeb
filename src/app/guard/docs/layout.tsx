@@ -6,7 +6,9 @@ export default function GuardDocsLayout({ children }: { children: ReactNode }) {
   return (
     <div className="docs-shell">
       <aside className="docs-nav">
-        <p className="eyebrow">Guard documentation</p>
+        <p className="eyebrow">
+          <span className="keep-case">AlgorithGuard</span> documentation
+        </p>
         <Link href="/guard/docs">Overview</Link>
         {Object.entries(guardDocs).map(([slug, doc]) => (
           <Link key={slug} href={`/guard/docs/${slug}`}>

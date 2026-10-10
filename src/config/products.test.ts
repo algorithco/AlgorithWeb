@@ -17,7 +17,6 @@ describe("product config", () => {
   it("has all required public fields", () => {
     for (const product of products) {
       expect(product.name.trim()).not.toBe("");
-      expect(product.shortName.trim()).not.toBe("");
       expect(product.tagline.trim()).not.toBe("");
       expect(product.description.trim()).not.toBe("");
       expect(product.statusLabel.trim()).not.toBe("");
@@ -28,8 +27,21 @@ describe("product config", () => {
     }
   });
 
+  it("keeps navbar links inside the product's section", () => {
+    for (const product of products) {
+      expect(product.sections[0]?.href).toBe(product.href);
+      for (const link of [...product.sections, product.cta]) {
+        expect(
+          link.href === product.href ||
+            link.href.startsWith(`${product.href}/`),
+        ).toBe(true);
+      }
+    }
+  });
+
   it("looks products up by slug", () => {
-    expect(getProduct("voice")?.name).toBe("Algorith Voice");
+    expect(getProduct("voice")?.name).toBe("AlgorithVoice");
+    expect(getProduct("guard")?.name).toBe("AlgorithGuard");
     expect(getProduct("missing")).toBeUndefined();
   });
 });

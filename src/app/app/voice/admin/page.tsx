@@ -1,18 +1,16 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Link from "next/link";
 import { useState } from "react";
 import { useDashboardSession } from "@/components/dashboard-shell";
 import { SummaryCard } from "@/components/dashboard-summary-card";
-import { dashboardRoutes } from "@/config/dashboard";
+import { VoiceAdminTabs } from "@/components/voice/admin-tabs";
 import {
   formatSeconds,
   getVoiceAdminUsage,
   listVoiceAdminUsers,
   setVoiceUserBlocked,
   tokenHasScope,
-  VoiceApiError,
   voiceErrorMessage,
 } from "@/lib/voice-api";
 
@@ -50,31 +48,16 @@ export default function VoiceAdminPage() {
     },
   });
 
-  const forbidden =
-    usage.error instanceof VoiceApiError && usage.error.status === 403;
-  if (forbidden || (session.ready && !ready)) {
-    return (
-      <div className="platform-dashboard">
-        <section className="dashboard-panel">
-          <p className="eyebrow">Voice admin</p>
-          <h1 className="voice-admin__title">No access</h1>
-          <p className="muted">
-            This page is for Voice operators. Ask an operator to add your
-            account, or go back to{" "}
-            <Link href={dashboardRoutes.voice}>Voice</Link>.
-          </p>
-        </section>
-      </div>
-    );
-  }
-
   const error = usage.error ?? users.error ?? toggle.error;
   const stats = usage.data;
   return (
     <div className="platform-dashboard voice-dashboard">
+      <VoiceAdminTabs />
       <header className="dashboard-welcome">
         <div>
-          <p className="eyebrow">Voice admin</p>
+          <p className="eyebrow">
+            <span className="keep-case">AlgorithVoice</span> admin
+          </p>
           <h1>Service overview</h1>
           <p>
             Managed cloud transcription this month, from the metering ledger
@@ -92,7 +75,7 @@ export default function VoiceAdminPage() {
         </div>
       ) : null}
 
-      <section className="dashboard-summary" aria-label="Voice service">
+      <section className="dashboard-summary" aria-label="AlgorithVoice service">
         <SummaryCard
           detail={`${stats?.requests ?? 0} requests`}
           icon="pulse"
@@ -130,8 +113,9 @@ export default function VoiceAdminPage() {
             <p className="eyebrow">Access</p>
             <h2 id="voice-users-title">Users</h2>
             <p>
-              Voice knows users only by their Algorithco account ID. Blocking
-              stops Voice for that account; the account itself is untouched.
+              AlgorithVoice knows users only by their Algorithco account ID.
+              Blocking stops AlgorithVoice for that account; the account itself
+              is untouched.
             </p>
           </div>
         </div>

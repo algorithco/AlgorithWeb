@@ -16,7 +16,7 @@ import { copy } from "@/content/copy";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Algorithco is an independent software company building local-first tools for developers and power users: Algorith Voice and algorithco guard.",
+    "Algorithco is an independent software company building local-first tools for developers and power users: AlgorithVoice and AlgorithGuard.",
   alternates: { canonical: "/about" },
 };
 
@@ -77,8 +77,7 @@ export default function AboutPage() {
                   ))}
                 </ul>
                 <Link className="text-link" href={product.href}>
-                  More about {product.shortName}{" "}
-                  <span aria-hidden="true">→</span>
+                  More about {product.name} <span aria-hidden="true">→</span>
                 </Link>
               </div>
             </article>
@@ -112,8 +111,8 @@ export default function AboutPage() {
           <p className="eyebrow">Where we are</p>
           <div className="large-prose">
             <p>
-              Algorith Voice is available on Windows, Linux and macOS.
-              algorithco guard is in early preview: it starts in shadow mode, so
+              AlgorithVoice is available on Windows, Linux and macOS.
+              AlgorithGuard is in early preview: it starts in shadow mode, so
               you can watch what it would do before you let it enforce anything.
             </p>
             <p>

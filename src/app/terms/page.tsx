@@ -6,7 +6,7 @@ import { legal } from "@/content/legal";
 export const metadata: Metadata = {
   title: "Terms of service",
   description:
-    "The terms for using the Algorithco website, Algorithco Account, Algorith Voice and algorithco guard.",
+    "The terms for using the Algorithco website, Algorithco Account, AlgorithVoice and AlgorithGuard.",
   alternates: { canonical: "/terms" },
 };
 
@@ -16,7 +16,7 @@ const summary = [
   `You must be at least ${legal.minimumAge} to use our services.`,
   "Your content stays yours. We use it only to run the services for you.",
   "Paid plans renew until you cancel. You can cancel at any time and keep access until the end of the paid period. Payments are not refunded, except where the law requires it.",
-  "Guard is in early preview and helps you supervise coding agents. It does not replace your own review, and you stay responsible for what your agents do.",
+  "AlgorithGuard is in early preview and helps you supervise coding agents. It does not replace your own review, and you stay responsible for what your agents do.",
   "These terms are governed by the laws of the Republic of Uzbekistan.",
 ] as const;
 
@@ -28,9 +28,9 @@ const clauses: readonly LegalClause[] = [
       <>
         <p>
           These terms apply when you use the Algorithco website, Algorithco
-          Account, Algorith Voice or algorithco guard (together, the
-          “services”). By creating an account or using the services, you agree
-          to them. If you do not agree, do not use the services.
+          Account, AlgorithVoice or AlgorithGuard (together, the “services”). By
+          creating an account or using the services, you agree to them. If you
+          do not agree, do not use the services.
         </p>
         <p>
           {legal.operator} “Algorithco”, “we” and “us” mean that operator. If
@@ -78,28 +78,29 @@ const clauses: readonly LegalClause[] = [
     title: "Our products",
     body: (
       <>
-        <h3>Algorith Voice</h3>
+        <h3>AlgorithVoice</h3>
         <p>
-          Voice turns speech into text and types it into the app you are using.
-          Transcription can make mistakes, so check anything important before
-          you rely on it. Local mode works on your device. Cloud transcription
-          runs only if you set it up, with your own Groq key or through
-          Algorithco, as described in our{" "}
+          AlgorithVoice turns speech into text and types it into the app you are
+          using. Transcription can make mistakes, so check anything important
+          before you rely on it. Local mode works on your device. Cloud
+          transcription runs only if you set it up, with your own Groq key or
+          through Algorithco, as described in our{" "}
           <Link href="/privacy">privacy policy</Link>.
         </p>
-        <h3>algorithco guard</h3>
+        <h3>AlgorithGuard</h3>
         <p>
-          Guard sits between CLI coding agents and the actions they take, and
-          allows, blocks or asks you about each one. It is in early preview, so
-          features and behavior will change, and it may have errors. Guard
-          reduces risk, but it cannot catch every harmful action. You remain
-          responsible for the agents you run, the commands they execute and the
-          changes they make. Keep backups and review important changes.
+          AlgorithGuard sits between CLI coding agents and the actions they
+          take, and allows, blocks or asks you about each one. It is in early
+          preview, so features and behavior will change, and it may have errors.
+          AlgorithGuard reduces risk, but it cannot catch every harmful action.
+          You remain responsible for the agents you run, the commands they
+          execute and the changes they make. Keep backups and review important
+          changes.
         </p>
         <p>
-          If you choose Guard’s redacted or full privacy mode, requests are sent
-          to TypeSafe with your own API key. Your use of TypeSafe is governed by
-          your agreement with TypeSafe.
+          If you choose AlgorithGuard’s redacted or full privacy mode, requests
+          are sent to TypeSafe with your own API key. Your use of TypeSafe is
+          governed by your agreement with TypeSafe.
         </p>
         <h3>Previews and free plans</h3>
         <p>
@@ -180,11 +181,12 @@ const clauses: readonly LegalClause[] = [
     title: "Your content",
     body: (
       <p>
-        Your content, such as your recordings, transcripts, Guard policies and
-        audit logs, belongs to you. You give us permission to store, process and
-        transmit it only as needed to run the services for you and as described
-        in our <Link href="/privacy">privacy policy</Link>. You are responsible
-        for having the right to the content you use with the services.
+        Your content, such as your recordings, transcripts, AlgorithGuard
+        policies and audit logs, belongs to you. You give us permission to
+        store, process and transmit it only as needed to run the services for
+        you and as described in our <Link href="/privacy">privacy policy</Link>.
+        You are responsible for having the right to the content you use with the
+        services.
       </p>
     ),
   },
@@ -202,8 +204,9 @@ const clauses: readonly LegalClause[] = [
           Where we distribute software under an open-source license, such as the
           GNU General Public License version 3, that license governs the
           software, and nothing in these terms limits your rights under it.
-          Third-party components, including the speech models used by Voice,
-          come with their own licenses, which Voice shows for each model.
+          Third-party components, including the speech models used by
+          AlgorithVoice, come with their own licenses, which AlgorithVoice shows
+          for each model.
         </p>
         <p>
           If you send us feedback or ideas, we may use them without any

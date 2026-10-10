@@ -48,7 +48,9 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
             <DashboardIcon name="guard" />
           </span>
           <div>
-            <p className="eyebrow">Guard workspace</p>
+            <p className="eyebrow">
+              <span className="keep-case">AlgorithGuard</span> workspace
+            </p>
             <strong>{activeOrg?.org_name ?? "Workspace control"}</strong>
             <small>
               {activeOrg
@@ -65,7 +67,7 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
               <select
                 value={session.orgId}
                 onChange={(event) => session.selectOrg(event.target.value)}
-                aria-label="Guard workspace"
+                aria-label="AlgorithGuard workspace"
               >
                 {orgs.data.orgs.map((org) => (
                   <option key={org.org_id} value={org.org_id}>
@@ -108,7 +110,7 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
 
       {error ? (
         <p className="dashboard-alert" role="alert">
-          <strong>Guard workspace is unavailable.</strong>
+          <strong>AlgorithGuard workspace is unavailable.</strong>
           <span>{error}</span>
         </p>
       ) : null}

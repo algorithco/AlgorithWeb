@@ -1,8 +1,8 @@
 export const guardDocs = {
   install: {
-    title: "Install Guard",
+    title: "Install AlgorithGuard",
     intro:
-      "Install the local-first Guard CLI and connect it to your Algorithco account.",
+      "Install the local-first AlgorithGuard CLI and connect it to your Algorithco account.",
     sections: [
       [
         "Install",
@@ -10,18 +10,18 @@ export const guardDocs = {
       ],
       [
         "Initialize",
-        "Run algo init inside a repository. Guard creates project-local configuration and starts in shadow mode so you can review decisions before enforcement.",
+        "Run algo init inside a repository. AlgorithGuard creates project-local configuration and starts in shadow mode so you can review decisions before enforcement.",
       ],
       [
         "Connect",
-        "Run algo login to authorize the Guard CLI through the central Account service. The browser and CLI share the same Algorithco identity.",
+        "Run algo login to authorize the AlgorithGuard CLI through the central Account service. The browser and CLI share the same Algorithco identity.",
       ],
     ],
   },
   cli: {
     title: "CLI reference",
     intro:
-      "The essential Guard commands for setup, inspection, and enforcement.",
+      "The essential AlgorithGuard commands for setup, inspection, and enforcement.",
     sections: [
       [
         "algo init",
@@ -60,7 +60,7 @@ export const guardDocs = {
   configuration: {
     title: "Configuration",
     intro:
-      "Guard is conservative by default and keeps project policy explicit.",
+      "AlgorithGuard is conservative by default and keeps project policy explicit.",
     sections: [
       [
         "Profiles",
@@ -91,7 +91,7 @@ export const guardDocs = {
       ],
       [
         "Account boundary",
-        "The Guard backend verifies short-lived Account access tokens locally and uses a read-only product-scoped service credential for entitlements.",
+        "The AlgorithGuard backend verifies short-lived Account access tokens locally and uses a read-only product-scoped service credential for entitlements.",
       ],
       [
         "Signed policies",
@@ -118,14 +118,14 @@ export const guardDocs = {
       ],
       [
         "Fail-safe asks",
-        "Inspect algo why and the active policy. Guard intentionally asks when a dependency or rule cannot be evaluated safely.",
+        "Inspect algo why and the active policy. AlgorithGuard intentionally asks when a dependency or rule cannot be evaluated safely.",
       ],
     ],
   },
   architecture: {
     title: "Architecture",
     intro:
-      "Guard separates fast local enforcement from optional account and team services.",
+      "AlgorithGuard separates fast local enforcement from optional account and team services.",
     sections: [
       [
         "Agent adapters",
@@ -136,12 +136,12 @@ export const guardDocs = {
         "Parsing, redaction, deterministic rules, cache, and optional models produce allow, ask, or deny.",
       ],
       [
-        "Guard backend",
+        "AlgorithGuard backend",
         "The backend provides organizations, redacted audit history, statistics, entitlement enforcement, and signed policy synchronization.",
       ],
       [
         "Algorithco platform",
-        "The unified trqsh.uz frontend owns authentication, billing navigation, documentation, and the Guard console.",
+        "The unified trqsh.uz frontend owns authentication, billing navigation, documentation, and the AlgorithGuard console.",
       ],
     ],
   },

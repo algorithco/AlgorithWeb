@@ -18,6 +18,7 @@ import {
   workspaceNavigation,
 } from "@/config/dashboard";
 import type { PlatformSession } from "@/hooks/use-platform-session";
+import { AlgorithcoMark } from "./brand-marks";
 import { ThemeToggle } from "./theme-toggle";
 
 export type DashboardIconName =
@@ -319,7 +320,9 @@ export function DashboardShell({
               title="Back to the main page"
               onClick={closeMenu}
             >
-              <span aria-hidden="true">A</span>
+              <span aria-hidden="true">
+                <AlgorithcoMark />
+              </span>
               <strong>algorithco</strong>
             </Link>
             <button
@@ -351,8 +354,10 @@ export function DashboardShell({
             })}
           </nav>
 
-          <nav className="dashboard-nav" aria-label="Voice product">
-            <p>Voice</p>
+          <nav className="dashboard-nav" aria-label="AlgorithVoice product">
+            <p>
+              <span className="keep-case">AlgorithVoice</span>
+            </p>
             {voiceNavigation.map((item) => {
               const active = isActive(pathname, hash, item.href);
               return (
@@ -370,8 +375,10 @@ export function DashboardShell({
             })}
           </nav>
 
-          <nav className="dashboard-nav" aria-label="Guard product">
-            <p>Guard control</p>
+          <nav className="dashboard-nav" aria-label="AlgorithGuard product">
+            <p>
+              <span className="keep-case">AlgorithGuard</span> control
+            </p>
             {guardNavigation.map((item) => {
               const active = isActive(pathname, hash, item.href);
               return (
@@ -394,9 +401,14 @@ export function DashboardShell({
             aria-label="Resources"
           >
             <p>Resources</p>
+            <Link href={dashboardRoutes.voiceDocs} onClick={closeMenu}>
+              <DashboardIcon name="docs" />
+              <span>AlgorithVoice docs</span>
+              <DashboardIcon name="external" />
+            </Link>
             <Link href={dashboardRoutes.guardDocs} onClick={closeMenu}>
               <DashboardIcon name="docs" />
-              <span>Documentation</span>
+              <span>AlgorithGuard docs</span>
               <DashboardIcon name="external" />
             </Link>
           </nav>

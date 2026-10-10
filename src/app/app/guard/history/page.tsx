@@ -19,7 +19,9 @@ export default function GuardHistoryPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">Guard</p>
+          <p className="eyebrow">
+            <span className="keep-case">AlgorithGuard</span>
+          </p>
           <h2>Decision history</h2>
         </div>
         <span className="muted">Refreshes every five seconds</span>

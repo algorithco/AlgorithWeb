@@ -13,7 +13,9 @@ export default async function GuardDocPage({ params }: Props) {
   const doc = guardDocs[topic as GuardDocTopic];
   return (
     <>
-      <p className="eyebrow">Guard documentation</p>
+      <p className="eyebrow">
+        <span className="keep-case">AlgorithGuard</span> documentation
+      </p>
       <h1>{doc.title}</h1>
       <p className="docs-lead">{doc.intro}</p>
       {doc.sections.map(([title, body]) => (

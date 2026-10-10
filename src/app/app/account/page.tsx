@@ -855,7 +855,7 @@ export default function AccountPage() {
                 <span
                   className={`dashboard-plan-mark dashboard-plan-mark--${product.accent}`}
                 >
-                  {product.shortName.charAt(0)}
+                  {product.slug.charAt(0).toUpperCase()}
                 </span>
                 <div>
                   <strong>{product.name}</strong>

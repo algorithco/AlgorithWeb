@@ -104,7 +104,7 @@ export default function Home() {
               </div>
               <p>{product.description}</p>
               <Link className="text-link" href={product.href}>
-                Explore {product.shortName} <span aria-hidden="true">→</span>
+                Explore {product.name} <span aria-hidden="true">→</span>
               </Link>
             </li>
           ))}

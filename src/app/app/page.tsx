@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { AnimatedNumber } from "@/components/animated-number";
+import { VoiceMark } from "@/components/brand-marks";
 import { ButtonLink } from "@/components/button-link";
 import {
   DashboardIcon,
@@ -31,20 +32,20 @@ function productDestination(product: Product) {
     return {
       href: dashboardRoutes.guard,
       external: false,
-      label: "Open Guard",
+      label: "Open AlgorithGuard",
     };
   }
   if (product.slug === "voice") {
     return {
       href: dashboardRoutes.voice,
       external: false,
-      label: "Open Voice",
+      label: "Open AlgorithVoice",
     };
   }
   return {
     href: product.externalUrl,
     external: true,
-    label: `Open ${product.shortName}`,
+    label: `Open ${product.name}`,
   };
 }
 
@@ -89,7 +90,9 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="dashboard-welcome__actions">
-          <ButtonLink href={dashboardRoutes.guard}>Open Guard</ButtonLink>
+          <ButtonLink href={dashboardRoutes.guard}>
+            Open AlgorithGuard
+          </ButtonLink>
           <ButtonLink href={dashboardRoutes.account} variant="secondary">
             Account center
           </ButtonLink>
@@ -106,7 +109,7 @@ export default function DashboardPage() {
           ) : null}
           {guardWorkspaces.error ? (
             <p className="dashboard-alert" role="alert">
-              <strong>Guard workspaces are unavailable.</strong>
+              <strong>AlgorithGuard workspaces are unavailable.</strong>
               <span>Account and subscription data remain available.</span>
             </p>
           ) : null}
@@ -129,7 +132,7 @@ export default function DashboardPage() {
           value={String(paidPlans)}
         />
         <SummaryCard
-          detail="Active Guard organizations"
+          detail="Active AlgorithGuard organizations"
           icon="guard"
           label="Workspaces"
           loading={guardWorkspaces.isPending}
@@ -198,10 +201,10 @@ export default function DashboardPage() {
                   <span
                     className={`dashboard-plan-mark dashboard-plan-mark--${product.accent}`}
                   >
-                    {product.shortName.charAt(0)}
+                    {product.slug.charAt(0).toUpperCase()}
                   </span>
                   <span>
-                    <strong>{product.shortName}</strong>
+                    <strong>{product.name}</strong>
                     <small>
                       {entitlement?.status ??
                         (entitlements.isPending ? "Loading" : "Included")}
@@ -297,7 +300,7 @@ export default function DashboardPage() {
         </div>
         <div>
           <p className="eyebrow">Need a hand?</p>
-          <h2 id="help-title">Start with the Guard quickstart.</h2>
+          <h2 id="help-title">Start with the AlgorithGuard quickstart.</h2>
           <p>
             Connect a coding agent, review its first decisions, and tune your
             policy in minutes.
@@ -339,7 +342,7 @@ function DashboardProduct({
           {product.slug === "guard" ? (
             <DashboardIcon name="guard" />
           ) : (
-            <DashboardIcon name="pulse" />
+            <VoiceMark />
           )}
         </span>
         <div>

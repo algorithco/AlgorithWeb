@@ -4,7 +4,9 @@ import { guardDocs } from "@/content/guard-docs";
 export default function GuardDocsPage() {
   return (
     <>
-      <p className="eyebrow">Algorithco Guard</p>
+      <p className="eyebrow">
+        <span className="keep-case">AlgorithGuard</span>
+      </p>
       <h1>Documentation</h1>
       <p className="docs-lead">
         Install the CLI, understand the local decision pipeline, and operate the

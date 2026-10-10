@@ -2,6 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { DashboardIcon } from "@/components/dashboard-shell";
+import { type Enrollment, MfaEnrollment } from "@/components/mfa-enrollment";
 import { dashboardRoutes } from "@/config/dashboard";
 import {
   createCheckoutSession,
@@ -61,28 +62,6 @@ async function reenterAccountCenter(notice: string) {
 
 function reauthenticate() {
   window.location.assign(REAUTH_URL);
-}
-
-export function CopyButton({ label, value }: { label: string; value: string }) {
-  const [copied, setCopied] = useState(false);
-  return (
-    <button
-      type="button"
-      className="account-copy__button"
-      aria-label={`Copy ${label}`}
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(value);
-          setCopied(true);
-          window.setTimeout(() => setCopied(false), 1800);
-        } catch {
-          setCopied(false);
-        }
-      }}
-    >
-      {copied ? "Copied" : "Copy"}
-    </button>
-  );
 }
 
 function ErrorLine({
@@ -203,8 +182,6 @@ export function ProfileEditor({
 /* Two-step verification                                                    */
 /* ------------------------------------------------------------------------ */
 
-type Enrollment = { uri: string; key: string; recoveryCodes: string[] };
-
 export function TwoStepControl({
   security,
 }: {
@@ -215,6 +192,7 @@ export function TwoStepControl({
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
+  const [savedCodes, setSavedCodes] = useState(false);
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
   const turningOff = security.mfaEnabled;
@@ -225,6 +203,7 @@ export function TwoStepControl({
     setPassword("");
     setCode("");
     setEnrollment(null);
+    setSavedCodes(false);
     setFailure(null);
   };
 
@@ -395,43 +374,13 @@ export function TwoStepControl({
   } else {
     body = (
       <form onSubmit={confirm} noValidate>
-        <ol className="account-mfa-steps">
-          <li>
-            Add Algorithco to your authenticator app.{" "}
-            <a href={enrollment.uri}>Open in authenticator app</a>, or enter
-            this setup key:
-            <span className="account-mfa-key">
-              <code>{enrollment.key}</code>
-              <CopyButton label="setup key" value={enrollment.key} />
-            </span>
-          </li>
-          <li>
-            Save these recovery codes somewhere safe. Each works once if you
-            lose your device; they are not shown again.
-            <span className="account-recovery-codes">
-              {enrollment.recoveryCodes.map((item) => (
-                <code key={item}>{item}</code>
-              ))}
-            </span>
-            <CopyButton
-              label="recovery codes"
-              value={enrollment.recoveryCodes.join("\n")}
-            />
-          </li>
-          <li>Enter the 6-digit code your app shows now.</li>
-        </ol>
-        <input
-          id="account-mfa-confirm"
-          className="account-password-dialog__code"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          aria-label="6-digit authenticator code"
-          maxLength={6}
-          value={code}
+        <MfaEnrollment
+          enrollment={enrollment}
+          code={code}
+          onCodeChange={setCode}
+          savedCodes={savedCodes}
+          onSavedCodesChange={setSavedCodes}
           disabled={pending}
-          onChange={(event) =>
-            setCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
         />
         <ErrorLine result={failure} />
         <div className="dashboard-confirm-dialog__actions">
@@ -446,7 +395,7 @@ export function TwoStepControl({
           <button
             className="button button--primary dashboard-confirm-dialog__confirm"
             type="submit"
-            disabled={pending || code.length !== 6}
+            disabled={pending || code.length !== 6 || !savedCodes}
           >
             {pending ? "Verifying…" : "Turn on"}
           </button>

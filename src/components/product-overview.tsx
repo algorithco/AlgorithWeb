@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { StatusBadge } from "@/components/status-badge";
@@ -24,14 +25,25 @@ export function productMetadata(product: Product): Metadata {
   };
 }
 
-/** Overview page of a product section (/voice, /guard). */
-export function ProductOverview({ product }: { product: Product }) {
+/**
+ * Overview page of a product section (/voice, /guard). `children` are extra
+ * detail rows of that product, placed after the platforms.
+ */
+export function ProductOverview({
+  children,
+  product,
+}: {
+  children?: ReactNode;
+  product: Product;
+}) {
   return (
     <div className={`product-page product-page--${product.accent}`}>
       <section className="product-hero" data-reveal>
         <Container>
           <div className="product-hero__meta">
-            <span>Algorithco / {product.shortName}</span>
+            <span>
+              Algorithco / <span className="keep-case">{product.name}</span>
+            </span>
             <StatusBadge status={product.status} label={product.statusLabel} />
           </div>
           <h1>{product.tagline}</h1>
@@ -80,13 +92,14 @@ export function ProductOverview({ product }: { product: Product }) {
               ))}
             </ul>
           </div>
+          {children}
           {product.status === "preview" && (
             <aside className="preview-note" data-reveal>
               <p className="eyebrow">Status</p>
               <h2>Early preview—not generally available.</h2>
               <p>
-                Guard is currently a private MVP. Its product page is the source
-                for future availability updates.
+                AlgorithGuard is currently a private MVP. Its product page is
+                the source for future availability updates.
               </p>
             </aside>
           )}
