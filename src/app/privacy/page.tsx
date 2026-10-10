@@ -14,7 +14,7 @@ const mail = <a href={`mailto:${legal.email}`}>{legal.email}</a>;
 
 const summary = [
   "No ads, no trackers and no third-party analytics on this website.",
-  "Voice and Guard are local-first. By default your audio and your coding agents’ activity stay on your device.",
+  "AlgorithVoice and AlgorithGuard are local-first. By default your audio and your coding agents’ activity stay on your device.",
   "An Algorithco account keeps what it needs to sign you in and keep you safe. IP addresses are stored only as keyed hashes.",
   "We do not sell personal data.",
   `You can delete your account yourself. It is permanently erased ${legal.deletionGraceDays} days later.`,
@@ -33,10 +33,10 @@ const clauses: readonly LegalClause[] = [
         </p>
         <p>
           This policy covers the Algorithco website, Algorithco Account (the
-          sign-in and billing service shared by our products), Algorith Voice
-          and algorithco guard. If a product shows you a more specific notice,
-          for example before you turn on a cloud feature, that notice adds to
-          this one.
+          sign-in and billing service shared by our products), AlgorithVoice and
+          AlgorithGuard. If a product shows you a more specific notice, for
+          example before you turn on a cloud feature, that notice adds to this
+          one.
         </p>
       </>
     ),
@@ -104,7 +104,7 @@ const clauses: readonly LegalClause[] = [
           which features your account includes.
         </p>
 
-        <h3>When you use Algorith Voice</h3>
+        <h3>When you use AlgorithVoice</h3>
         <ul>
           <li>
             <strong>Local mode.</strong> Transcription runs on your device.
@@ -137,11 +137,11 @@ const clauses: readonly LegalClause[] = [
           </li>
         </ul>
 
-        <h3>When you use algorithco guard</h3>
+        <h3>When you use AlgorithGuard</h3>
         <ul>
           <li>
-            Guard runs on your machine. Its decisions and its audit log are
-            stored locally, in <code>~/.algo/audit.db</code>.
+            AlgorithGuard runs on your machine. Its decisions and its audit log
+            are stored locally, in <code>~/.algo/audit.db</code>.
           </li>
           <li>
             You choose a privacy mode when you install it.{" "}
@@ -157,9 +157,9 @@ const clauses: readonly LegalClause[] = [
             local-only stops all sending.
           </li>
           <li>
-            If your organization uses the Guard web dashboard, the policies and
-            audit events it sends there are stored on our servers for that
-            organization. Audit events are stored in redacted form.
+            If your organization uses the AlgorithGuard web dashboard, the
+            policies and audit events it sends there are stored on our servers
+            for that organization. Audit events are stored in redacted form.
           </li>
         </ul>
       </>
@@ -192,8 +192,8 @@ const clauses: readonly LegalClause[] = [
           </li>
           <li>
             <strong>To run features you choose,</strong> such as Algorithco
-            cloud transcription in Voice. You can stop at any time by switching
-            back to local mode.
+            cloud transcription in AlgorithVoice. You can stop at any time by
+            switching back to local mode.
           </li>
           <li>
             <strong>To meet legal obligations</strong> where the law requires us
@@ -327,27 +327,27 @@ const clauses: readonly LegalClause[] = [
               </tr>
               <tr>
                 <td>OpenRouter</td>
-                <td>Algorithco cloud transcription in Voice.</td>
+                <td>Algorithco cloud transcription in AlgorithVoice.</td>
                 <td>Only when you use it</td>
               </tr>
               <tr>
                 <td>Groq</td>
                 <td>
-                  Voice cloud mode with your own key. Your device talks to Groq
-                  directly.
+                  AlgorithVoice cloud mode with your own key. Your device talks
+                  to Groq directly.
                 </td>
                 <td>Only if you add a Groq key</td>
               </tr>
               <tr>
                 <td>Hugging Face</td>
-                <td>Hosts the on-device Voice speech models.</td>
+                <td>Hosts the on-device AlgorithVoice speech models.</td>
                 <td>When the app downloads a model</td>
               </tr>
               <tr>
                 <td>TypeSafe</td>
                 <td>
-                  Guard remote evaluation, with your own key. You deal with
-                  TypeSafe directly.
+                  AlgorithGuard remote evaluation, with your own key. You deal
+                  with TypeSafe directly.
                 </td>
                 <td>Only in redacted or full mode</td>
               </tr>
@@ -408,13 +408,13 @@ const clauses: readonly LegalClause[] = [
           financial regulations require.
         </li>
         <li>
-          <strong>Voice cloud audio</strong> is held for at most one hour while
-          it is processed. Usage records are kept while your account exists.
-          Transcript history stays on your device until you delete it.
+          <strong>AlgorithVoice cloud audio</strong> is held for at most one
+          hour while it is processed. Usage records are kept while your account
+          exists. Transcript history stays on your device until you delete it.
         </li>
         <li>
-          <strong>Guard’s local audit log</strong> stays on your machine until
-          you delete it.
+          <strong>AlgorithGuard’s local audit log</strong> stays on your machine
+          until you delete it.
         </li>
         <li>
           <strong>Web server logs</strong> are kept only as long as we need them
@@ -432,8 +432,8 @@ const clauses: readonly LegalClause[] = [
           <li>Passwords are hashed with Argon2id.</li>
           <li>Two-factor secrets are encrypted with AES-256-GCM.</li>
           <li>
-            Voice keeps your Groq key in your operating system’s credential
-            store, not in plain files.
+            AlgorithVoice keeps your Groq key in your operating system’s
+            credential store, not in plain files.
           </li>
           <li>
             IP addresses, session tokens and email codes are stored as keyed

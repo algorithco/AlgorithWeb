@@ -25,7 +25,9 @@ export default function GuardStatsPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">Guard · Insights</p>
+          <p className="eyebrow">
+            <span className="keep-case">AlgorithGuard</span> · Insights
+          </p>
           <h2>Usage statistics</h2>
           <p className="muted">
             A 90-day view of decisions, projects, users, and response time.

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { products } from "@/config/products";
+import { AlgorithcoMark } from "./brand-marks";
 import { ButtonLink } from "./button-link";
 import { Container } from "./container";
 import { SplitWords } from "./split-words";
@@ -73,7 +74,7 @@ export function Footer() {
           <div className="footer-brand">
             <Link aria-label="Algorithco home" className="wordmark" href="/">
               <span aria-hidden="true" className="wordmark__mark">
-                A
+                <AlgorithcoMark />
               </span>
               <span>algorithco</span>
             </Link>
@@ -83,7 +84,7 @@ export function Footer() {
             <p>Products</p>
             {products.map((product) => (
               <Link href={product.href} key={product.slug}>
-                {product.shortName}
+                {product.name}
                 <span
                   className={`footer-status footer-status--${product.status}`}
                 >

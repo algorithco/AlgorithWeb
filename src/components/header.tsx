@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { products } from "@/config/products";
 import { siteConfig } from "@/config/site";
 import { usePlatformSession } from "@/hooks/use-platform-session";
+import { AlgorithcoMark } from "./brand-marks";
 import { Container } from "./container";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -22,7 +23,7 @@ export function Header() {
     pathname === href || pathname.startsWith(`${href}/`) ? "page" : undefined;
   const links = [
     ...products.map((product) => ({
-      label: product.shortName,
+      label: product.name,
       href: product.href,
     })),
     ...companyLinks,
@@ -39,7 +40,7 @@ export function Header() {
       <Container className="site-header__inner">
         <Link className="wordmark" href="/" aria-label="Algorithco home">
           <span className="wordmark__mark" aria-hidden="true">
-            A
+            <AlgorithcoMark />
           </span>
           <span>algorithco</span>
         </Link>

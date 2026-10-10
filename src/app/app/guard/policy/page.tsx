@@ -11,7 +11,7 @@ import {
   publishGuardPolicy,
 } from "@/lib/guard-api";
 
-const starter = `# Algorithco Guard policy
+const starter = `# AlgorithGuard policy
 version: v1
 profile: balanced
 rules:
@@ -75,7 +75,9 @@ export default function GuardPolicyPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">Guard · Controls</p>
+          <p className="eyebrow">
+            <span className="keep-case">AlgorithGuard</span> · Controls
+          </p>
           <h2>Policy</h2>
           <p className="muted">
             Validate policy changes against redacted history before publishing a

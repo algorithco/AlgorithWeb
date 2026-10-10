@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { getProduct, type ProductSlug } from "@/config/products";
+import { VoiceMark } from "./brand-marks";
 import { Container } from "./container";
 
 /** Scrolled distance before the site header may tuck away. */
@@ -63,16 +64,17 @@ export function ProductNav({ slug }: { slug: ProductSlug }) {
   const ctaActive = isActive(pathname, product.cta.href, product.href);
   return (
     <nav
-      aria-label={product.shortName}
+      aria-label={product.name}
       className={`product-nav product-nav--${product.accent}`}
     >
       <Container className="product-nav__inner">
         <Link className="product-nav__brand" href={product.href}>
-          <span aria-hidden="true" className="product-nav__mark" />
+          {slug === "voice" ? (
+            <VoiceMark className="product-nav__logo" />
+          ) : (
+            <span aria-hidden="true" className="product-nav__mark" />
+          )}
           <span className="product-nav__name">{product.name}</span>
-          <span aria-hidden="true" className="product-nav__short">
-            {product.shortName}
-          </span>
         </Link>
         <div className="product-nav__links">
           {product.sections.map((section) => {

@@ -1,5 +1,5 @@
 /**
- * The latest public Algorith Voice desktop release, read from GitHub at
+ * The latest public AlgorithVoice desktop release, read from GitHub at
  * build time (the site is a static export). Visitors' browsers never call
  * GitHub for this page; they only reach github.com when they click a
  * download link.

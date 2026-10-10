@@ -11,6 +11,9 @@ export const dashboardRoutes = {
   guardDocs: "/guard/docs",
   voice: "/app/voice",
   voiceAdmin: "/app/voice/admin",
+  voiceAdminModels: "/app/voice/admin/models",
+  voiceAdminErrors: "/app/voice/admin/errors",
+  voiceDocs: "/voice/docs",
   productsCatalog: "/#products",
 } as const;
 
@@ -20,17 +23,34 @@ export const dashboardPageLabels: Record<
 > = {
   [dashboardRoutes.overview]: { section: "Workspace", page: "Overview" },
   [dashboardRoutes.account]: { section: "Workspace", page: "Account" },
-  [dashboardRoutes.guard]: { section: "Guard", page: "Overview" },
+  [dashboardRoutes.guard]: { section: "AlgorithGuard", page: "Overview" },
   [dashboardRoutes.guardHistory]: {
-    section: "Guard",
+    section: "AlgorithGuard",
     page: "Decision history",
   },
-  [dashboardRoutes.guardAudit]: { section: "Guard", page: "Audit log" },
-  [dashboardRoutes.guardPolicy]: { section: "Guard", page: "Policy" },
-  [dashboardRoutes.guardStats]: { section: "Guard", page: "Usage & stats" },
-  [dashboardRoutes.voice]: { section: "Voice", page: "Overview" },
-  [dashboardRoutes.voiceAdmin]: { section: "Voice", page: "Admin" },
+  [dashboardRoutes.guardAudit]: { section: "AlgorithGuard", page: "Audit log" },
+  [dashboardRoutes.guardPolicy]: { section: "AlgorithGuard", page: "Policy" },
+  [dashboardRoutes.guardStats]: {
+    section: "AlgorithGuard",
+    page: "Usage & stats",
+  },
+  [dashboardRoutes.voice]: { section: "AlgorithVoice", page: "Overview" },
+  [dashboardRoutes.voiceAdmin]: { section: "AlgorithVoice", page: "Admin" },
+  [dashboardRoutes.voiceAdminModels]: {
+    section: "AlgorithVoice",
+    page: "Admin · Models",
+  },
+  [dashboardRoutes.voiceAdminErrors]: {
+    section: "AlgorithVoice",
+    page: "Admin · Errors",
+  },
 };
+
+export const voiceAdminNavigation = [
+  { label: "Overview", href: dashboardRoutes.voiceAdmin },
+  { label: "Models", href: dashboardRoutes.voiceAdminModels },
+  { label: "Errors", href: dashboardRoutes.voiceAdminErrors },
+] as const;
 
 export const workspaceNavigation = [
   { label: "Overview", href: dashboardRoutes.overview, icon: "home" },
@@ -44,7 +64,11 @@ export const workspaceNavigation = [
 ] as const;
 
 export const guardNavigation = [
-  { label: "Guard overview", href: dashboardRoutes.guard, icon: "guard" },
+  {
+    label: "AlgorithGuard overview",
+    href: dashboardRoutes.guard,
+    icon: "guard",
+  },
   {
     label: "Decision history",
     href: dashboardRoutes.guardHistory,
@@ -56,7 +80,7 @@ export const guardNavigation = [
 ] as const;
 
 export const voiceNavigation = [
-  { label: "Voice overview", href: dashboardRoutes.voice, icon: "mic" },
+  { label: "AlgorithVoice overview", href: dashboardRoutes.voice, icon: "mic" },
 ] as const;
 
 export function productDetailsRoute(slug: string) {

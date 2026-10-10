@@ -12,7 +12,6 @@ export type Product = {
   /** The one action at the right end of the product navbar. */
   cta: ProductLink;
   name: string;
-  shortName: string;
   tagline: string;
   description: string;
   status: ProductStatus;
@@ -31,10 +30,12 @@ export const products = [
   {
     slug: "voice",
     href: "/voice",
-    sections: [{ label: "Overview", href: "/voice" }],
+    sections: [
+      { label: "Overview", href: "/voice" },
+      { label: "Docs", href: "/voice/docs" },
+    ],
     cta: { label: "Download", href: "/voice/download" },
-    name: "Algorith Voice",
-    shortName: "Voice",
+    name: "AlgorithVoice",
     tagline: "Talk faster. Type never.",
     description:
       "Push-to-talk voice dictation that puts your words into the app you are already using.",
@@ -53,7 +54,7 @@ export const products = [
       process.env.NEXT_PUBLIC_VOICE_URL,
       "https://trqsh.uz/app/voice",
     ),
-    externalLabel: "Open Voice",
+    externalLabel: "Open AlgorithVoice",
   },
   {
     slug: "guard",
@@ -63,8 +64,7 @@ export const products = [
       { label: "Docs", href: "/guard/docs" },
     ],
     cta: { label: "Install", href: "/guard/docs/install" },
-    name: "algorithco guard",
-    shortName: "Guard",
+    name: "AlgorithGuard",
     tagline: "Control for coding agents.",
     description:
       "An intelligent control layer for CLI coding agents that makes their work safer, quieter, and auditable.",
@@ -83,7 +83,7 @@ export const products = [
       process.env.NEXT_PUBLIC_GUARD_URL,
       "https://trqsh.uz/app/guard",
     ),
-    externalLabel: "Open Guard",
+    externalLabel: "Open AlgorithGuard",
   },
 ] as const satisfies readonly Product[];
 

@@ -9,14 +9,17 @@ import {
   useDashboardSession,
 } from "@/components/dashboard-shell";
 import { SummaryCard } from "@/components/dashboard-summary-card";
+import { DailyUsageChart } from "@/components/voice/daily-usage-chart";
 import { dashboardRoutes } from "@/config/dashboard";
 import { beginAccountLogin } from "@/lib/account-auth";
 import { displayPlan } from "@/lib/dashboard-format";
 import {
   formatSeconds,
   getVoiceAdminUsage,
+  getVoiceDailyUsage,
   getVoiceUsage,
   listVoiceDevices,
+  listVoiceRecentUsage,
   removeVoiceDevice,
   tokenHasScope,
   type VoiceDevice,
@@ -24,6 +27,9 @@ import {
   type VoiceUsage,
   voiceErrorMessage,
 } from "@/lib/voice-api";
+
+const DAILY_DAYS = 14;
+const RECENT_LIMIT = 8;
 
 const PLATFORM_LABELS: Record<VoiceDevice["type"], string> = {
   "desktop-windows": "Windows",
@@ -177,6 +183,16 @@ export default function VoiceOverviewPage() {
     queryFn: () => listVoiceDevices(session.token),
     enabled: ready,
   });
+  const daily = useQuery({
+    queryKey: ["voice", "daily", session.profile?.subject, DAILY_DAYS],
+    queryFn: () => getVoiceDailyUsage(DAILY_DAYS, session.token),
+    enabled: ready,
+  });
+  const recent = useQuery({
+    queryKey: ["voice", "recent", session.profile?.subject],
+    queryFn: () => listVoiceRecentUsage(RECENT_LIMIT, session.token),
+    enabled: ready,
+  });
   // Admins see a link to the admin tools; everyone else gets a quiet 403.
   const admin = useQuery({
     queryKey: ["voice", "admin-probe", session.profile?.subject],
@@ -185,7 +201,11 @@ export default function VoiceOverviewPage() {
     retry: false,
   });
 
-  const error = usage.error ?? devices.error;
+  const error = usage.error ?? devices.error ?? daily.error ?? recent.error;
+  // The ledger also holds other metrics; only transcription time is shown.
+  const recentRequests = (recent.data?.recent ?? []).filter(
+    (item) => item.metric === "STT_SECONDS",
+  );
   const seatsMax = devices.data?.seatsMax ?? null;
   const deviceCount = devices.data?.devices.length ?? 0;
 
@@ -193,15 +213,17 @@ export default function VoiceOverviewPage() {
     <div className="platform-dashboard voice-dashboard">
       <header className="dashboard-welcome">
         <div>
-          <p className="eyebrow">Algorith Voice</p>
-          <h1>Voice</h1>
+          <p className="eyebrow">
+            <span className="keep-case">AlgorithVoice</span>
+          </p>
+          <h1>AlgorithVoice</h1>
           <p>
             Cloud transcription, devices and plan for the desktop app. Local
             dictation runs on your computer and is never counted here.
           </p>
         </div>
         <div className="dashboard-welcome__actions">
-          <ButtonLink href="/voice/download">Download Voice</ButtonLink>
+          <ButtonLink href="/voice/download">Download AlgorithVoice</ButtonLink>
           <ButtonLink href={dashboardRoutes.subscriptions} variant="secondary">
             Plans & billing
           </ButtonLink>
@@ -211,11 +233,11 @@ export default function VoiceOverviewPage() {
       {session.signedIn && !hasScope ? (
         <div className="dashboard-alerts">
           <div className="dashboard-alert voice-reauth" role="status">
-            <strong>Voice needs one more permission.</strong>
+            <strong>AlgorithVoice needs one more permission.</strong>
             <span>
-              Your sign-in predates Voice joining your Algorithco account.
-              Refreshing it takes a second and does not ask for your password
-              while your account session is active.
+              Your sign-in predates AlgorithVoice joining your Algorithco
+              account. Refreshing it takes a second and does not ask for your
+              password while your account session is active.
             </span>
             <button
               className="button button--primary"
@@ -242,13 +264,13 @@ export default function VoiceOverviewPage() {
       {error ? (
         <div className="dashboard-alerts">
           <p className="dashboard-alert" role="alert">
-            <strong>Voice data is unavailable.</strong>
+            <strong>AlgorithVoice data is unavailable.</strong>
             <span>{voiceErrorMessage(error)}</span>
           </p>
         </div>
       ) : null}
 
-      <section className="dashboard-summary" aria-label="Voice summary">
+      <section className="dashboard-summary" aria-label="AlgorithVoice summary">
         <SummaryCard
           detail="From your Algorithco account"
           icon="billing"
@@ -359,11 +381,70 @@ export default function VoiceOverviewPage() {
         </section>
       </div>
 
+      <div className="dashboard-detail-grid">
+        <section
+          aria-labelledby="voice-daily-title"
+          className="dashboard-panel"
+        >
+          <div className="dashboard-panel__heading">
+            <div>
+              <p className="eyebrow">Last {DAILY_DAYS} days</p>
+              <h2 id="voice-daily-title">Daily cloud time</h2>
+            </div>
+          </div>
+          {daily.data ? (
+            <DailyUsageChart daily={daily.data.daily} />
+          ) : (
+            <p className="muted">
+              {daily.isPending && ready
+                ? "Loading daily usage…"
+                : "No usage data."}
+            </p>
+          )}
+        </section>
+
+        <section
+          aria-labelledby="voice-recent-title"
+          className="dashboard-panel"
+        >
+          <div className="dashboard-panel__heading">
+            <div>
+              <p className="eyebrow">Activity</p>
+              <h2 id="voice-recent-title">Recent requests</h2>
+            </div>
+          </div>
+          {recentRequests.length ? (
+            <ul className="voice-recent">
+              {recentRequests.map((item) => (
+                <li key={item.id}>
+                  <span>
+                    <strong>{formatSeconds(item.seconds)}</strong>
+                    <small>{dateLabel(item.recordedAt, "")}</small>
+                  </span>
+                  <span>
+                    {item.model ? <code>{item.model}</code> : null}
+                    {item.latencyMs === null ? null : (
+                      <small>{item.latencyMs} ms</small>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">
+              {recent.isPending && ready
+                ? "Loading activity…"
+                : "No cloud requests yet."}
+            </p>
+          )}
+        </section>
+      </div>
+
       {admin.isSuccess ? (
         <section className="dashboard-panel voice-admin-link">
           <div>
             <p className="eyebrow">Operator</p>
-            <h2>Voice admin</h2>
+            <h2>AlgorithVoice admin</h2>
             <p>Service usage, users and access controls.</p>
           </div>
           <Link

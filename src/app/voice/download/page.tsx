@@ -9,9 +9,9 @@ import {
 } from "@/lib/voice-release";
 
 export const metadata: Metadata = {
-  title: "Download Algorith Voice",
+  title: "Download AlgorithVoice",
   description:
-    "Download Algorith Voice for Windows and Linux. Push-to-talk dictation that runs on your device.",
+    "Download AlgorithVoice for Windows and Linux. Push-to-talk dictation that runs on your device.",
   alternates: { canonical: "/voice/download" },
 };
 
@@ -44,7 +44,7 @@ export default async function VoiceDownloadPage() {
     <>
       <PageHero
         eyebrow="Download"
-        title="Get Algorith Voice."
+        title="Get AlgorithVoice."
         description={
           release
             ? `Version ${release.version}, released ${published}. Free to install; local dictation needs no account.`

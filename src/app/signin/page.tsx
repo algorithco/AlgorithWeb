@@ -592,8 +592,8 @@ export default function SignInPage() {
             </h1>
           </div>
           <p className="signin-hero__lead">
-            Sign in to access Guard and all current and future Algorithco
-            products. One account, full control.
+            Sign in to access AlgorithGuard and all current and future
+            Algorithco products. One account, full control.
           </p>
           <ul className="signin-benefits">
             {BENEFITS.map((benefit) => (

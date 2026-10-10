@@ -31,7 +31,7 @@ export type VoiceDevice = {
 
 export type VoiceDevices = {
   devices: VoiceDevice[];
-  seatsUsed: number;
+  total: number;
   seatsMax: VoiceLimit;
 };
 
@@ -55,6 +55,60 @@ export type VoiceAdminUser = {
   _count: { devices: number };
 };
 
+export type VoiceDailyUsage = {
+  days: number;
+  /** One entry per UTC day, oldest first; days without usage are zero. */
+  daily: Array<{ date: string; seconds: number; requests: number }>;
+};
+
+export type VoiceRecentUsage = {
+  recent: Array<{
+    id: string;
+    metric: string;
+    seconds: number;
+    model: string | null;
+    latencyMs: number | null;
+    recordedAt: string;
+  }>;
+};
+
+export type VoiceAdminOverview = {
+  period: { from: string; to: string };
+  totalRequests: number;
+  failedRequests: number;
+  successRate: number;
+  avgLatencyMs: number;
+  totalCostUsd: number;
+};
+
+export type VoiceAdminModelStat = {
+  model: string;
+  requests: number;
+  avgLatencyMs: number;
+  costUsd: number;
+  errorCount: number;
+  errorRate: number;
+};
+
+export type VoiceModelConfig = {
+  modelId: string;
+  displayName: string;
+  provider: string;
+  isActive: boolean;
+  isFallback: boolean;
+  isEnabled: boolean;
+};
+
+export type VoiceAdminError = {
+  id: string;
+  model: string;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+};
+
+type Page = { page: number; limit: number; total: number; totalPages: number };
+
 type RequestOptions = RequestInit & { token?: string };
 
 export async function voiceFetch<T>(
@@ -75,15 +129,27 @@ export function getVoiceUsage(token: string) {
   return voiceFetch<VoiceUsage>("/usage/summary", { token });
 }
 
+export function getVoiceDailyUsage(days: number, token: string) {
+  return voiceFetch<VoiceDailyUsage>(`/usage/daily${buildQuery({ days })}`, {
+    token,
+  });
+}
+
+export function listVoiceRecentUsage(limit: number, token: string) {
+  return voiceFetch<VoiceRecentUsage>(`/usage/recent${buildQuery({ limit })}`, {
+    token,
+  });
+}
+
 export function listVoiceDevices(token: string) {
-  return voiceFetch<VoiceDevices>("/devices", { token });
+  return voiceFetch<VoiceDevices>("/license/devices", { token });
 }
 
 export function removeVoiceDevice(id: string, token: string) {
-  return voiceFetch<void>(`/devices/${encodeURIComponent(id)}`, {
-    method: "DELETE",
-    token,
-  });
+  return voiceFetch<{ ok: true; seatsUsed: number; seatsMax: VoiceLimit }>(
+    `/license/devices/${encodeURIComponent(id)}`,
+    { method: "DELETE", token },
+  );
 }
 
 export function getVoiceAdminUsage(token: string) {
@@ -94,10 +160,50 @@ export function listVoiceAdminUsers(
   params: { page?: number; search?: string },
   token: string,
 ) {
-  return voiceFetch<{
-    data: VoiceAdminUser[];
-    meta: { page: number; limit: number; total: number; totalPages: number };
-  }>(`/admin/users${buildQuery({ limit: 50, ...params })}`, { token });
+  return voiceFetch<{ data: VoiceAdminUser[]; meta: Page }>(
+    `/admin/users${buildQuery({ limit: 50, ...params })}`,
+    { token },
+  );
+}
+
+/** Provider requests over the backend's default window (the last 7 days). */
+export function getVoiceAdminOverview(token: string) {
+  return voiceFetch<VoiceAdminOverview>("/admin/stats/overview", { token });
+}
+
+export function listVoiceAdminModelStats(token: string) {
+  return voiceFetch<{ data: VoiceAdminModelStat[] }>("/admin/stats/models", {
+    token,
+  });
+}
+
+export function listVoiceModelConfigs(token: string) {
+  return voiceFetch<{ all: VoiceModelConfig[] }>("/admin/config/ai-model", {
+    token,
+  });
+}
+
+export function setVoiceModelRole(
+  role: "active" | "fallback",
+  modelId: string,
+  token: string,
+) {
+  return voiceFetch<{ ok: true }>("/admin/config/ai-model", {
+    method: "PUT",
+    token,
+    body: JSON.stringify(
+      role === "active"
+        ? { activeModelId: modelId }
+        : { fallbackModelId: modelId },
+    ),
+  });
+}
+
+export function listVoiceAdminErrors(page: number, token: string) {
+  return voiceFetch<{ data: VoiceAdminError[]; meta: Page }>(
+    `/admin/logs/errors${buildQuery({ page, limit: 20 })}`,
+    { token },
+  );
 }
 
 export function setVoiceUserBlocked(
@@ -121,25 +227,27 @@ export function voiceErrorMessage(error: unknown): string | undefined {
     case "entitlements_unavailable":
       return "Your plan could not be loaded from your Algorithco account right now. Try again in a minute.";
     case "no_entitlement":
-      return "This account has no Voice plan.";
+      return "This account has no AlgorithVoice plan.";
     case "account_blocked":
-      return "Voice is disabled for this account. Contact support.";
+      return "AlgorithVoice is disabled for this account. Contact support.";
     case "auth_unavailable":
       return "Sign-in could not be verified right now. Try again in a minute.";
     case "forbidden":
       return "You do not have access to this page.";
     case "cannot_block_self":
       return "You cannot block your own account.";
+    case "model_not_found":
+      return "That model is no longer configured. Reload the page.";
     default:
       return error.status === 0
-        ? "The Voice service is unreachable."
-        : `Voice request failed (${error.message}).`;
+        ? "The AlgorithVoice service is unreachable."
+        : `AlgorithVoice request failed (${error.message}).`;
   }
 }
 
 /**
  * Whether the (unverified) access token carries a scope. Display logic only:
- * tokens issued before Voice joined the platform lack voice:access, and the
+ * tokens issued before AlgorithVoice joined the platform lack voice:access, and the
  * page offers a re-sign-in instead of failing. The backend still decides.
  */
 export function tokenHasScope(token: string, scope: string): boolean {
@@ -156,6 +264,17 @@ export function tokenHasScope(token: string, scope: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** A backend "YYYY-MM-DD" UTC day, formatted without shifting time zones. */
+export function formatUtcDay(
+  date: string,
+  options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" },
+): string {
+  return new Intl.DateTimeFormat(undefined, {
+    ...options,
+    timeZone: "UTC",
+  }).format(new Date(`${date}T00:00:00Z`));
 }
 
 /** "1 h 5 min", "12 min", "40 s" for cloud transcription time. */
