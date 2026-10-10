@@ -18,7 +18,7 @@ export const voiceDocs = {
       ],
       [
         "First run",
-        "Onboarding asks for a hotkey and a transcription mode. For local mode the app downloads the model you choose once and verifies it before use.",
+        "The app opens your browser to sign in with your Algorithco account; a Free account is enough. Onboarding then asks for a hotkey and a transcription mode. For local mode the app downloads the model you choose once and verifies it before use.",
       ],
     ],
   },
@@ -52,7 +52,7 @@ export const voiceDocs = {
     sections: [
       [
         "Local",
-        "Speech is transcribed on your computer by an on-device model. Audio never leaves the device, and no account is needed.",
+        "Speech is transcribed on your computer by an on-device model. Audio never leaves the device, and it works offline once you are signed in.",
       ],
       [
         "Cloud with your own key",
@@ -168,10 +168,10 @@ export const voiceFaq = [
   ],
   [
     "Do I need an account?",
-    "No. Local dictation works without one. An Algorithco account is only for transcription that goes through Algorithco.",
+    "Yes. The app asks you to sign in with an Algorithco account, and a Free account is enough. Signing in sends no audio and no transcripts.",
   ],
   [
     "What does it cost?",
-    "The app and local dictation are free. Cloud mode with your own Groq key is billed by Groq.",
+    "The app and local dictation are free on every plan, including Free. Cloud mode with your own Groq key is billed by Groq.",
   ],
 ] as const;

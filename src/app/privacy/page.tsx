@@ -108,7 +108,8 @@ const clauses: readonly LegalClause[] = [
         <ul>
           <li>
             <strong>Local mode.</strong> Transcription runs on your device.
-            Audio does not leave it, and no account is needed. Speech models are
+            Audio does not leave it. The app asks you to sign in with your
+            Algorithco account, which sends no audio. Speech models are
             downloaded once from Hugging Face, which, like any download, sees
             your IP address.
           </li>
