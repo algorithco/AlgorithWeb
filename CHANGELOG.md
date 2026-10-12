@@ -24,6 +24,9 @@ with the next deploy.
 - **A changelog.** Every release of every product on one page, at [/changelog](/changelog).
 - **AlgorithVoice benchmarks.** Every on-device speech model measured on the same recordings, at [/voice/benchmarks](/voice/benchmarks).
 
+### Changed
+- The benchmarks show the three new models as in the app: they arrived with AlgorithVoice 0.5.22.
+
 ### Fixed
 - On a phone, the bar of a product section no longer cuts off the name of the page you are on.
 - Approving a desktop app's sign-in now returns you to the app. Before, the page could stay where it was, and pressing Approve again showed an error.

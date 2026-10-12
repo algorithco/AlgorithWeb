@@ -94,7 +94,7 @@ export const benchmarkLanguages = [
       {
         id: "parakeet-unified-en-0.6b",
         name: "Parakeet Unified EN",
-        status: "coming-soon",
+        status: "available",
         pick: true,
         wer: 5.3,
         speed: 9.5,
@@ -144,7 +144,7 @@ export const benchmarkLanguages = [
       {
         id: "gigaam-v3-ru",
         name: "GigaAM v3",
-        status: "coming-soon",
+        status: "available",
         pick: true,
         wer: 4.8,
         speed: 13.1,
@@ -203,7 +203,7 @@ export const benchmarkLanguages = [
       {
         id: "fastconformer-uz",
         name: "FastConformer Uzbek",
-        status: "coming-soon",
+        status: "available",
         pick: true,
         wer: 14.4,
         speed: 37,
