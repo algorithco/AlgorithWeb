@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.22 — 2026-10-12
+
 ### Added
 - **Sign in with your Algorithco account.** The app opens your browser to sign in, so your password is never typed into the app. A Free account is enough.
 - **Choose your microphone.** Pick the microphone dictation records from in Settings, and test it before you speak. If it is unplugged, dictation uses the system default until it is back.
