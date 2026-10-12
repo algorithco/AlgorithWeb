@@ -19,9 +19,23 @@ const sources = JSON.parse(
 );
 const checkOnly = process.argv.includes("--check");
 
+/**
+ * The text without its HTML comments. Repeated until nothing is left to
+ * remove: taking one comment out can join the pieces of another.
+ */
+function withoutComments(text) {
+  let rest = text;
+  let before;
+  do {
+    before = rest;
+    rest = rest.replace(/<!--[\s\S]*?-->/g, "");
+  } while (rest !== before);
+  return rest;
+}
+
 /** The first `##` heading that is a release, for the log line. */
 function newestRelease(markdown) {
-  const visible = markdown.replace(/<!--[\s\S]*?-->/g, "");
+  const visible = withoutComments(markdown);
   for (const [, heading] of visible.matchAll(/^##\s+(.+)$/gm)) {
     if (!/^\[?unreleased\]?$/i.test(heading.trim())) return heading.trim();
   }

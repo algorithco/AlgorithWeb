@@ -59,6 +59,20 @@ const HEADING_SEPARATOR = /\s+[—–-]\s+/;
 const REPOSITORY =
   /\b(?:github|gitlab|bitbucket|codeberg)\.(?:com|org|io)\b|\bgit@[\w.-]+:|\/[\w.-]+\.git\b/i;
 
+/**
+ * The text without its HTML comments. Repeated until nothing is left to
+ * remove: taking one comment out can join the pieces of another.
+ */
+function withoutComments(text: string): string {
+  let rest = text;
+  let before: string;
+  do {
+    before = rest;
+    rest = rest.replace(/<!--[\s\S]*?-->/g, "");
+  } while (rest !== before);
+  return rest;
+}
+
 /** Whether the text gives away where the source code lives. */
 export function namesRepository(text: string) {
   return REPOSITORY.test(text);
@@ -104,10 +118,7 @@ function readHeading(text: string): Heading {
 export function parseChangelog(markdown: string): ParsedChangelog {
   const problems: string[] = [];
   const releases: Release[] = [];
-  const lines = markdown
-    .replace(/\r\n?/g, "\n")
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .split("\n");
+  const lines = withoutComments(markdown.replace(/\r\n?/g, "\n")).split("\n");
 
   let release: Release | null = null;
   let group: ChangeGroup | null = null;

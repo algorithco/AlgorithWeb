@@ -89,6 +89,13 @@ describe("parseChangelog", () => {
     });
   });
 
+  it("leaves no comment behind when one is wrapped around another", () => {
+    const hidden = "## 9.9.9 — 2030-01-01\n\n### Added\n- Hidden.\n";
+    const wrapped = `<!-<!-- inner -->-\n${hidden}-->\n\n${sample}`;
+    const { releases } = parseChangelog(wrapped);
+    expect(releases.map((release) => release.id)).toEqual(["1.2.0", "1.1.0"]);
+  });
+
   it("reads Windows line endings", () => {
     const { releases } = parseChangelog(
       "## 1.0.0 — 2026-01-02\r\n\r\n### Added\r\n- One.\r\n",
