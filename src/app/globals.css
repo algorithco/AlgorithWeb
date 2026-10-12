@@ -5298,6 +5298,11 @@ body:has(.app-route-shell) > #main {
   border-left: 1px solid var(--color-border);
   font-size: 0.84rem;
   scrollbar-width: none;
+  /* When the links do not fit they scroll, and what runs under the right
+     edge fades out instead of being cut mid-letter. The padding lets the
+     last link scroll clear of the fade. */
+  padding-right: 1.5rem;
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
 }
 .product-nav__links::-webkit-scrollbar {
   display: none;
@@ -5566,6 +5571,244 @@ kbd {
 @media (min-width: 48rem) {
   .voice-download__grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* AlgorithVoice benchmarks: a pick per language, then every model in a
+   table whose two measures are drawn as bars. The pick is the one dark bar;
+   every figure is also written out. */
+.bench-picks {
+  padding-top: 0;
+  border-top: 0;
+}
+.bench-picks__grid {
+  display: grid;
+  gap: 1rem;
+}
+.bench-pick {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.bench-pick h3 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 550;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+.bench-pick__figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem 0;
+  border-block: 1px solid var(--color-border);
+}
+.bench-pick__figures dt {
+  color: var(--color-muted);
+  font-size: 0.76rem;
+}
+.bench-pick__figures dd {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+.bench-pick__reason {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+.bench-pick__meta {
+  margin: 0;
+  color: var(--color-subtle);
+  font-size: 0.78rem;
+}
+.bench-pick .text-link {
+  justify-self: start;
+}
+.bench-language__takeaway {
+  max-width: 44rem;
+  margin: 0 0 var(--space-6);
+  color: var(--color-muted);
+  font-size: 1.1rem;
+}
+.bench-language__footnote {
+  max-width: 44rem;
+  margin: var(--space-5) 0 0;
+  color: var(--color-subtle);
+  font-size: 0.82rem;
+}
+.bench-table {
+  border-top: 1px solid var(--color-border-strong);
+}
+.bench-table__head {
+  display: none;
+}
+.bench-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.5rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.bench-row__model,
+.bench-measure {
+  grid-column: 1 / -1;
+}
+.bench-row__model {
+  display: grid;
+  gap: 0.3rem;
+}
+.bench-row__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.6rem;
+}
+.bench-row__name strong {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.bench-row__model small {
+  max-width: 30rem;
+  color: var(--color-subtle);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+.bench-tag {
+  padding: 0.12rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-guard-soft);
+  color: var(--color-guard-ink);
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.bench-measure {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.bench-measure__label,
+.bench-row__figure > span {
+  color: var(--color-subtle);
+  font-size: 0.72rem;
+}
+.bench-measure__plot {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+/* Thin, square at the baseline, rounded at the value. The width leaves room
+   for the figure at the tip, so the longest bar and its label always fit. */
+.bench-bar {
+  flex: none;
+  width: max(2px, calc((100% - 4.25rem) * var(--share)));
+  height: 0.5rem;
+  border-radius: 0 4px 4px 0;
+  background: var(--color-subtle);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--dur-reveal) var(--ease-out-expo);
+  transition-delay: calc(var(--row, 0) * 60ms);
+}
+[data-visible="true"] .bench-bar {
+  transform: scaleX(1);
+}
+.bench-row--pick .bench-bar {
+  background: var(--color-text);
+}
+.bench-row:nth-child(3) {
+  --row: 1;
+}
+.bench-row:nth-child(4) {
+  --row: 2;
+}
+.bench-row:nth-child(5) {
+  --row: 3;
+}
+.bench-row:nth-child(6) {
+  --row: 4;
+}
+.bench-row:nth-child(7) {
+  --row: 5;
+}
+.bench-row:nth-child(n + 8) {
+  --row: 6;
+}
+.bench-measure__value,
+.bench-row__figure {
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+.bench-measure__value {
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bench-row__figure {
+  display: grid;
+  gap: 0.15rem;
+  color: var(--color-muted);
+}
+.bench-method__next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: var(--space-6);
+}
+@media (min-width: 48rem) {
+  .bench-picks__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 62rem) {
+  .bench-table__head,
+  .bench-row {
+    display: grid;
+    grid-template-columns:
+      minmax(15rem, 1.25fr) minmax(0, 1.3fr) minmax(0, 1.3fr)
+      4.5rem 5.5rem;
+    align-items: center;
+    column-gap: 2rem;
+  }
+  .bench-table__head {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font-size: 0.76rem;
+    font-weight: 650;
+  }
+  .bench-table__head small {
+    margin-left: 0.4rem;
+    color: var(--color-subtle);
+    font-size: inherit;
+    font-weight: 400;
+  }
+  .bench-row {
+    padding: 1.1rem 0;
+  }
+  .bench-row__model,
+  .bench-measure {
+    grid-column: auto;
+  }
+  .bench-measure__label,
+  .bench-row__figure > span {
+    display: none;
+  }
+  .bench-row__figure,
+  .bench-table__head .is-number {
+    text-align: right;
   }
 }
 

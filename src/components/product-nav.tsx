@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getProduct, type ProductSlug } from "@/config/products";
 import { VoiceMark } from "./brand-marks";
 import { Container } from "./container";
@@ -28,6 +28,7 @@ function isActive(pathname: string, href: string, sectionRoot: string) {
 export function ProductNav({ slug }: { slug: ProductSlug }) {
   const product = getProduct(slug);
   const pathname = usePathname();
+  const links = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -60,6 +61,25 @@ export function ProductNav({ slug }: { slug: ProductSlug }) {
     if (pathname) delete document.documentElement.dataset.headerHidden;
   }, [pathname]);
 
+  // On a narrow screen the links scroll sideways; the page you are on must
+  // not be the one cut off at the edge. Only the row is scrolled, never the
+  // page (scrollIntoView would move both).
+  useEffect(() => {
+    const row = links.current;
+    const current = pathname
+      ? row?.querySelector<HTMLElement>('[aria-current="page"]')
+      : null;
+    if (!row || !current) return;
+    const rowBox = row.getBoundingClientRect();
+    const box = current.getBoundingClientRect();
+    // The right end of the row fades out over its padding (see the CSS).
+    const fade = Number.parseFloat(getComputedStyle(row).paddingRight) || 0;
+    const pastRight = box.right - (rowBox.right - fade);
+    const pastLeft = rowBox.left - box.left;
+    if (pastRight > 0) row.scrollLeft += pastRight;
+    else if (pastLeft > 0) row.scrollLeft -= pastLeft;
+  }, [pathname]);
+
   if (!product) return null;
   const ctaActive = isActive(pathname, product.cta.href, product.href);
   return (
@@ -76,7 +96,7 @@ export function ProductNav({ slug }: { slug: ProductSlug }) {
           )}
           <span className="product-nav__name">{product.name}</span>
         </Link>
-        <div className="product-nav__links">
+        <div className="product-nav__links" ref={links}>
           {product.sections.map((section) => {
             const active = isActive(pathname, section.href, product.href);
             return (
