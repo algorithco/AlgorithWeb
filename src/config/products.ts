@@ -33,6 +33,7 @@ export const products = [
     sections: [
       { label: "Overview", href: "/voice" },
       { label: "Docs", href: "/voice/docs" },
+      { label: "Benchmarks", href: "/voice/benchmarks" },
     ],
     cta: { label: "Download", href: "/voice/download" },
     name: "AlgorithVoice",
