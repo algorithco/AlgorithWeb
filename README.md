@@ -59,6 +59,8 @@ pnpm build
 | `pnpm test` | Run unit tests once |
 | `pnpm build` | Produce the static export in `out/` |
 | `pnpm format` | Apply Biome formatting and import organization |
+| `pnpm changelog:sync` | Copy each product's `CHANGELOG.md` into the site (see [docs/changelog.md](docs/changelog.md)) |
+| `pnpm changelog:check` | Fail when a copied changelog is behind its original |
 
 The production build is exported to `out/` and can be hosted by any static host. If a standard Next.js Node deployment is preferred, remove `output: "export"` from `next.config.ts` and deploy using the platform's normal Next.js process.
 
@@ -80,12 +82,13 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `src/content/` — shared website copy.
 - `public/` — static assets.
 - `.github/` — CI, Dependabot, ownership, and contribution templates.
-- `docs/` — repository setup record and the [motion system guide](docs/motion.md).
+- `docs/` — repository setup record, the [motion system guide](docs/motion.md) and how the [changelog](docs/changelog.md) is built.
 
 ## Unified routes
 
 - `/voice`, `/voice/docs/*`, `/voice/download` — Voice product section. This is the only Voice website; the `algorithvoice` repository holds the desktop app and backend.
 - `/guard`, `/guard/docs/*` — Guard product section.
+- `/changelog`, `/changelog/<product>` — every release of every product, built from each product's `CHANGELOG.md`.
 - `/signin` and `/auth/callback` — central Account OIDC flow.
 - `/app` — unified account, subscription, and product dashboard.
 - `/app/voice`, `/app/voice/admin/*` — authenticated Voice dashboard and operator pages.

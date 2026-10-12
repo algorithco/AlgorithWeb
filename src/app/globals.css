@@ -5890,3 +5890,390 @@ kbd {
     border-right: 0;
   }
 }
+
+/* Changelog (/changelog and /changelog/<product>): the product filter beside
+   a rail of releases, newest first. */
+.changelog {
+  padding: 0 0 var(--space-9);
+}
+.changelog__layout {
+  display: grid;
+  gap: var(--space-6);
+}
+.changelog__aside {
+  min-width: 0;
+}
+.changelog-filter > p {
+  margin: 0 0 0.75rem;
+  color: var(--color-subtle);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* Pills that wrap on a phone, so every product stays in view without a
+   sideways scroll. */
+.changelog-filter ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.changelog-filter a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.4rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  white-space: nowrap;
+  transition:
+    color var(--dur-fast) ease,
+    background-color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease;
+}
+.changelog-filter a > span:not(.changelog-mark) {
+  flex: 1;
+}
+.changelog-filter small {
+  color: var(--color-subtle);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+.changelog-filter a:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+.changelog-filter a[aria-current] {
+  border-color: var(--color-inverse);
+  background: var(--color-inverse);
+  color: var(--color-inverse-text);
+}
+.changelog-filter a[aria-current] small {
+  color: inherit;
+  opacity: 0.65;
+}
+/* The marks differ in width; one box keeps the names in a column. */
+.changelog-mark {
+  display: block;
+  flex: none;
+  width: 0.9rem;
+  height: 0.8rem;
+}
+.changelog-mark--dot,
+.changelog-mark--ring {
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-inline: 0.2rem;
+  border-radius: 50%;
+}
+.changelog-mark--dot {
+  background: var(--color-guard);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-guard) 22%, transparent);
+}
+.changelog-mark--ring {
+  border: 1.5px solid currentColor;
+}
+.changelog__list {
+  min-width: 0;
+  max-width: 50rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.changelog__empty {
+  margin: 0;
+  color: var(--color-muted);
+}
+.changelog-entry {
+  position: relative;
+  padding: 0 0 var(--space-7) 1.75rem;
+}
+/* The rail: a line from the dot of this release down to the next one. */
+.changelog-entry::before {
+  content: "";
+  position: absolute;
+  top: 0.6rem;
+  bottom: -0.6rem;
+  left: 0;
+  width: 1px;
+  background: var(--color-border);
+}
+.changelog-entry:last-child {
+  padding-bottom: 0;
+}
+.changelog-entry:last-child::before {
+  bottom: 0;
+  background: linear-gradient(var(--color-border), transparent);
+}
+.changelog-entry::after {
+  content: "";
+  position: absolute;
+  top: 0.3rem;
+  left: -0.25rem;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-bg);
+}
+.changelog-entry--latest::after {
+  border-color: var(--color-guard);
+  background: var(--color-guard);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-guard) 22%, transparent);
+}
+/* The release a link pointed at. */
+.changelog-entry:target::after {
+  border-color: var(--color-text);
+  background: var(--color-text);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-text) 14%, transparent);
+}
+.changelog-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.9rem;
+  min-height: 1.2rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.changelog-entry__stream {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text);
+  font-size: 0.86rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+/* On a phone the date takes its own line, so the product and "Latest" share
+   the first one instead of the badge wrapping alone. */
+.changelog-entry__meta time {
+  order: 1;
+  flex-basis: 100%;
+}
+.changelog-entry__latest {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  padding: 0.14rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--color-guard) 45%, transparent);
+  border-radius: 999px;
+  color: var(--color-guard-ink);
+  font-size: 0.6rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+.changelog-entry__latest::before {
+  content: "";
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.changelog-entry h2 {
+  margin: 1rem 0 0;
+  font-size: clamp(2.4rem, 5.5vw, 3.75rem);
+  font-weight: 540;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.06em;
+  line-height: 1;
+}
+.changelog-entry--dated h2 {
+  max-width: 22ch;
+  font-size: clamp(1.6rem, 3.2vw, 2.3rem);
+  letter-spacing: -0.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.changelog-entry h2 a::after {
+  content: "#";
+  margin-left: 0.3em;
+  color: var(--color-subtle);
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0;
+  transition: opacity var(--dur-fast) ease;
+}
+.changelog-entry h2 a:hover::after,
+.changelog-entry h2 a:focus-visible::after {
+  opacity: 1;
+}
+.changelog-entry__title {
+  margin: 0.8rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 550;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+}
+.changelog-entry__summary {
+  max-width: 40rem;
+  margin: 1rem 0 0;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+}
+.changelog-entry .text-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+}
+.changelog-group {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--color-border);
+}
+.changelog-entry h2 + .changelog-group,
+.changelog-entry__title + .changelog-group,
+.changelog-entry__summary + .changelog-group {
+  margin-top: 1.75rem;
+}
+.changelog-group h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.09em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+/* A type is told apart by the shape and weight of its mark, and always named
+   beside it. Yellow is kept for what is new. */
+.changelog-group h3::before {
+  content: "";
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-text);
+}
+.changelog-group--added h3::before {
+  background: var(--color-guard);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-guard) 22%, transparent);
+}
+.changelog-group--fixed h3::before {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+.changelog-group--removed h3::before,
+.changelog-group--deprecated h3::before {
+  height: 1.5px;
+  border-radius: 0;
+  background: var(--color-border-strong);
+}
+.changelog-group--security h3::before {
+  border-radius: 1px;
+}
+.changelog-group ul {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.changelog-group li {
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+.changelog-group strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.changelog-group a,
+.changelog-entry__summary a {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--dur-base) ease;
+}
+.changelog-group a:hover,
+.changelog-entry__summary a:hover {
+  text-decoration-color: currentColor;
+}
+.changelog-group code,
+.changelog-entry__summary code {
+  padding: 0.08rem 0.35rem;
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  color: var(--color-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 40rem) {
+  .changelog-entry {
+    padding-left: 2.5rem;
+  }
+  .changelog-entry__meta time {
+    order: 0;
+    flex-basis: auto;
+  }
+  .changelog-group {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  .changelog-group h3 {
+    align-self: start;
+    padding-top: 0.38rem;
+  }
+}
+@media (min-width: 64rem) {
+  .changelog__layout {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+  .changelog__aside {
+    position: sticky;
+    top: 6rem;
+    align-self: start;
+  }
+  /* Beside the releases the filter is a list, marked like the contents of a
+     legal page. */
+  .changelog-filter ul {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0 -0.65rem;
+  }
+  .changelog-filter a {
+    min-height: 0;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+  }
+  .changelog-filter a:hover {
+    background: color-mix(in srgb, var(--color-text) 5%, transparent);
+  }
+  .changelog-filter a[aria-current] {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+    color: var(--color-text);
+  }
+  .changelog-filter a[aria-current]::before {
+    content: "";
+    position: absolute;
+    inset: 22% auto 22% 0;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--color-guard);
+  }
+  .changelog-filter a[aria-current] small {
+    color: var(--color-subtle);
+    opacity: 1;
+  }
+}

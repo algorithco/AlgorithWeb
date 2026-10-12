@@ -11,6 +11,7 @@ import { Container } from "./container";
 import { ThemeToggle } from "./theme-toggle";
 
 const companyLinks = [
+  { label: "Changelog", href: "/changelog" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ] as const;

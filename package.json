@@ -19,6 +19,8 @@
     "format": "biome check --write .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "changelog:sync": "node scripts/sync-changelog.mjs",
+    "changelog:check": "node scripts/sync-changelog.mjs --check",
     "prepare": "node scripts/configure-git-hooks.mjs"
   },
   "dependencies": {
