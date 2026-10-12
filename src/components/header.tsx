@@ -10,8 +10,8 @@ import { AlgorithcoMark } from "./brand-marks";
 import { Container } from "./container";
 import { ThemeToggle } from "./theme-toggle";
 
+// The bar holds what a visitor comes for. The changelog is in the footer.
 const companyLinks = [
-  { label: "Changelog", href: "/changelog" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ] as const;

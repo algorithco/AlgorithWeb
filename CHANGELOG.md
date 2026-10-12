@@ -26,6 +26,7 @@ with the next deploy.
 
 ### Changed
 - The benchmarks show the three new models as in the app: they arrived with AlgorithVoice 0.5.22.
+- The changelog link moved out of the top bar. It stays in the footer.
 
 ### Fixed
 - On a phone, the bar of a product section no longer cuts off the name of the page you are on.
