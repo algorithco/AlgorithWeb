@@ -1,0 +1,171 @@
+<!-- Copied from algorithvoice/CHANGELOG.md by `pnpm changelog:sync`. Edit the original, not this file. -->
+
+# Changelog
+
+What changed in AlgorithVoice, written for the people who use it. This file is
+published at https://trqsh.uz/changelog. The rules for writing it are in
+`AGENTS.md`, under "Changelog".
+
+<!--
+Format (read by algorithco-web/src/lib/changelog.ts):
+
+  ## Unreleased                changes that have not shipped; never published
+  ## 0.5.22 — 2026-10-20       a public release: its version, then its date
+  ### Added | Changed | Fixed | Removed | Deprecated | Security
+  - One line per change, in plain language, ending with a full stop.
+
+Engineering detail (files, functions, measurements) belongs in
+apps/desktop-tauri/CHANGELOG.md, not here.
+-->
+
+## Unreleased
+
+### Added
+- **Sign in with your Algorithco account.** The app opens your browser to sign in, so your password is never typed into the app. A Free account is enough.
+- **Choose your microphone.** Pick the microphone dictation records from in Settings, and test it before you speak. If it is unplugged, dictation uses the system default until it is back.
+- **Custom words.** List names and terms spelled your way, and the Parakeet models prefer that spelling.
+- **Three new on-device models:** Parakeet Unified EN for English, GigaAM v3 for Russian and FastConformer Uzbek for Uzbek.
+- **A Usage page** with a calendar of your dictations, streaks and totals, for on-device and cloud transcription.
+- **A Writing style setting.** Continuous lets one dictation carry on from the last; Full sentences keeps each one as it was transcribed.
+- First-run setup in three steps: where transcription runs, your push-to-talk key, and a microphone check. It can be skipped and run again from Settings.
+
+### Changed
+- A new look in the Algorithco style, in light and dark, with the app's own title bar.
+- Long dictations are transcribed in pieces: about twice as fast, without dropped sentences. The recording limit goes from 2 to 5 minutes.
+- Short phrases are transcribed more accurately by the Parakeet and GigaAM models.
+- Filler sounds such as "uh" and "um" are left out of the text.
+- New, softer start and stop sounds.
+- The floating pill is smaller and calmer.
+- The push-to-talk key is recorded from your keyboard, and shortcuts that other apps rely on, such as `Ctrl+C`, are refused.
+- Settings are grouped into Dictation, Models, Account and System.
+- Text is pasted about a third of a second sooner.
+- The Windows installer updates the app in place and keeps your settings, history and models.
+- The Whisper models no longer list Uzbek, because they did not write Uzbek.
+
+### Fixed
+- Dictations made with the hotkey were not saved to History.
+- The floating pill could open off-screen.
+- The browser's microphone prompt no longer appears inside the pill, and a "Block" saved by an earlier version is undone.
+- A recording at a sample rate other than 16 kHz was cut to its first 40 seconds.
+
+### Removed
+- Signing in with a password inside the app. The browser sign-in replaces it.
+- The Pro-only gate. Free and Pro accounts both get the app.
+
+## 0.5.21 — 2026-10-01
+
+### Added
+- Start and stop sounds mark the beginning and the end of a recording.
+- A recording with no speech in it is reported as "No speech detected", and nothing is sent or pasted.
+- Search in History: find a word or a phrase in what you dictated.
+
+### Changed
+- The app verifies your subscription when you sign in. If the check cannot be reached, it offers to retry instead of asking you to upgrade.
+- Refined navigation and History page.
+
+### Fixed
+- On Windows, a signed-in account could appear signed out during the subscription check.
+
+### Security
+- The app's windows run with fewer privileges, and model downloads are checked more strictly.
+
+## 0.5.20 — 2026-09-26
+
+### Added
+- A transcription language setting for on-device models.
+- The floating pill shows Cancel and Stop buttons while it records.
+
+### Changed
+- You stay signed in: the session renews itself while you use the app.
+
+### Fixed
+- On-device transcription in languages other than English is reliable again.
+
+## 0.5.17 — 2026-09-22
+
+### Changed
+- The app fits small windows: the sidebar becomes a drawer and the cards reflow.
+- Hints and placeholders are easier to read.
+
+### Fixed
+- On-device transcription works again after the model runtime failed to start.
+- A model no longer refuses to load on a computer with enough memory but little of it free.
+- A failed model download shows the real error instead of "[object Object]".
+- Deleting a model that is still downloading waits for the download to stop.
+- A setting changed in one window reaches the other windows, and dictation no longer gets stuck.
+- In local mode, a model that is already downloaded is selected automatically.
+
+### Security
+- Model files are downloaded from pinned versions and verified before they are used.
+
+## 0.5.10 — 2026-09-21
+
+### Fixed
+- Deleting a model also unloads it from memory.
+- Models that are already installed are reused instead of downloaded again.
+- The floating pill picks up changed settings.
+
+### Removed
+- The demo sign-in.
+
+## 0.5.9 — 2026-09-21
+
+### Fixed
+- Sign-in and cloud transcription reach the service at its new address.
+
+## 0.5.8 — 2026-09-21
+
+### Changed
+- The Dictate panel shows what applies to the mode you chose, on-device or cloud.
+
+### Fixed
+- Signing in with GitHub works again.
+- The floating pill follows a settings change right away, and its background is transparent again.
+
+## 0.5.6 — 2026-09-21
+
+### Added
+- A usage meter for on-device transcription. It is kept on your computer and sends nothing.
+
+### Changed
+- First-run setup waits until the on-device model has finished downloading.
+
+## 0.5.5 — 2026-09-20
+
+### Added
+- First-run setup recommends an on-device model for your hardware.
+- The app updates itself when a new version ships.
+
+### Fixed
+- The Whisper models transcribe in the language you chose.
+- The floating pill opens on the primary monitor.
+
+### Removed
+- The macOS build. A native macOS app is in development.
+
+## 0.4.0 — 2026-09-17
+
+### Added
+- **Offline dictation with six on-device models:** Parakeet, Whisper Small, Whisper Large v3, Whisper Large v3 Turbo, Distil-Whisper and Qwen3-ASR. In local mode your audio never leaves your computer.
+- A model manager in Settings: search, a hardware check, download progress and delete.
+
+## 0.3.1 — 2026-09-16
+
+### Added
+- A dashboard, and a history of your dictations stored on your computer.
+
+## 0.3.0 — 2026-09-16
+
+### Added
+- The floating push-to-talk pill: hold your hotkey in any app and speak.
+- Sign in from the app.
+
+## 0.2.6 — 2026-09-15
+
+### Changed
+- New app icons.
+
+## 0.2.5 — 2026-09-15
+
+### Added
+- The first public release of the desktop app.

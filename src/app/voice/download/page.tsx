@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PageHero } from "@/components/page-hero";
 import { Section } from "@/components/section";
 import {
@@ -123,6 +124,9 @@ export default async function VoiceDownloadPage() {
               </span>
             </li>
           </ol>
+          <Link className="text-link" href="/changelog/voice">
+            What changed in each version <span aria-hidden="true">→</span>
+          </Link>
           <a className="text-link" href={VOICE_RELEASES_URL}>
             Release notes and older versions <span aria-hidden="true">→</span>
           </a>
