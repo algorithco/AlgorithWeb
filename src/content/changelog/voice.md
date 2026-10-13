@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.23 — 2026-10-13
+
 ### Changed
 - **Cloud mode runs on your Algorithco account.** It transcribes with Microsoft's MAI-Transcribe 2 and counts toward your plan's cloud minutes, with nothing to set up.
 - Cloud mode works out the language you speak on its own.
