@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.24 — 2026-10-13
+
 ### Changed
 - **Dictation starts sooner.** The pill answers the moment you press the key, and recording begins right after the start sound instead of after a pause.
 - The microphone stays ready for 30 seconds after a dictation, so the next one starts at once. Nothing is recorded in that time, and your system's microphone indicator stays on until it closes.
