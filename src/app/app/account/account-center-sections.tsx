@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { DashboardIcon } from "@/components/dashboard-shell";
 import { type Enrollment, MfaEnrollment } from "@/components/mfa-enrollment";
 import { dashboardRoutes } from "@/config/dashboard";
+import { getProduct } from "@/config/products";
 import {
   createCheckoutSession,
   setSubscriptionCancellation,
@@ -26,6 +27,11 @@ import {
   unlinkIdentity,
 } from "@/lib/account-center";
 import { validateMfaCode } from "@/lib/account-forms";
+import {
+  displayDate,
+  displayDateTime,
+  displayPlan,
+} from "@/lib/dashboard-format";
 
 export const SECURITY_CHANGED_KEY = "algorithco-security-changed";
 
@@ -529,13 +535,6 @@ export function ConnectedAccounts({
 /* Sessions                                                                 */
 /* ------------------------------------------------------------------------ */
 
-function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
 export function ActiveSessions({
   overview,
   onChanged,
@@ -559,8 +558,8 @@ export function ActiveSessions({
                 ) : null}
               </strong>
               <small>
-                Signed in {formatDateTime(item.createdAt)} · last active{" "}
-                {formatDateTime(item.lastSeenAt)}
+                Signed in {displayDateTime(item.createdAt)} · last active{" "}
+                {displayDateTime(item.lastSeenAt)}
               </small>
             </div>
             <button
@@ -623,13 +622,14 @@ export function PlansAndSubscriptions({
             <li key={item.id}>
               <div>
                 <strong>
-                  {item.product} · {item.plan}
+                  {getProduct(item.product)?.name ?? item.product}{" "}
+                  {displayPlan(item.plan)}
                   {item.org ? ` · ${item.org.name}` : ""}
                 </strong>
                 <small>
-                  {item.status}
+                  {displayPlan(item.status)}
                   {item.currentPeriodEnd
-                    ? ` · ${item.cancelAtPeriodEnd ? "ends" : "renews"} ${formatDateTime(item.currentPeriodEnd)}`
+                    ? ` · ${item.cancelAtPeriodEnd ? "ends" : "renews"} ${displayDate(item.currentPeriodEnd)}`
                     : ""}
                   {item.seats ? ` · ${item.seats} seats` : ""}
                 </small>

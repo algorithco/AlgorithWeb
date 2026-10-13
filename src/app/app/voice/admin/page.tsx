@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useDashboardSession } from "@/components/dashboard-shell";
 import { SummaryCard } from "@/components/dashboard-summary-card";
 import { VoiceAdminTabs } from "@/components/voice/admin-tabs";
+import { displayDate } from "@/lib/dashboard-format";
 import {
   formatSeconds,
   getVoiceAdminUsage,
@@ -13,12 +14,6 @@ import {
   tokenHasScope,
   voiceErrorMessage,
 } from "@/lib/voice-api";
-
-function shortDate(value: string) {
-  return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(
-    new Date(value),
-  );
-}
 
 export default function VoiceAdminPage() {
   const session = useDashboardSession();
@@ -163,7 +158,7 @@ export default function VoiceAdminPage() {
                         <code>{user.accountSubject}</code>
                       </td>
                       <td>{user._count.devices}</td>
-                      <td>{shortDate(user.createdAt)}</td>
+                      <td>{displayDate(user.createdAt)}</td>
                       <td>
                         <span
                           className={`status-pill${blocked ? "" : " status-pill--ok"}`}

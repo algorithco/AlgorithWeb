@@ -75,10 +75,8 @@ export default function GuardPolicyPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">
-            <span className="keep-case">AlgorithGuard</span> · Controls
-          </p>
-          <h2>Policy</h2>
+          <p className="eyebrow">Controls</p>
+          <h1>Policy</h1>
           <p className="muted">
             Validate policy changes against redacted history before publishing a
             signed bundle.
@@ -141,7 +139,7 @@ export default function GuardPolicyPage() {
             <p className="eyebrow">Dry-run result</p>
             {dryRun.data ? (
               <>
-                <h3>{dryRun.data.result}</h3>
+                <h2>{dryRun.data.result}</h2>
                 <p className="muted">
                   {dryRun.data.evaluated} decisions evaluated
                 </p>
@@ -157,7 +155,7 @@ export default function GuardPolicyPage() {
           </article>
           <article className="guard-card">
             <p className="eyebrow">Published bundle</p>
-            <h3>{publish.data?.version ?? policy.data?.version ?? "None"}</h3>
+            <h2>{publish.data?.version ?? policy.data?.version ?? "None"}</h2>
           </article>
         </div>
       </div>

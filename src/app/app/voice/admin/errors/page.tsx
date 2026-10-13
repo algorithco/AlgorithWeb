@@ -4,6 +4,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useDashboardSession } from "@/components/dashboard-shell";
 import { VoiceAdminTabs } from "@/components/voice/admin-tabs";
+import { DASHBOARD_LOCALE } from "@/lib/dashboard-format";
 import {
   listVoiceAdminErrors,
   tokenHasScope,
@@ -11,7 +12,7 @@ import {
 } from "@/lib/voice-api";
 
 function timeLabel(value: string) {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(DASHBOARD_LOCALE, {
     dateStyle: "medium",
     timeStyle: "medium",
   }).format(new Date(value));

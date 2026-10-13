@@ -1,6 +1,7 @@
 "use client";
 
 import { ApiError, apiFetch, buildQuery, normalizeBase } from "./api-base";
+import { DASHBOARD_LOCALE } from "./dashboard-format";
 
 const API_BASE = () =>
   normalizeBase(process.env.NEXT_PUBLIC_VOICE_API_BASE, "/api/voice");
@@ -271,7 +272,7 @@ export function formatUtcDay(
   date: string,
   options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" },
 ): string {
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(DASHBOARD_LOCALE, {
     ...options,
     timeZone: "UTC",
   }).format(new Date(`${date}T00:00:00Z`));

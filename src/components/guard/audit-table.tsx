@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { displayDateTime } from "@/lib/dashboard-format";
 import type { AuditRecord } from "@/lib/guard-api";
 
 const action = (value: number) =>
@@ -34,7 +35,9 @@ export function AuditTable({ records }: { records: AuditRecord[] }) {
             const open = expanded === record.trace_id;
             return (
               <tr key={record.trace_id}>
-                <td>{new Date(record.timestamp).toLocaleString()}</td>
+                <td className="guard-table__time">
+                  {displayDateTime(record.timestamp)}
+                </td>
                 <td>{tool(record.tool_kind)}</td>
                 <td>
                   <span className={`decision decision--${label}`}>{label}</span>

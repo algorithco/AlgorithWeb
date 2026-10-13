@@ -25,15 +25,12 @@ export default function GuardStatsPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">
-            <span className="keep-case">AlgorithGuard</span> · Insights
-          </p>
-          <h2>Usage statistics</h2>
+          <p className="eyebrow">Last 90 days</p>
+          <h1>Usage & stats</h1>
           <p className="muted">
-            A 90-day view of decisions, projects, users, and response time.
+            Decisions by outcome, project and user, and how fast they were made.
           </p>
         </div>
-        <span className="status-pill">90 days</span>
       </div>
       <ErrorMessage error={stats.error} />
       <div className="guard-metrics">
@@ -86,9 +83,9 @@ export default function GuardStatsPage() {
       </div>
       <article className="guard-card">
         <p className="eyebrow">Performance</p>
-        <h3>
+        <h2>
           {Math.round(data?.avg_latency_ms ?? 0)} ms average decision latency
-        </h3>
+        </h2>
       </article>
     </div>
   );

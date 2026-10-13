@@ -19,16 +19,14 @@ export default function GuardHistoryPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">
-            <span className="keep-case">AlgorithGuard</span>
+          <p className="eyebrow">Last 50 decisions</p>
+          <h1>Decision history</h1>
+          <p className="muted">
+            Action, reason, confidence and latency of each decision.
           </p>
-          <h2>Decision history</h2>
         </div>
-        <span className="muted">Refreshes every five seconds</span>
+        <span className="status-pill status-pill--ok">Live · every 5 s</span>
       </div>
-      <p className="muted">
-        Action, reason, confidence, source, and latency for recent decisions.
-      </p>
       <ErrorMessage error={audit.error} />
       {audit.isPending ? (
         <div className="guard-card muted">Loading history…</div>

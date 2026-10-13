@@ -4,7 +4,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import {
   DashboardIcon,
-  SignOutButton,
   useDashboardSession,
 } from "@/components/dashboard-shell";
 import { dashboardRoutes } from "@/config/dashboard";
@@ -28,7 +27,7 @@ import {
   validateNewPassword,
   validateResetCode,
 } from "@/lib/account-forms";
-import { displayDate, displayPlan } from "@/lib/dashboard-format";
+import { displayDate, displayPlan, displayTime } from "@/lib/dashboard-format";
 import {
   ActiveSessions,
   ConnectedAccounts,
@@ -133,11 +132,7 @@ function DeleteAccountControl({ email }: { email: string }) {
           </p>
           {expiresAt && step === "code" ? (
             <p className="account-delete-dialog__expiry">
-              Valid until{" "}
-              {new Intl.DateTimeFormat(undefined, {
-                timeStyle: "short",
-              }).format(new Date(expiresAt))}
-              .
+              Valid until {displayTime(expiresAt)}.
             </p>
           ) : null}
           {error ? (
@@ -214,12 +209,6 @@ function DeleteAccountControl({ email }: { email: string }) {
         </div>
       </dialog>
     </>
-  );
-}
-
-function formatTime(value: string) {
-  return new Intl.DateTimeFormat(undefined, { timeStyle: "short" }).format(
-    new Date(value),
   );
 }
 
@@ -383,7 +372,7 @@ function ChangePasswordControl({ email }: { email: string }) {
             {step === "intro"
               ? `We’ll email a code to ${destination} to confirm it’s you. After the change, your other devices are signed out; you stay signed in here.`
               : `Enter the code sent to ${destination}${
-                  expiresAt ? ` (valid until ${formatTime(expiresAt)})` : ""
+                  expiresAt ? ` (valid until ${displayTime(expiresAt)})` : ""
                 } and choose a new password.`}
           </p>
           {error ? (
@@ -538,6 +527,15 @@ function ChangePasswordControl({ email }: { email: string }) {
   );
 }
 
+const ACCOUNT_SECTIONS = [
+  { id: "profile", label: "Profile" },
+  { id: "security", label: "Security" },
+  { id: "connected-accounts", label: "Sign-in methods" },
+  { id: "devices", label: "Devices" },
+  { id: "billing", label: "Billing" },
+  { id: "delete-account", label: "Delete account" },
+] as const;
+
 export default function AccountPage() {
   const session = useDashboardSession();
   const entitlements = useQuery({
@@ -549,6 +547,8 @@ export default function AccountPage() {
     queryFn: getAccountOverview,
   });
   const refreshOverview = () => void overview.refetch();
+  // The Account service only returns to addresses on its own list, and of the
+  // dashboard that is this page: billing opened from another one is refused.
   const billingPortal = useMutation({
     mutationFn: () =>
       createPortalSession(
@@ -597,31 +597,44 @@ export default function AccountPage() {
       window.history.replaceState(
         null,
         "",
-        `${window.location.pathname}${rest ? `?${rest}` : ""}`,
+        `${window.location.pathname}${rest ? `?${rest}` : ""}${window.location.hash}`,
       );
     }
   }, []);
+
+  // The sections fill in after the page opens, so a link to one of them (the
+  // sidebar's Billing) is followed again once the page has its full height.
+  const settled = !overview.isPending;
+  useEffect(() => {
+    if (!settled) return;
+    const id = window.location.hash.slice(1);
+    if (id) document.getElementById(id)?.scrollIntoView();
+  }, [settled]);
+
   const items = entitlements.data?.entitlements ?? [];
   const account = overview.data;
+  const email = account?.profile.email ?? session.profile?.email;
   const displayName =
     account?.profile.name ??
     session.profile?.name ??
-    session.profile?.email ??
+    email ??
     "Algorithco account";
   const initial = displayName.trim().charAt(0).toUpperCase() || "A";
-  const sessionExpiry = session.profile?.expiresAt
-    ? new Date(session.profile.expiresAt * 1000)
-    : null;
+  const pending = (
+    <p className="account-empty">
+      {overview.isPending ? "Loading…" : "Unavailable right now."}
+    </p>
+  );
 
   return (
     <div className="platform-dashboard account-center">
       <header className="dashboard-welcome">
         <div>
-          <p className="eyebrow">Account settings</p>
+          <p className="eyebrow">Account</p>
           <h1>Manage your account.</h1>
           <p>
-            One account for every Algorithco product. Update how you sign in,
-            review billing, and control your data from here.
+            One account for every Algorithco product: how you sign in, where you
+            are signed in, your plans and your data.
           </p>
         </div>
         <span
@@ -632,136 +645,104 @@ export default function AccountPage() {
         </span>
       </header>
 
-      {passwordChanged ? (
-        <p className="dashboard-alert dashboard-alert--success" role="status">
-          <strong>Password updated.</strong>
-          <span>Your other devices were signed out.</span>
-        </p>
-      ) : null}
+      <nav className="account-sections" aria-label="Account sections">
+        {ACCOUNT_SECTIONS.map((section) => (
+          <a href={`#${section.id}`} key={section.id}>
+            {section.label}
+          </a>
+        ))}
+      </nav>
 
-      {notice ? (
-        <p
-          className={`dashboard-alert${notice.ok ? " dashboard-alert--success" : ""}`}
-          role={notice.ok ? "status" : "alert"}
-        >
-          <strong>{notice.text}</strong>
-        </p>
-      ) : null}
-
-      {overview.error ? (
-        <p className="dashboard-alert" role="alert">
-          <strong>Account settings are unavailable.</strong>
-          <span>{overview.error.message}</span>
-        </p>
-      ) : null}
-
-      {entitlements.error ? (
-        <p className="dashboard-alert" role="alert">
-          <strong>Subscription data is unavailable.</strong>
-          <span>
-            Your profile, session, and deletion controls remain available.
-          </span>
-        </p>
-      ) : null}
-
-      <div className="account-center__grid">
-        <section className="dashboard-panel account-center__profile">
-          <div className="dashboard-panel__heading">
-            <div>
-              <p className="eyebrow">Profile</p>
-              <h2>Personal details</h2>
-              <p>This profile is shared across every Algorithco product.</p>
-            </div>
-            {account ? (
-              <ProfileEditor
-                key={`${account.profile.firstName}|${account.profile.lastName}`}
-                profile={account.profile}
-                onSaved={refreshOverview}
-              />
-            ) : (
-              <span className="dashboard-secure-badge">Authenticated</span>
-            )}
-          </div>
-          <dl className="dashboard-account-list">
-            <div>
-              <dt>Full name</dt>
-              <dd>
-                {account?.profile.name ?? session.profile?.name ?? "Not set"}
-              </dd>
-            </div>
-            <div>
-              <dt>Email address</dt>
-              <dd>{session.profile?.email ?? "Not available"}</dd>
-            </div>
-            <div>
-              <dt>Account ID</dt>
-              <dd>
-                {session.profile?.subject ? (
-                  <CopyValue
-                    label="account ID"
-                    value={session.profile.subject}
-                  />
-                ) : (
-                  "Not available"
-                )}
-              </dd>
-            </div>
-          </dl>
-        </section>
-
-        <section className="dashboard-panel account-center__session">
-          <div className="dashboard-panel__heading">
-            <div>
-              <p className="eyebrow">Security</p>
-              <h2>Current session</h2>
-              <p>Session status for this browser.</p>
-            </div>
-            <span className="account-center__icon">
-              <DashboardIcon name="guard" />
-            </span>
-          </div>
-          <dl className="account-center__session-list">
-            <div>
-              <dt>Status</dt>
-              <dd>
-                <i aria-hidden="true" /> Active
-              </dd>
-            </div>
-            <div>
-              <dt>Session expires</dt>
-              <dd>
-                {sessionExpiry
-                  ? new Intl.DateTimeFormat(undefined, {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    }).format(sessionExpiry)
-                  : "Not available"}
-              </dd>
-            </div>
-          </dl>
-          <SignOutButton>Sign out of this session</SignOutButton>
-          {session.logoutError ? (
-            <p className="form-error" role="alert">
-              {session.logoutError}
+      {passwordChanged || notice || overview.error || entitlements.error ? (
+        <div className="dashboard-alerts">
+          {passwordChanged ? (
+            <p
+              className="dashboard-alert dashboard-alert--success"
+              role="status"
+            >
+              <strong>Password updated.</strong>
+              <span>Your other devices were signed out.</span>
             </p>
           ) : null}
-        </section>
-      </div>
+          {notice ? (
+            <p
+              className={`dashboard-alert${notice.ok ? " dashboard-alert--success" : ""}`}
+              role={notice.ok ? "status" : "alert"}
+            >
+              <strong>{notice.text}</strong>
+            </p>
+          ) : null}
+          {overview.error ? (
+            <p className="dashboard-alert" role="alert">
+              <strong>Account settings are unavailable.</strong>
+              <span>{overview.error.message}</span>
+            </p>
+          ) : null}
+          {entitlements.error ? (
+            <p className="dashboard-alert" role="alert">
+              <strong>Plan details are unavailable.</strong>
+              <span>
+                Your profile, security and deletion controls still work.
+              </span>
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <section
-        className="dashboard-panel account-center__security"
+        className="dashboard-panel"
+        id="profile"
+        aria-labelledby="profile-title"
+      >
+        <div className="dashboard-panel__heading">
+          <div>
+            <p className="eyebrow">Profile</p>
+            <h2 id="profile-title">Personal details</h2>
+            <p>This profile is shared across every Algorithco product.</p>
+          </div>
+          {account ? (
+            <ProfileEditor
+              key={`${account.profile.firstName}|${account.profile.lastName}`}
+              profile={account.profile}
+              onSaved={refreshOverview}
+            />
+          ) : null}
+        </div>
+        <dl className="dashboard-account-list">
+          <div>
+            <dt>Full name</dt>
+            <dd>
+              {account?.profile.name ?? session.profile?.name ?? "Not set"}
+            </dd>
+          </div>
+          <div>
+            <dt>Email address</dt>
+            <dd>{email ?? "Not available"}</dd>
+          </div>
+          <div>
+            <dt>Account ID</dt>
+            <dd>
+              {session.profile?.subject ? (
+                <CopyValue label="account ID" value={session.profile.subject} />
+              ) : (
+                "Not available"
+              )}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section
+        className="dashboard-panel"
         id="security"
         aria-labelledby="security-title"
       >
         <div className="dashboard-panel__heading">
           <div>
-            <p className="eyebrow">Sign-in & security</p>
-            <h2 id="security-title">Protect your account</h2>
+            <p className="eyebrow">Security</p>
+            <h2 id="security-title">Password and two-step verification</h2>
             <p>Changes here are verified by a code sent to your email.</p>
           </div>
-          <span className="account-center__icon">
-            <DashboardIcon name="settings" />
-          </span>
         </div>
         <ul className="account-security-list">
           <li>
@@ -772,9 +753,7 @@ export default function AccountPage() {
                 afterwards.
               </small>
             </div>
-            <ChangePasswordControl
-              email={session.profile?.email ?? "your verified email"}
-            />
+            <ChangePasswordControl email={email ?? "your verified email"} />
           </li>
           <li>
             <div>
@@ -798,7 +777,7 @@ export default function AccountPage() {
       </section>
 
       <section
-        className="dashboard-panel account-center__security"
+        className="dashboard-panel"
         id="connected-accounts"
         aria-labelledby="connected-title"
       >
@@ -811,11 +790,13 @@ export default function AccountPage() {
         </div>
         {account ? (
           <ConnectedAccounts overview={account} onChanged={refreshOverview} />
-        ) : null}
+        ) : (
+          pending
+        )}
       </section>
 
       <section
-        className="dashboard-panel account-center__security"
+        className="dashboard-panel"
         id="devices"
         aria-labelledby="devices-title"
       >
@@ -828,15 +809,24 @@ export default function AccountPage() {
         </div>
         {account ? (
           <ActiveSessions overview={account} onChanged={refreshOverview} />
-        ) : null}
+        ) : (
+          pending
+        )}
       </section>
 
-      <section className="dashboard-panel account-center__plans">
+      <section
+        className="dashboard-panel"
+        id="billing"
+        aria-labelledby="billing-title"
+      >
         <div className="dashboard-panel__heading">
           <div>
-            <p className="eyebrow">Plans & billing</p>
-            <h2>Product access</h2>
-            <p>The plan available to this email in each product.</p>
+            <p className="eyebrow">Billing</p>
+            <h2 id="billing-title">Plans and billing</h2>
+            <p>
+              Your plan in each product, and the subscriptions paid from this
+              account.
+            </p>
           </div>
           <button
             className="button button--primary"
@@ -854,6 +844,7 @@ export default function AccountPage() {
               <article key={product.slug}>
                 <span
                   className={`dashboard-plan-mark dashboard-plan-mark--${product.accent}`}
+                  aria-hidden="true"
                 >
                   {product.slug.charAt(0).toUpperCase()}
                 </span>
@@ -898,19 +889,18 @@ export default function AccountPage() {
       <section
         className="dashboard-panel account-center__danger"
         id="delete-account"
+        aria-labelledby="delete-title"
       >
         <div className="dashboard-panel__heading">
           <div>
             <p className="eyebrow">Danger zone</p>
-            <h2>Delete account</h2>
+            <h2 id="delete-title">Delete account</h2>
             <p>
               Revoke access now and permanently remove this account after a
               30-day grace period. A code sent to your email is required.
             </p>
           </div>
-          <DeleteAccountControl
-            email={session.profile?.email ?? "your verified email"}
-          />
+          <DeleteAccountControl email={email ?? "your verified email"} />
         </div>
       </section>
     </div>
