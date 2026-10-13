@@ -96,6 +96,7 @@ export function Footer() {
           <nav aria-label="Company links">
             <p>Company</p>
             <Link href="/about">About</Link>
+            <Link href="/brand">Brand</Link>
             <Link href="/changelog">Changelog</Link>
             <Link href="/contact">Contact</Link>
           </nav>

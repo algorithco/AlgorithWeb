@@ -18,6 +18,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-13 — Brand page
+
+### Added
+- **A brand page.** The Algorithco and AlgorithVoice logos to download, our colors with their values, and the rules for using them, at [/brand](/brand). The link is in the footer.
+
 ## 2026-10-12 — Changelog and benchmarks
 
 ### Added

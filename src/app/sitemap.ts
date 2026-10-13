@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/changelog",
     ...changelogStreams.map((stream) => `/changelog/${stream.slug}`),
     "/about",
+    "/brand",
     "/contact",
     "/privacy",
     "/terms",

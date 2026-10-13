@@ -20,6 +20,20 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Changed
+- **Cloud mode runs on your Algorithco account.** It transcribes with Microsoft's MAI-Transcribe 2 and counts toward your plan's cloud minutes, with nothing to set up.
+- Cloud mode works out the language you speak on its own.
+- When cloud transcription cannot be used, the app says why: the month's cloud minutes are used up, the plan does not include it, or it is unavailable for a moment.
+
+### Removed
+- Cloud mode with your own Groq key. A key saved by an earlier version is deleted from your computer.
+
+### Fixed
+- In Settings, the model list fits the window at any size: status badges stay inside their card, and the Language filter is no longer squeezed into a column of letters.
+- In a narrow window, the Settings menu becomes a row of tabs above the page instead of taking half of it.
+- The model search says how many models there are, and a model for one language says "1 language".
+- Cloud usage for compressed recordings, such as MP3, was counted lower than the real length of the recording.
+
 ## 0.5.22 — 2026-10-12
 
 ### Added

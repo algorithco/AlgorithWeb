@@ -89,6 +89,7 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `/voice`, `/voice/docs/*`, `/voice/download` — Voice product section. This is the only Voice website; the `algorithvoice` repository holds the desktop app and backend.
 - `/guard`, `/guard/docs/*` — Guard product section.
 - `/changelog`, `/changelog/<product>` — every release of every product, built from each product's `CHANGELOG.md`.
+- `/brand` — the logos to download, the colors and the rules for using them. The files in `public/brand/` are generated from the source artwork, never edited by hand, and `src/content/brand.test.ts` holds the colors to `src/app/tokens.css`.
 - `/signin` and `/auth/callback` — central Account OIDC flow.
 - `/app` — unified account, subscription, and product dashboard.
 - `/app/voice`, `/app/voice/admin/*` — authenticated Voice dashboard and operator pages.
