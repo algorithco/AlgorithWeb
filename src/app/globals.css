@@ -4626,7 +4626,20 @@ html:has(.app-route-shell) {
 .account-mfa-note {
   margin: 0;
   color: var(--color-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+}
+/* Names one of the lists in a panel that holds two: browsers, then apps. */
+.account-list-title {
+  margin: 0.4rem 0 -0.5rem;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.account-list-title + .account-empty {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 .account-mfa-dialog {
   width: min(calc(100% - 2rem), 37rem);

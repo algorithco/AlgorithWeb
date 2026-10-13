@@ -18,6 +18,9 @@ const companyLinks = [
 
 export function Header() {
   const session = usePlatformSession();
+  // A browser that was signed in says "Dashboard" at once, while its sign-in
+  // is brought back in the background; the dashboard sorts out the rest.
+  const signedIn = session.signedIn || session.remembered;
   const pathname = usePathname();
   const menuRef = useRef<HTMLDetailsElement>(null);
   const current = (href: string) =>
@@ -60,9 +63,9 @@ export function Header() {
           <ThemeToggle />
           <Link
             className="sign-in"
-            href={session.signedIn ? "/app" : siteConfig.authUrl}
+            href={signedIn ? "/app" : siteConfig.authUrl}
           >
-            {session.signedIn ? "Dashboard" : "Sign in"}
+            {signedIn ? "Dashboard" : "Sign in"}
           </Link>
           <details className="site-menu" ref={menuRef}>
             <summary aria-label="Menu">

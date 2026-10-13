@@ -7,6 +7,7 @@ import {
   discoverAccount,
   normalizeReturnTo,
   type OidcMetadata,
+  silentAccountSignIn,
 } from "./account-auth";
 
 const issuer = "https://trqsh.uz/account";
@@ -114,6 +115,82 @@ describe("platform Account client", () => {
       new URL("https://trqsh.uz/account/.well-known/openid-configuration"),
       expect.any(Object),
     );
+  });
+
+  describe("signing in without leaving the page", () => {
+    /** A fetch whose trip through the Account service ends at `landedAt`. */
+    function accountAnswering(landedAt: string) {
+      return vi.fn(async (input: RequestInfo | URL, _init?: RequestInit) => {
+        const url = String(input);
+        if (url.endsWith("/.well-known/openid-configuration")) {
+          return new Response(JSON.stringify(metadata));
+        }
+        if (url.startsWith(`${issuer}/auth?`)) {
+          const response = new Response("<!doctype html>");
+          Object.defineProperty(response, "url", { value: landedAt });
+          return response;
+        }
+        return new Response(null, { status: 500 });
+      });
+    }
+    const tokenRequests = (fetcher: ReturnType<typeof accountAnswering>) =>
+      fetcher.mock.calls.filter(([input]) => String(input).endsWith("/token"));
+
+    it("follows the flow in the background, with the browser's session", async () => {
+      vi.stubGlobal("window", { location: { origin: "https://trqsh.uz" } });
+      const fetcher = accountAnswering(
+        "https://trqsh.uz/signin?reauth=1&continue=x",
+      );
+
+      // No Account session: the trip ends at the sign-in page, not at a code.
+      await expect(
+        silentAccountSignIn(fetcher as unknown as typeof fetch),
+      ).resolves.toBeNull();
+      const authorize = fetcher.mock.calls.find(([input]) =>
+        String(input).startsWith(`${issuer}/auth?`),
+      );
+      expect(authorize?.[1]).toMatchObject({
+        credentials: "include",
+        redirect: "follow",
+      });
+      const asked = new URL(String(authorize?.[0]));
+      expect(asked.searchParams.get("code_challenge_method")).toBe("S256");
+      expect(asked.searchParams.get("state")).toBeTruthy();
+      expect(asked.searchParams.get("nonce")).toBeTruthy();
+      expect(tokenRequests(fetcher)).toHaveLength(0);
+    });
+
+    it("redeems nothing from a callback that is not its own", async () => {
+      vi.stubGlobal("window", { location: { origin: "https://trqsh.uz" } });
+      // A code, but under a state this request never made.
+      const forged = accountAnswering(
+        "https://trqsh.uz/auth/callback?code=stolen&state=someone-elses",
+      );
+      await expect(
+        silentAccountSignIn(forged as unknown as typeof fetch),
+      ).resolves.toBeNull();
+      expect(tokenRequests(forged)).toHaveLength(0);
+
+      // A page that is not the registered callback, however it is dressed.
+      const elsewhere = accountAnswering(
+        "https://trqsh.uz/auth/other?code=x&state=y",
+      );
+      await expect(
+        silentAccountSignIn(elsewhere as unknown as typeof fetch),
+      ).resolves.toBeNull();
+      expect(tokenRequests(elsewhere)).toHaveLength(0);
+    });
+
+    it("does not try when the Account service is on another origin", async () => {
+      vi.stubGlobal("window", {
+        location: { origin: "http://localhost:3000" },
+      });
+      const fetcher = accountAnswering("https://trqsh.uz/auth/callback?code=x");
+      await expect(
+        silentAccountSignIn(fetcher as unknown as typeof fetch),
+      ).resolves.toBeNull();
+      expect(fetcher).not.toHaveBeenCalled();
+    });
   });
 
   it("finishes logout on the platform sign-in page", async () => {

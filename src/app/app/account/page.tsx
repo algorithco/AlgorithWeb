@@ -31,6 +31,7 @@ import { displayDate, displayPlan, displayTime } from "@/lib/dashboard-format";
 import {
   ActiveSessions,
   ConnectedAccounts,
+  ConnectedApps,
   PlansAndSubscriptions,
   ProfileEditor,
   SECURITY_CHANGED_KEY,
@@ -804,11 +805,19 @@ export default function AccountPage() {
           <div>
             <p className="eyebrow">Devices</p>
             <h2 id="devices-title">Where you are signed in</h2>
-            <p>Sign out any device you do not recognise.</p>
+            <p>
+              Browsers and apps that are signed in with your account. Sign out
+              any you do not recognise.
+            </p>
           </div>
         </div>
         {account ? (
-          <ActiveSessions overview={account} onChanged={refreshOverview} />
+          <>
+            <h3 className="account-list-title">Browsers</h3>
+            <ActiveSessions overview={account} onChanged={refreshOverview} />
+            <h3 className="account-list-title">Apps</h3>
+            <ConnectedApps overview={account} onChanged={refreshOverview} />
+          </>
         ) : (
           pending
         )}

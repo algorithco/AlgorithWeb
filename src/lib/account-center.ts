@@ -34,6 +34,14 @@ export interface AccountOverview {
     lastSeenAt: string;
     current: boolean;
   }>;
+  /** Native apps signed in with the account. Absent from an older service. */
+  apps?: Array<{
+    id: string;
+    name: string;
+    deviceName: string | null;
+    connectedAt: string;
+    lastUsedAt: string;
+  }>;
   subscriptions: Array<{
     id: string;
     product: string;
@@ -244,6 +252,21 @@ export async function revokeSession(
     result.status,
     result.error,
     "The session could not be signed out.",
+  );
+}
+
+/** Sign a connected app out; its sign-in stops working on its computer. */
+export async function revokeApp(id: string): Promise<ActionResult> {
+  const result = await post(
+    `api/account/apps/${encodeURIComponent(id)}/revoke`,
+  );
+  if (!result) return OFFLINE;
+  // Already gone counts: the app is signed out either way.
+  if (result.status === 200 || result.status === 404) return { ok: true };
+  return failure(
+    result.status,
+    result.error,
+    "The app could not be signed out.",
   );
 }
 

@@ -18,6 +18,16 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## Unreleased
+
+### Added
+- The account page lists the apps signed in with your account, such as AlgorithVoice on your computer, and lets you sign any of them out.
+
+### Changed
+- **You stay signed in on the site.** The dashboard no longer drops back to the sign-in page after a few minutes, after a reload or in a new tab: it follows your Algorithco session, which lasts until you sign out.
+- The top bar says "Dashboard" as soon as a page opens in a browser that is signed in.
+- Signing out in one tab signs your other tabs out as well.
+
 ## 2026-10-13 — Brand page, a simpler dashboard, and AlgorithVoice cloud on Pro
 
 ### Added

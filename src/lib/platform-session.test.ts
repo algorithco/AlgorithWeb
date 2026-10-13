@@ -63,6 +63,23 @@ describe("platform session", () => {
     vi.resetModules();
     const reloaded = await import("./platform-session");
     expect(reloaded.loadAccessToken()).toBe(accessToken);
+    // The token never reaches storage that outlives the tab. What does is a
+    // marker that this browser was signed in, and it carries nothing.
+    expect([...localStorage.values.entries()]).toEqual([
+      ["algorithco-signed-in", "1"],
+    ]);
+  });
+
+  it("remembers that the browser was signed in until told otherwise", async () => {
+    const session = await import("./platform-session");
+    expect(session.hasSignedInHint()).toBe(false);
+    session.saveAccessToken(token(Math.floor(Date.now() / 1000) + 600));
+    expect(session.hasSignedInHint()).toBe(true);
+    // The token running out is not a sign-out: the session may well go on.
+    session.saveAccessToken("");
+    expect(session.hasSignedInHint()).toBe(true);
+    session.setSignedInHint(false);
+    expect(session.hasSignedInHint()).toBe(false);
     expect(localStorage.length).toBe(0);
   });
 
