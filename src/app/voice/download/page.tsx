@@ -119,8 +119,8 @@ export default async function VoiceDownloadPage() {
             </li>
             <li>
               <span>
-                Cloud transcription is optional: add your own Groq API key in
-                Settings and audio goes straight from your computer to Groq.
+                Cloud transcription is optional and part of the Pro plan. Local
+                dictation is free on every plan, with no limit.
               </span>
             </li>
           </ol>

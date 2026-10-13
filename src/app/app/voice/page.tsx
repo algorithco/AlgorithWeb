@@ -70,7 +70,7 @@ function CloudMeter({ usage }: { usage: VoiceUsage }) {
           {limit === "unlimited"
             ? "used · unlimited on your plan"
             : limit === null
-              ? "used · your plan does not include cloud time yet"
+              ? "used · cloud transcription is part of the Pro plan"
               : `of ${formatSeconds(limit)} used`}
         </span>
       </div>
@@ -281,7 +281,9 @@ export default function VoiceOverviewPage() {
         <SummaryCard
           detail={
             usage.data
-              ? `Limit: ${limitLabel(usage.data.cloudSecondsLimit, formatSeconds)}`
+              ? usage.data.cloudSecondsLimit === null
+                ? "Part of the Pro plan"
+                : `Limit: ${limitLabel(usage.data.cloudSecondsLimit, formatSeconds)}`
               : "Managed cloud transcription"
           }
           icon="pulse"
@@ -313,8 +315,9 @@ export default function VoiceOverviewPage() {
               <p className="eyebrow">Usage</p>
               <h2 id="voice-cloud-title">Cloud transcription</h2>
               <p>
-                Audio sent through Algorithco for transcription. Cloud mode with
-                your own Groq key is billed by Groq and does not count here.
+                Audio sent through Algorithco for transcription, which is part
+                of the Pro plan. Local dictation is unlimited on every plan and
+                does not count here.
               </p>
             </div>
           </div>
