@@ -95,6 +95,7 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `/app/voice`, `/app/voice/admin/*` — authenticated Voice dashboard and operator pages.
 - `/app/guard/*` — authenticated Guard console.
 - `/api/voice/*`, `/api/guard/*` — reverse proxies to the Voice and Guard backends; not part of the static export.
+- `/api/releases/voice` — the gateway's copy of the latest public AlgorithVoice release, kept for five minutes. `/voice/download` is built with the release of build time and reads this one in the browser, so a new version appears without a rebuild.
 
 The browser uses the public OIDC client `algorithco-platform-web`. The Account
 service must register `https://trqsh.uz/auth/callback` as an exact redirect URI

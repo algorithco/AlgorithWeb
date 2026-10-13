@@ -1,12 +1,15 @@
 /**
- * The latest public AlgorithVoice desktop release, read from GitHub at
- * build time (the site is a static export). Visitors' browsers never call
- * GitHub for this page; they only reach github.com when they click a
- * download link.
+ * The latest public AlgorithVoice desktop release. The build reads it from
+ * GitHub (the site is a static export), and the download page then asks the
+ * gateway for the current one, so a version released after the build still
+ * shows up. Visitors' browsers never call GitHub for this page; they only
+ * reach github.com when they click a download link.
  */
 
 export const VOICE_RELEASES_REPO = "algorithco/algorithvoice-app";
 export const VOICE_RELEASES_URL = `https://github.com/${VOICE_RELEASES_REPO}/releases`;
+/** The gateway's cached copy of GitHub's answer (nginx.conf). */
+export const VOICE_RELEASE_ENDPOINT = "/api/releases/voice";
 
 export type VoiceInstaller = {
   platform: "windows" | "linux";
@@ -93,6 +96,9 @@ export async function fetchLatestVoiceRelease(): Promise<VoiceRelease | null> {
       `https://api.github.com/repos/${VOICE_RELEASES_REPO}/releases/latest`,
       {
         headers: { Accept: "application/vnd.github+json" },
+        // Next keeps a build's answer on disk and would hand it to every
+        // later build made from the same checkout; let it age out instead.
+        next: { revalidate: 60 },
         signal: AbortSignal.timeout(10_000),
       },
     );
@@ -101,6 +107,28 @@ export async function fetchLatestVoiceRelease(): Promise<VoiceRelease | null> {
   } catch {
     return null;
   }
+}
+
+/** View-time fetch from the browser; throws so the caller keeps what it has. */
+export async function fetchCurrentVoiceRelease(): Promise<VoiceRelease> {
+  const response = await fetch(VOICE_RELEASE_ENDPOINT, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) {
+    throw new Error(`Release lookup failed (${response.status})`);
+  }
+  const release = parseVoiceRelease(await response.json());
+  if (!release) throw new Error("Release lookup returned no release");
+  return release;
+}
+
+/** The release day in UTC, so the built page and every browser agree. */
+export function formatReleaseDay(publishedAt: string): string {
+  return new Intl.DateTimeFormat("en", {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(publishedAt));
 }
 
 export function formatBytes(bytes: number): string {

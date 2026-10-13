@@ -20,6 +20,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-13 — AlgorithVoice cloud transcription moves to Pro
+
+### Changed
+- AlgorithVoice cloud transcription is part of the Pro plan, with 70 hours a month. Free accounts keep unlimited transcription on their own computer.
+
 ## 2026-10-12 — Approve before an app is connected
 
 ### Security

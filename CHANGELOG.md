@@ -26,6 +26,9 @@ with the next deploy.
 ### Changed
 - The AlgorithVoice pages and dashboard say that cloud transcription is part of the Pro plan and that local dictation is unlimited on every plan. The instructions for a Groq key, which the app no longer uses, are gone from the docs and the download page.
 
+### Fixed
+- The [AlgorithVoice download page](/voice/download) offers a new version within minutes of its release. It used to keep the previous version until the site itself was next updated.
+
 ## 2026-10-12 — Changelog and benchmarks
 
 ### Added

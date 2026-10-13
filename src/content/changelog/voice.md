@@ -20,6 +20,19 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Changed
+- **Dictation starts sooner.** The pill answers the moment you press the key, and recording begins right after the start sound instead of after a pause.
+- The microphone stays ready for 30 seconds after a dictation, so the next one starts at once. Nothing is recorded in that time, and your system's microphone indicator stays on until it closes.
+- **Cloud transcription is part of the Pro plan.** A Free account dictates on its own computer, with no limit. With Cloud chosen on a plan without it, the pill says "Pro required" and does not record; choose Local and it works again.
+- The pill tells you before it records when a dictation cannot be made: no cloud minutes left this month, no local model chosen, or no connection in Cloud mode. It used to record first and fail afterwards.
+- A new installation starts in Local mode. Audio goes to the cloud only when you choose Cloud.
+- When cloud transcription is unavailable, the app says so sooner: it no longer waits for a second model first.
+
+### Fixed
+- The Dictate page no longer stays on "Transcribing…" after a key press that was not recorded.
+- A change of transcription mode always reaches the pill, and settings that cannot be read for a moment no longer put the pill back to its defaults.
+- The dashboard no longer shows "BYOK" for a mode that older versions saved; it is Cloud.
+
 ## 0.5.23 — 2026-10-13
 
 ### Changed
