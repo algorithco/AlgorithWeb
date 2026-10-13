@@ -18,10 +18,13 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## 2026-10-13 — Brand page
+## 2026-10-13 — Brand page, and AlgorithVoice cloud on Pro
 
 ### Added
 - **A brand page.** The Algorithco and AlgorithVoice logos to download, our colors with their values, and the rules for using them, at [/brand](/brand). The link is in the footer.
+
+### Changed
+- The AlgorithVoice pages and dashboard say that cloud transcription is part of the Pro plan and that local dictation is unlimited on every plan. The instructions for a Groq key, which the app no longer uses, are gone from the docs and the download page.
 
 ## 2026-10-12 — Changelog and benchmarks
 

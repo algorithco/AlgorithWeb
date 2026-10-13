@@ -55,12 +55,12 @@ export const voiceDocs = {
         "Speech is transcribed on your computer by an on-device model. Audio never leaves the device, and it works offline once you are signed in.",
       ],
       [
-        "Cloud with your own key",
-        "Add your own Groq API key in Settings. The finished recording is sent from your computer straight to Groq after you release the hotkey, and Groq bills you for it. The key is stored in the operating system keyring.",
+        "Cloud",
+        "Cloud mode is part of the Pro plan. The finished recording is sent to Algorithco after you release the hotkey and transcribed with Microsoft’s MAI-Transcribe 2. It counts toward your plan’s monthly cloud time, and there is nothing to set up.",
       ],
       [
         "Your Algorithco account",
-        "Plan, cloud usage and registered computers for transcription that goes through Algorithco are shown in the dashboard under AlgorithVoice. Local dictation and cloud mode with your own key are never counted there.",
+        "Plan, cloud usage and registered computers for transcription that goes through Algorithco are shown in the dashboard under AlgorithVoice. Local dictation is never counted there.",
       ],
     ],
   },
@@ -172,6 +172,6 @@ export const voiceFaq = [
   ],
   [
     "What does it cost?",
-    "The app and local dictation are free on every plan, including Free. Cloud mode with your own Groq key is billed by Groq.",
+    "The app and local dictation are free on every plan, including Free, with no limit. Cloud transcription is part of the Pro plan.",
   ],
 ] as const;
