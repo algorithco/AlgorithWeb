@@ -1,5 +1,10 @@
-import { describe, expect, it } from "vitest";
-import { formatBytes, parseVoiceRelease } from "./voice-release";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import {
+  fetchCurrentVoiceRelease,
+  formatBytes,
+  formatReleaseDay,
+  parseVoiceRelease,
+} from "./voice-release";
 
 const base =
   "https://github.com/algorithco/algorithvoice-app/releases/download/v0.5.21";
@@ -68,6 +73,44 @@ describe("parseVoiceRelease", () => {
   it("returns null for unexpected payloads", () => {
     expect(parseVoiceRelease({ message: "Not Found" })).toBeNull();
     expect(parseVoiceRelease(null)).toBeNull();
+  });
+});
+
+describe("fetchCurrentVoiceRelease", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  const respond = (status: number, body: unknown) =>
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(body), { status })),
+    );
+
+  it("asks the gateway, not GitHub, and returns the release", async () => {
+    respond(200, {
+      tag_name: "v0.5.23",
+      published_at: "2026-10-13T06:02:00Z",
+      html_url:
+        "https://github.com/algorithco/algorithvoice-app/releases/tag/v0.5.23",
+      assets: [],
+    });
+    const release = await fetchCurrentVoiceRelease();
+    expect(release.version).toBe("0.5.23");
+    expect(vi.mocked(fetch).mock.calls[0][0]).toBe("/api/releases/voice");
+  });
+
+  it("throws when the lookup fails, so the built release stays", async () => {
+    respond(502, {});
+    await expect(fetchCurrentVoiceRelease()).rejects.toThrow("502");
+    respond(200, { message: "API rate limit exceeded" });
+    await expect(fetchCurrentVoiceRelease()).rejects.toThrow("no release");
+  });
+});
+
+describe("formatReleaseDay", () => {
+  it("names the UTC day in any time zone", () => {
+    expect(formatReleaseDay("2026-10-13T06:02:00Z")).toBe("October 13, 2026");
+    expect(formatReleaseDay("2026-10-12T23:30:00Z")).toBe("October 12, 2026");
+    expect(formatReleaseDay("2026-10-13T00:10:00Z")).toBe("October 13, 2026");
   });
 });
 

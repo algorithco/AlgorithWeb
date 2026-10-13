@@ -18,13 +18,21 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## 2026-10-13 — Brand page, and AlgorithVoice cloud on Pro
+## 2026-10-13 — Brand page, a simpler dashboard, and AlgorithVoice cloud on Pro
 
 ### Added
 - **A brand page.** The Algorithco and AlgorithVoice logos to download, our colors with their values, and the rules for using them, at [/brand](/brand). The link is in the footer.
 
 ### Changed
+- **A simpler dashboard.** Every page is in the sidebar once, billing has its own link there, and signing out is at the bottom of it. The account, product and documentation buttons that were repeated on every page are gone.
+- The dashboard overview shows what you use: your plan, cloud time and devices for AlgorithVoice, and your plan, workspaces and decisions for AlgorithGuard.
+- The AlgorithGuard overview lists your latest decisions, and the account page has links that jump to each of its sections.
+- The dashboard is easier to use on a phone, and its dates are written in English whatever the language of your browser.
 - The AlgorithVoice pages and dashboard say that cloud transcription is part of the Pro plan and that local dictation is unlimited on every plan. The instructions for a Groq key, which the app no longer uses, are gone from the docs and the download page.
+
+### Fixed
+- The "Manage billing" button on the dashboard overview could not open billing. Billing is now managed from the account page, where it works.
+- The [AlgorithVoice download page](/voice/download) offers a new version within minutes of its release. It used to keep the previous version until the site itself was next updated.
 
 ## 2026-10-12 — Changelog and benchmarks
 

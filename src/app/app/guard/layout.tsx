@@ -1,12 +1,20 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
 import {
   DashboardIcon,
   useDashboardSession,
 } from "@/components/dashboard-shell";
-import { createGuardOrg, GuardApiError, listGuardOrgs } from "@/lib/guard-api";
+import { dashboardRoutes } from "@/config/dashboard";
+import { displayPlan } from "@/lib/dashboard-format";
+import {
+  createGuardOrg,
+  GuardApiError,
+  getGuardEntitlement,
+  listGuardOrgs,
+} from "@/lib/guard-api";
 
 export default function GuardLayout({ children }: { children: ReactNode }) {
   const session = useDashboardSession();
@@ -15,6 +23,11 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
   const orgs = useQuery({
     queryKey: ["guard", "orgs", session.profile?.subject],
     queryFn: () => listGuardOrgs(session.token),
+    enabled: session.signedIn,
+  });
+  const entitlement = useQuery({
+    queryKey: ["guard", "entitlement", session.profile?.subject],
+    queryFn: () => getGuardEntitlement(session.token),
     enabled: session.signedIn,
   });
   const create = useMutation({
@@ -31,7 +44,8 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
     }
   }, [orgs.data, session.orgId, session.selectOrg]);
 
-  const activeOrg = orgs.data?.orgs.find((org) => org.org_id === session.orgId);
+  const workspaces = orgs.data?.orgs ?? [];
+  const activeOrg = workspaces.find((org) => org.org_id === session.orgId);
   const requestError = orgs.error ?? create.error;
   const error =
     requestError instanceof GuardApiError
@@ -48,39 +62,36 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
             <DashboardIcon name="guard" />
           </span>
           <div>
-            <p className="eyebrow">
-              <span className="keep-case">AlgorithGuard</span> workspace
-            </p>
-            <strong>{activeOrg?.org_name ?? "Workspace control"}</strong>
-            <small>
-              {activeOrg
-                ? "Policies, decisions, audit and usage"
-                : "Choose or create a workspace to continue"}
-            </small>
+            <p className="eyebrow">Workspace</p>
+            <strong>
+              {activeOrg?.org_name ??
+                (orgs.isPending ? "Loading…" : "No workspace yet")}
+            </strong>
+            {activeOrg ? (
+              <small className="guard-code">{activeOrg.org_id}</small>
+            ) : orgs.isPending ? null : (
+              <small>Create a workspace to begin</small>
+            )}
           </div>
         </div>
 
         <div className="guard-workspace-toolbar__control">
-          {orgs.data?.orgs.length ? (
+          {workspaces.length > 1 ? (
             <label>
-              <span>Active workspace</span>
+              <span>Switch workspace</span>
               <select
                 value={session.orgId}
                 onChange={(event) => session.selectOrg(event.target.value)}
-                aria-label="AlgorithGuard workspace"
               >
-                {orgs.data.orgs.map((org) => (
+                {workspaces.map((org) => (
                   <option key={org.org_id} value={org.org_id}>
                     {org.org_name}
                   </option>
                 ))}
               </select>
             </label>
-          ) : orgs.isPending ? (
-            <span className="guard-workspace-toolbar__loading">
-              Loading workspaces…
-            </span>
-          ) : (
+          ) : null}
+          {orgs.isSuccess && workspaces.length === 0 ? (
             <form
               onSubmit={(event) => {
                 event.preventDefault();
@@ -93,7 +104,6 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
                   value={orgName}
                   onChange={(event) => setOrgName(event.target.value)}
                   maxLength={128}
-                  aria-label="Workspace name"
                 />
               </label>
               <button
@@ -104,7 +114,17 @@ export default function GuardLayout({ children }: { children: ReactNode }) {
                 {create.isPending ? "Creating…" : "Create workspace"}
               </button>
             </form>
-          )}
+          ) : null}
+          {entitlement.data ? (
+            <Link
+              className="guard-workspace-toolbar__plan"
+              href={dashboardRoutes.billing}
+              title="Plans and billing"
+            >
+              {displayPlan(entitlement.data.plan)} plan
+              <span aria-hidden="true">→</span>
+            </Link>
+          ) : null}
         </div>
       </header>
 

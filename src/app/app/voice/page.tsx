@@ -8,11 +8,14 @@ import {
   DashboardIcon,
   useDashboardSession,
 } from "@/components/dashboard-shell";
-import { SummaryCard } from "@/components/dashboard-summary-card";
 import { DailyUsageChart } from "@/components/voice/daily-usage-chart";
 import { dashboardRoutes } from "@/config/dashboard";
 import { beginAccountLogin } from "@/lib/account-auth";
-import { displayPlan } from "@/lib/dashboard-format";
+import {
+  displayDate,
+  displayDateTime,
+  displayPlan,
+} from "@/lib/dashboard-format";
 import {
   formatSeconds,
   getVoiceAdminUsage,
@@ -38,24 +41,19 @@ const PLATFORM_LABELS: Record<VoiceDevice["type"], string> = {
 };
 
 function dateLabel(value: string | null, fallback: string) {
-  if (!value) return fallback;
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  return value ? displayDateTime(value) : fallback;
 }
 
-function limitLabel(limit: VoiceLimit, unit: (value: number) => string) {
-  if (limit === "unlimited") return "Unlimited";
-  if (limit === null) return "Not set yet";
-  return unit(limit);
+/** "2 of 3 seats", for the heading of the device list. */
+function seatsLabel(used: number, seats: VoiceLimit) {
+  if (seats === "unlimited") return `${used} in use · unlimited seats`;
+  if (seats === null) return `${used} in use`;
+  return `${used} of ${seats} ${seats === 1 ? "seat" : "seats"}`;
 }
 
 function CloudMeter({ usage }: { usage: VoiceUsage }) {
   const limit = usage.cloudSecondsLimit;
-  const resets = new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-  }).format(new Date(usage.periodEnd));
+  const resets = displayDate(usage.periodEnd);
   const percent =
     typeof limit === "number" && limit > 0
       ? Math.min(100, (usage.cloudSecondsUsed / limit) * 100)
@@ -213,9 +211,7 @@ export default function VoiceOverviewPage() {
     <div className="platform-dashboard voice-dashboard">
       <header className="dashboard-welcome">
         <div>
-          <p className="eyebrow">
-            <span className="keep-case">AlgorithVoice</span>
-          </p>
+          <p className="eyebrow">Desktop app</p>
           <h1>AlgorithVoice</h1>
           <p>
             Cloud transcription, devices and plan for the desktop app. Local
@@ -223,9 +219,11 @@ export default function VoiceOverviewPage() {
           </p>
         </div>
         <div className="dashboard-welcome__actions">
-          <ButtonLink href="/voice/download">Download AlgorithVoice</ButtonLink>
-          <ButtonLink href={dashboardRoutes.subscriptions} variant="secondary">
-            Plans & billing
+          <ButtonLink href={dashboardRoutes.voiceDownload}>
+            Download the app
+          </ButtonLink>
+          <ButtonLink href={dashboardRoutes.billing} variant="secondary">
+            Plans and billing
           </ButtonLink>
         </div>
       </header>
@@ -270,41 +268,6 @@ export default function VoiceOverviewPage() {
         </div>
       ) : null}
 
-      <section className="dashboard-summary" aria-label="AlgorithVoice summary">
-        <SummaryCard
-          detail="From your Algorithco account"
-          icon="billing"
-          label="Plan"
-          loading={ready && usage.isPending}
-          value={usage.data ? displayPlan(usage.data.plan) : "—"}
-        />
-        <SummaryCard
-          detail={
-            usage.data
-              ? usage.data.cloudSecondsLimit === null
-                ? "Part of the Pro plan"
-                : `Limit: ${limitLabel(usage.data.cloudSecondsLimit, formatSeconds)}`
-              : "Managed cloud transcription"
-          }
-          icon="pulse"
-          label="Cloud this month"
-          loading={ready && usage.isPending}
-          value={usage.data ? formatSeconds(usage.data.cloudSecondsUsed) : "—"}
-          wideValue
-        />
-        <SummaryCard
-          detail={
-            devices.data
-              ? `Seats: ${limitLabel(seatsMax, String)}`
-              : "Computers using cloud time"
-          }
-          icon="mic"
-          label="Devices"
-          loading={ready && devices.isPending}
-          value={devices.data ? String(deviceCount) : "—"}
-        />
-      </section>
-
       <div className="dashboard-detail-grid">
         <section
           aria-labelledby="voice-cloud-title"
@@ -312,7 +275,7 @@ export default function VoiceOverviewPage() {
         >
           <div className="dashboard-panel__heading">
             <div>
-              <p className="eyebrow">Usage</p>
+              <p className="eyebrow">This month</p>
               <h2 id="voice-cloud-title">Cloud transcription</h2>
               <p>
                 Audio sent through Algorithco for transcription, which is part
@@ -320,6 +283,11 @@ export default function VoiceOverviewPage() {
                 does not count here.
               </p>
             </div>
+            {usage.data ? (
+              <span className="dashboard-tag">
+                {displayPlan(usage.data.plan)} plan
+              </span>
+            ) : null}
           </div>
           {usage.data ? (
             <CloudMeter usage={usage.data} />
@@ -343,6 +311,11 @@ export default function VoiceOverviewPage() {
                 transcription with this account.
               </p>
             </div>
+            {devices.data ? (
+              <span className="dashboard-tag">
+                {seatsLabel(deviceCount, seatsMax)}
+              </span>
+            ) : null}
           </div>
           {devices.data?.devices.length ? (
             <ul className="voice-devices">

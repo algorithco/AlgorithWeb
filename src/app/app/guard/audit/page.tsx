@@ -18,16 +18,13 @@ export default function GuardAuditPage() {
     <div className="guard-stack">
       <div className="guard-heading">
         <div>
-          <p className="eyebrow">
-            <span className="keep-case">AlgorithGuard</span> · Audit
-          </p>
-          <h2>Audit log</h2>
+          <p className="eyebrow">Latest 200 entries</p>
+          <h1>Audit log</h1>
           <p className="muted">
             Redacted payloads only. Use <code>algo log --show-egress</code>{" "}
             locally to inspect egress.
           </p>
         </div>
-        <span className="status-pill">Latest 200</span>
       </div>
       <ErrorMessage error={audit.error} />
       {audit.isPending ? (

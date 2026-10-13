@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   createContext,
+  Fragment,
   type ReactNode,
   useContext,
   useEffect,
@@ -11,11 +12,11 @@ import {
   useState,
 } from "react";
 import {
+  type DashboardNavItem,
+  type DashboardNavLink,
+  dashboardNavigation,
   dashboardPageLabels,
-  dashboardRoutes,
-  guardNavigation,
-  voiceNavigation,
-  workspaceNavigation,
+  dashboardResources,
 } from "@/config/dashboard";
 import type { PlatformSession } from "@/hooks/use-platform-session";
 import { AlgorithcoMark } from "./brand-marks";
@@ -156,21 +157,22 @@ export function useDashboardSession() {
   return session;
 }
 
-export function SignOutButton({
-  children = "Sign out",
+function SignOutDialog({
+  open,
+  onClose,
 }: {
-  children?: ReactNode;
+  open: boolean;
+  onClose: () => void;
 }) {
   const session = useDashboardSession();
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [confirming, setConfirming] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (confirming && !dialog.open) dialog.showModal();
-    if (!confirming && dialog.open) dialog.close();
-  }, [confirming]);
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
 
   const confirmLogout = async () => {
     try {
@@ -181,77 +183,85 @@ export function SignOutButton({
   };
 
   return (
-    <>
-      <button
-        className="button button--secondary"
-        type="button"
-        disabled={session.loggingOut}
-        onClick={() => setConfirming(true)}
-      >
-        {session.loggingOut ? "Signing out…" : children}
-      </button>
-      <dialog
-        aria-labelledby="sign-out-title"
-        aria-describedby="sign-out-description"
-        className="dashboard-confirm-dialog"
-        ref={dialogRef}
-        onCancel={() => setConfirming(false)}
-        onClose={() => setConfirming(false)}
-        onClick={(event) => {
-          if (event.target === event.currentTarget && !session.loggingOut) {
-            setConfirming(false);
-          }
-        }}
-      >
-        <div className="dashboard-confirm-dialog__content">
-          <div className="dashboard-confirm-dialog__heading">
-            <span className="dashboard-confirm-dialog__icon">
-              <DashboardIcon name="logout" />
-            </span>
-            <div>
-              <p className="eyebrow">Confirm sign out</p>
-              <h2 id="sign-out-title">Sign out of Algorithco?</h2>
-            </div>
-          </div>
-          <p id="sign-out-description">
-            Your session on this browser will end. You will need to sign in
-            again to open the dashboard.
-          </p>
-          {session.logoutError ? (
-            <p className="form-error" role="alert">
-              {session.logoutError}
-            </p>
-          ) : null}
-          <div className="dashboard-confirm-dialog__actions">
-            <button
-              autoFocus
-              className="button button--secondary"
-              type="button"
-              disabled={session.loggingOut}
-              onClick={() => setConfirming(false)}
-            >
-              Cancel
-            </button>
-            <button
-              className="button button--primary dashboard-confirm-dialog__confirm"
-              type="button"
-              disabled={session.loggingOut}
-              onClick={() => void confirmLogout()}
-            >
-              {session.loggingOut ? "Signing out…" : "Yes, sign out"}
-            </button>
+    <dialog
+      aria-labelledby="sign-out-title"
+      aria-describedby="sign-out-description"
+      className="dashboard-confirm-dialog"
+      ref={dialogRef}
+      onCancel={onClose}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === event.currentTarget && !session.loggingOut) {
+          onClose();
+        }
+      }}
+    >
+      <div className="dashboard-confirm-dialog__content">
+        <div className="dashboard-confirm-dialog__heading">
+          <span className="dashboard-confirm-dialog__icon">
+            <DashboardIcon name="logout" />
+          </span>
+          <div>
+            <p className="eyebrow">Confirm sign out</p>
+            <h2 id="sign-out-title">Sign out of Algorithco?</h2>
           </div>
         </div>
-      </dialog>
-    </>
+        <p id="sign-out-description">
+          Your session on this browser will end. You will need to sign in again
+          to open the dashboard.
+        </p>
+        {session.logoutError ? (
+          <p className="form-error" role="alert">
+            {session.logoutError}
+          </p>
+        ) : null}
+        <div className="dashboard-confirm-dialog__actions">
+          <button
+            autoFocus
+            className="button button--secondary"
+            type="button"
+            disabled={session.loggingOut}
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="button button--primary dashboard-confirm-dialog__confirm"
+            type="button"
+            disabled={session.loggingOut}
+            onClick={() => void confirmLogout()}
+          >
+            {session.loggingOut ? "Signing out…" : "Yes, sign out"}
+          </button>
+        </div>
+      </div>
+    </dialog>
   );
 }
 
-function isActive(pathname: string, hash: string, href: string) {
-  const [targetPath, targetHash = ""] = href.split("#");
-  if (pathname !== targetPath) return false;
+const navigationHrefs = dashboardNavigation.flatMap((group) =>
+  group.items.flatMap((item) => [
+    item.href,
+    ...(item.children ?? []).map((child) => child.href),
+  ]),
+);
+
+function isCurrent(
+  pathname: string,
+  hash: string,
+  item: DashboardNavItem | DashboardNavLink,
+) {
+  const [targetPath, targetHash] = item.href.split("#");
+  if (pathname !== targetPath) {
+    return (
+      "includeSubpaths" in item &&
+      item.includeSubpaths === true &&
+      pathname.startsWith(`${targetPath}/`)
+    );
+  }
   if (targetHash) return hash === `#${targetHash}`;
-  return pathname !== dashboardRoutes.overview || hash === "";
+  // The page's own link gives way to the link of the section jumped to.
+  return hash === "" || !navigationHrefs.includes(`${pathname}${hash}`);
 }
 
 export function DashboardShell({
@@ -263,18 +273,20 @@ export function DashboardShell({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [hash, setHash] = useState("");
-  const displayName =
-    session.profile?.name ?? session.profile?.email ?? "Algorithco account";
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const name = session.profile?.name;
+  const email = session.profile?.email;
+  const displayName = name ?? email ?? "Algorithco account";
   const initial = displayName.trim().charAt(0).toUpperCase() || "A";
-  const labels = dashboardPageLabels[pathname] ?? {
-    section: "Workspace",
-    page: "Dashboard",
-  };
+  const labels = dashboardPageLabels[pathname] ?? { page: "Dashboard" };
   const closeMenu = () => setMenuOpen(false);
 
   useEffect(() => {
     setMenuOpen(false);
+    setHash(window.location.hash);
   }, [pathname]);
 
   useEffect(() => {
@@ -282,36 +294,67 @@ export function DashboardShell({
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") setMenuOpen(false);
     };
-    syncHash();
+    // The drawer only exists below this width; see the sidebar's media query.
+    const wide = window.matchMedia("(min-width: 62.0625rem)");
+    const closeWhenWide = () => {
+      if (wide.matches) setMenuOpen(false);
+    };
     window.addEventListener("hashchange", syncHash);
     window.addEventListener("keydown", closeOnEscape);
+    wide.addEventListener("change", closeWhenWide);
     return () => {
       window.removeEventListener("hashchange", syncHash);
       window.removeEventListener("keydown", closeOnEscape);
+      wide.removeEventListener("change", closeWhenWide);
     };
   }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
+    const menuButton = menuButtonRef.current;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
     return () => {
       document.body.style.overflow = previousOverflow;
+      menuButton?.focus();
     };
   }, [menuOpen]);
+
+  const navLink = (item: DashboardNavItem | DashboardNavLink) => {
+    const current = isCurrent(pathname, hash, item);
+    return (
+      <Link
+        aria-current={current ? "page" : undefined}
+        className={current ? "is-active" : undefined}
+        href={item.href}
+        onClick={() => {
+          // A link to a section of the open page changes no path, and the
+          // router's own history entry fires no hashchange.
+          setHash(item.href.includes("#") ? `#${item.href.split("#")[1]}` : "");
+          closeMenu();
+        }}
+      >
+        <DashboardIcon name={item.icon} />
+        <span>{item.label}</span>
+      </Link>
+    );
+  };
 
   return (
     <DashboardSessionContext.Provider value={session}>
       <div className="dashboard-shell">
         <button
-          aria-label="Close navigation"
+          aria-hidden="true"
           className={`dashboard-sidebar__scrim${menuOpen ? " is-open" : ""}`}
           onClick={closeMenu}
+          tabIndex={-1}
           type="button"
         />
         <aside
-          aria-label="Dashboard navigation"
+          aria-label="Dashboard"
           className={`dashboard-sidebar${menuOpen ? " is-open" : ""}`}
+          id="dashboard-sidebar"
         >
           <div className="dashboard-sidebar__brand">
             <Link
@@ -329,137 +372,99 @@ export function DashboardShell({
               aria-label="Close navigation"
               className="dashboard-sidebar__close"
               onClick={closeMenu}
+              ref={closeButtonRef}
               type="button"
             >
               <DashboardIcon name="close" />
             </button>
           </div>
 
-          <nav className="dashboard-nav" aria-label="Workspace">
-            <p>Workspace</p>
-            {workspaceNavigation.map((item) => {
-              const active = isActive(pathname, hash, item.href);
-              return (
-                <Link
-                  aria-current={active ? "page" : undefined}
-                  className={active ? "is-active" : undefined}
-                  href={item.href}
-                  key={item.href}
-                  onClick={closeMenu}
-                >
-                  <DashboardIcon name={item.icon} />
+          <nav className="dashboard-sidebar__nav" aria-label="Dashboard">
+            {dashboardNavigation.map((group) => (
+              <div className="dashboard-nav" key={group.title ?? "overview"}>
+                {group.title ? <p>{group.title}</p> : null}
+                {group.items.map((item) => (
+                  <Fragment key={item.href}>
+                    {navLink(item)}
+                    {item.children ? (
+                      <div className="dashboard-nav__children">
+                        {item.children.map((child) => (
+                          <Fragment key={child.href}>{navLink(child)}</Fragment>
+                        ))}
+                      </div>
+                    ) : null}
+                  </Fragment>
+                ))}
+              </div>
+            ))}
+            <div className="dashboard-nav dashboard-nav--resources">
+              <p>Resources</p>
+              {dashboardResources.map((item) => (
+                <Link href={item.href} key={item.href} onClick={closeMenu}>
+                  <DashboardIcon name="docs" />
                   <span>{item.label}</span>
+                  <DashboardIcon name="external" />
                 </Link>
-              );
-            })}
+              ))}
+            </div>
           </nav>
 
-          <nav className="dashboard-nav" aria-label="AlgorithVoice product">
-            <p>
-              <span className="keep-case">AlgorithVoice</span>
-            </p>
-            {voiceNavigation.map((item) => {
-              const active = isActive(pathname, hash, item.href);
-              return (
-                <Link
-                  aria-current={active ? "page" : undefined}
-                  className={active ? "is-active" : undefined}
-                  href={item.href}
-                  key={item.href}
-                  onClick={closeMenu}
-                >
-                  <DashboardIcon name={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <nav className="dashboard-nav" aria-label="AlgorithGuard product">
-            <p>
-              <span className="keep-case">AlgorithGuard</span> control
-            </p>
-            {guardNavigation.map((item) => {
-              const active = isActive(pathname, hash, item.href);
-              return (
-                <Link
-                  aria-current={active ? "page" : undefined}
-                  className={active ? "is-active" : undefined}
-                  href={item.href}
-                  key={item.href}
-                  onClick={closeMenu}
-                >
-                  <DashboardIcon name={item.icon} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <nav
-            className="dashboard-nav dashboard-nav--resources"
-            aria-label="Resources"
-          >
-            <p>Resources</p>
-            <Link href={dashboardRoutes.voiceDocs} onClick={closeMenu}>
-              <DashboardIcon name="docs" />
-              <span>AlgorithVoice docs</span>
-              <DashboardIcon name="external" />
-            </Link>
-            <Link href={dashboardRoutes.guardDocs} onClick={closeMenu}>
-              <DashboardIcon name="docs" />
-              <span>AlgorithGuard docs</span>
-              <DashboardIcon name="external" />
-            </Link>
-          </nav>
-
-          <Link
-            className="dashboard-sidebar__account"
-            href={dashboardRoutes.account}
-            onClick={closeMenu}
-          >
+          <div className="dashboard-sidebar__account">
             <span className="dashboard-avatar" aria-hidden="true">
               {initial}
             </span>
-            <span>
-              <strong>{displayName}</strong>
-              <small>{session.profile?.email ?? "Central account"}</small>
+            <span className="dashboard-sidebar__identity">
+              <strong title={displayName}>{displayName}</strong>
+              {name && email ? <small title={email}>{email}</small> : null}
             </span>
-            <span className="dashboard-online-dot" title="Signed in" />
-          </Link>
+            <button
+              aria-label="Sign out"
+              className="dashboard-sidebar__signout"
+              disabled={session.loggingOut}
+              onClick={() => setSigningOut(true)}
+              title="Sign out"
+              type="button"
+            >
+              <DashboardIcon name="logout" />
+            </button>
+          </div>
         </aside>
 
         <div className="dashboard-workspace">
           <header className="dashboard-topbar">
-            <div>
+            <div className="dashboard-topbar__trail">
               <button
+                aria-controls="dashboard-sidebar"
                 aria-expanded={menuOpen}
                 aria-label="Open navigation"
                 className="dashboard-menu-button"
                 onClick={() => setMenuOpen(true)}
+                ref={menuButtonRef}
                 type="button"
               >
                 <DashboardIcon name="menu" />
               </button>
-              <span className="dashboard-topbar__crumb">{labels.section}</span>
-              <DashboardIcon name="chevron" />
+              {labels.parent ? (
+                <>
+                  <Link
+                    className="dashboard-topbar__crumb"
+                    href={labels.parent.href}
+                  >
+                    {labels.parent.label}
+                  </Link>
+                  <DashboardIcon name="chevron" />
+                </>
+              ) : null}
               <strong>{labels.page}</strong>
             </div>
-            <div className="dashboard-topbar__actions">
-              <span className="dashboard-system-state">
-                <i aria-hidden="true" /> All systems operational
-              </span>
-              <ThemeToggle />
-              <Link href={dashboardRoutes.account}>
-                <DashboardIcon name="settings" />
-                <span>Account</span>
-              </Link>
-            </div>
+            <ThemeToggle />
           </header>
           <div className="dashboard-content" id="dashboard-content">
             {children}
           </div>
         </div>
+
+        <SignOutDialog open={signingOut} onClose={() => setSigningOut(false)} />
       </div>
     </DashboardSessionContext.Provider>
   );

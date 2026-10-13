@@ -1,8 +1,8 @@
 export const dashboardRoutes = {
   overview: "/app",
-  products: "/app#products",
-  subscriptions: "/app#subscriptions",
   account: "/app/account",
+  security: "/app/account#security",
+  billing: "/app/account#billing",
   guard: "/app/guard",
   guardHistory: "/app/guard/history",
   guardAudit: "/app/guard/audit",
@@ -14,36 +14,45 @@ export const dashboardRoutes = {
   voiceAdminModels: "/app/voice/admin/models",
   voiceAdminErrors: "/app/voice/admin/errors",
   voiceDocs: "/voice/docs",
-  productsCatalog: "/#products",
+  voiceDownload: "/voice/download",
 } as const;
 
+type Crumb = { label: string; href: string };
+
+const voiceCrumb: Crumb = {
+  label: "AlgorithVoice",
+  href: dashboardRoutes.voice,
+};
+const guardCrumb: Crumb = {
+  label: "AlgorithGuard",
+  href: dashboardRoutes.guard,
+};
+
+/** The trail in the top bar: the page, under the section it belongs to. */
 export const dashboardPageLabels: Record<
   string,
-  { section: string; page: string }
+  { parent?: Crumb; page: string }
 > = {
-  [dashboardRoutes.overview]: { section: "Workspace", page: "Overview" },
-  [dashboardRoutes.account]: { section: "Workspace", page: "Account" },
-  [dashboardRoutes.guard]: { section: "AlgorithGuard", page: "Overview" },
-  [dashboardRoutes.guardHistory]: {
-    section: "AlgorithGuard",
-    page: "Decision history",
-  },
-  [dashboardRoutes.guardAudit]: { section: "AlgorithGuard", page: "Audit log" },
-  [dashboardRoutes.guardPolicy]: { section: "AlgorithGuard", page: "Policy" },
-  [dashboardRoutes.guardStats]: {
-    section: "AlgorithGuard",
-    page: "Usage & stats",
-  },
-  [dashboardRoutes.voice]: { section: "AlgorithVoice", page: "Overview" },
-  [dashboardRoutes.voiceAdmin]: { section: "AlgorithVoice", page: "Admin" },
+  [dashboardRoutes.overview]: { page: "Overview" },
+  [dashboardRoutes.account]: { page: "Account" },
+  [dashboardRoutes.voice]: { page: "AlgorithVoice" },
+  [dashboardRoutes.voiceAdmin]: { parent: voiceCrumb, page: "Admin" },
   [dashboardRoutes.voiceAdminModels]: {
-    section: "AlgorithVoice",
+    parent: voiceCrumb,
     page: "Admin · Models",
   },
   [dashboardRoutes.voiceAdminErrors]: {
-    section: "AlgorithVoice",
+    parent: voiceCrumb,
     page: "Admin · Errors",
   },
+  [dashboardRoutes.guard]: { page: "AlgorithGuard" },
+  [dashboardRoutes.guardHistory]: {
+    parent: guardCrumb,
+    page: "Decision history",
+  },
+  [dashboardRoutes.guardAudit]: { parent: guardCrumb, page: "Audit log" },
+  [dashboardRoutes.guardPolicy]: { parent: guardCrumb, page: "Policy" },
+  [dashboardRoutes.guardStats]: { parent: guardCrumb, page: "Usage & stats" },
 };
 
 export const voiceAdminNavigation = [
@@ -52,37 +61,89 @@ export const voiceAdminNavigation = [
   { label: "Errors", href: dashboardRoutes.voiceAdminErrors },
 ] as const;
 
-export const workspaceNavigation = [
-  { label: "Overview", href: dashboardRoutes.overview, icon: "home" },
-  { label: "Products", href: dashboardRoutes.products, icon: "apps" },
-  {
-    label: "Subscriptions",
-    href: dashboardRoutes.subscriptions,
-    icon: "billing",
-  },
-  { label: "Account", href: dashboardRoutes.account, icon: "account" },
-] as const;
+export type DashboardNavIcon =
+  | "account"
+  | "audit"
+  | "billing"
+  | "guard"
+  | "history"
+  | "home"
+  | "mic"
+  | "policy"
+  | "pulse";
 
-export const guardNavigation = [
+export type DashboardNavLink = {
+  label: string;
+  href: string;
+  icon: DashboardNavIcon;
+};
+
+export type DashboardNavItem = DashboardNavLink & {
+  /** Also current on pages below it that have no link of their own. */
+  includeSubpaths?: boolean;
+  children?: readonly DashboardNavLink[];
+};
+
+export type DashboardNavGroup = {
+  title?: string;
+  items: readonly DashboardNavItem[];
+};
+
+/** The sidebar: every destination of the dashboard is listed once. */
+export const dashboardNavigation: readonly DashboardNavGroup[] = [
   {
-    label: "AlgorithGuard overview",
-    href: dashboardRoutes.guard,
-    icon: "guard",
+    items: [
+      { label: "Overview", href: dashboardRoutes.overview, icon: "home" },
+    ],
   },
   {
-    label: "Decision history",
-    href: dashboardRoutes.guardHistory,
-    icon: "history",
+    title: "Products",
+    items: [
+      {
+        label: "AlgorithVoice",
+        href: dashboardRoutes.voice,
+        icon: "mic",
+        includeSubpaths: true,
+      },
+      {
+        label: "AlgorithGuard",
+        href: dashboardRoutes.guard,
+        icon: "guard",
+        children: [
+          {
+            label: "Decision history",
+            href: dashboardRoutes.guardHistory,
+            icon: "history",
+          },
+          {
+            label: "Audit log",
+            href: dashboardRoutes.guardAudit,
+            icon: "audit",
+          },
+          {
+            label: "Policy",
+            href: dashboardRoutes.guardPolicy,
+            icon: "policy",
+          },
+          {
+            label: "Usage & stats",
+            href: dashboardRoutes.guardStats,
+            icon: "pulse",
+          },
+        ],
+      },
+    ],
   },
-  { label: "Audit log", href: dashboardRoutes.guardAudit, icon: "audit" },
-  { label: "Policy", href: dashboardRoutes.guardPolicy, icon: "policy" },
-  { label: "Usage & stats", href: dashboardRoutes.guardStats, icon: "pulse" },
-] as const;
+  {
+    title: "Account",
+    items: [
+      { label: "Account", href: dashboardRoutes.account, icon: "account" },
+      { label: "Billing", href: dashboardRoutes.billing, icon: "billing" },
+    ],
+  },
+];
 
-export const voiceNavigation = [
-  { label: "AlgorithVoice overview", href: dashboardRoutes.voice, icon: "mic" },
+export const dashboardResources = [
+  { label: "AlgorithVoice docs", href: dashboardRoutes.voiceDocs },
+  { label: "AlgorithGuard docs", href: dashboardRoutes.guardDocs },
 ] as const;
-
-export function productDetailsRoute(slug: string) {
-  return `/${encodeURIComponent(slug)}`;
-}
