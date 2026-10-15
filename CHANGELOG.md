@@ -27,6 +27,7 @@ with the next deploy.
 - **You stay signed in on the site.** The dashboard no longer drops back to the sign-in page after a few minutes, after a reload or in a new tab: it follows your Algorithco session, which lasts until you sign out.
 - The top bar says "Dashboard" as soon as a page opens in a browser that is signed in.
 - Signing out in one tab signs your other tabs out as well.
+- **Billing has its own page.** Your plans, subscriptions and the billing portal are at [Billing](/app/billing) in the dashboard, and the account page keeps only your profile, security, sign-in methods and devices.
 
 ## 2026-10-13 — Brand page, a simpler dashboard, and AlgorithVoice cloud on Pro
 

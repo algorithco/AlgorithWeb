@@ -680,7 +680,7 @@ export function PlansAndSubscriptions({
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const returnUrl = () => `${window.location.origin}${dashboardRoutes.account}`;
+  const returnUrl = () => `${window.location.origin}${dashboardRoutes.billing}`;
 
   return (
     <div className="account-billing">

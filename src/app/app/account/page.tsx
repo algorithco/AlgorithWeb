@@ -1,18 +1,13 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   DashboardIcon,
   useDashboardSession,
 } from "@/components/dashboard-shell";
 import { dashboardRoutes } from "@/config/dashboard";
-import { products } from "@/config/products";
-import {
-  type CompanyEntitlement,
-  createPortalSession,
-  getMyEntitlements,
-} from "@/lib/account-api";
 import {
   beginAccountLogin,
   clearAccountLocalSession,
@@ -27,22 +22,17 @@ import {
   validateNewPassword,
   validateResetCode,
 } from "@/lib/account-forms";
-import { displayDate, displayPlan, displayTime } from "@/lib/dashboard-format";
+import { displayTime } from "@/lib/dashboard-format";
 import {
   ActiveSessions,
   ConnectedAccounts,
   ConnectedApps,
-  PlansAndSubscriptions,
   ProfileEditor,
   SECURITY_CHANGED_KEY,
   TwoStepControl,
 } from "./account-center-sections";
 
 const PASSWORD_CHANGED_KEY = "algorithco-password-changed";
-
-function entitlementFor(entitlements: CompanyEntitlement[], product: string) {
-  return entitlements.find((item) => item.product === product);
-}
 
 function DeleteAccountControl({ email }: { email: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -533,31 +523,16 @@ const ACCOUNT_SECTIONS = [
   { id: "security", label: "Security" },
   { id: "connected-accounts", label: "Sign-in methods" },
   { id: "devices", label: "Devices" },
-  { id: "billing", label: "Billing" },
   { id: "delete-account", label: "Delete account" },
 ] as const;
 
 export default function AccountPage() {
   const session = useDashboardSession();
-  const entitlements = useQuery({
-    queryKey: ["account", "entitlements", session.profile?.subject],
-    queryFn: () => getMyEntitlements(undefined, session.token),
-  });
   const overview = useQuery({
     queryKey: ["account", "overview", session.profile?.subject],
     queryFn: getAccountOverview,
   });
   const refreshOverview = () => void overview.refetch();
-  // The Account service only returns to addresses on its own list, and of the
-  // dashboard that is this page: billing opened from another one is refused.
-  const billingPortal = useMutation({
-    mutationFn: () =>
-      createPortalSession(
-        { return_url: `${window.location.origin}${dashboardRoutes.account}` },
-        session.token,
-      ),
-    onSuccess: ({ url }) => window.location.assign(url),
-  });
   const [passwordChanged, setPasswordChanged] = useState(false);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(
     null,
@@ -604,7 +579,7 @@ export default function AccountPage() {
   }, []);
 
   // The sections fill in after the page opens, so a link to one of them (the
-  // sidebar's Billing) is followed again once the page has its full height.
+  // overview's Security) is followed again once the page has its full height.
   const settled = !overview.isPending;
   useEffect(() => {
     if (!settled) return;
@@ -612,7 +587,6 @@ export default function AccountPage() {
     if (id) document.getElementById(id)?.scrollIntoView();
   }, [settled]);
 
-  const items = entitlements.data?.entitlements ?? [];
   const account = overview.data;
   const email = account?.profile.email ?? session.profile?.email;
   const displayName =
@@ -634,8 +608,9 @@ export default function AccountPage() {
           <p className="eyebrow">Account</p>
           <h1>Manage your account.</h1>
           <p>
-            One account for every Algorithco product: how you sign in, where you
-            are signed in, your plans and your data.
+            One account for every Algorithco product: who you are, how you sign
+            in and where you are signed in. Plans and payments are under{" "}
+            <Link href={dashboardRoutes.billing}>Billing</Link>.
           </p>
         </div>
         <span
@@ -654,7 +629,7 @@ export default function AccountPage() {
         ))}
       </nav>
 
-      {passwordChanged || notice || overview.error || entitlements.error ? (
+      {passwordChanged || notice || overview.error ? (
         <div className="dashboard-alerts">
           {passwordChanged ? (
             <p
@@ -677,14 +652,6 @@ export default function AccountPage() {
             <p className="dashboard-alert" role="alert">
               <strong>Account settings are unavailable.</strong>
               <span>{overview.error.message}</span>
-            </p>
-          ) : null}
-          {entitlements.error ? (
-            <p className="dashboard-alert" role="alert">
-              <strong>Plan details are unavailable.</strong>
-              <span>
-                Your profile, security and deletion controls still work.
-              </span>
             </p>
           ) : null}
         </div>
@@ -821,78 +788,6 @@ export default function AccountPage() {
         ) : (
           pending
         )}
-      </section>
-
-      <section
-        className="dashboard-panel"
-        id="billing"
-        aria-labelledby="billing-title"
-      >
-        <div className="dashboard-panel__heading">
-          <div>
-            <p className="eyebrow">Billing</p>
-            <h2 id="billing-title">Plans and billing</h2>
-            <p>
-              Your plan in each product, and the subscriptions paid from this
-              account.
-            </p>
-          </div>
-          <button
-            className="button button--primary"
-            type="button"
-            disabled={billingPortal.isPending}
-            onClick={() => billingPortal.mutate()}
-          >
-            {billingPortal.isPending ? "Opening…" : "Manage billing"}
-          </button>
-        </div>
-        <div className="account-center__plan-grid">
-          {products.map((product) => {
-            const entitlement = entitlementFor(items, product.slug);
-            return (
-              <article key={product.slug}>
-                <span
-                  className={`dashboard-plan-mark dashboard-plan-mark--${product.accent}`}
-                  aria-hidden="true"
-                >
-                  {product.slug.charAt(0).toUpperCase()}
-                </span>
-                <div>
-                  <strong>{product.name}</strong>
-                  <small>
-                    {entitlement?.status ??
-                      (entitlements.isPending ? "Loading" : "Included")}
-                  </small>
-                </div>
-                <dl>
-                  <div>
-                    <dt>Plan</dt>
-                    <dd>{displayPlan(entitlement?.plan)}</dd>
-                  </div>
-                  <div>
-                    <dt>Valid until</dt>
-                    <dd>{displayDate(entitlement?.validUntil)}</dd>
-                  </div>
-                </dl>
-              </article>
-            );
-          })}
-        </div>
-        {account ? (
-          <PlansAndSubscriptions
-            overview={account}
-            token={session.token}
-            onChanged={() => {
-              refreshOverview();
-              void entitlements.refetch();
-            }}
-          />
-        ) : null}
-        {billingPortal.error ? (
-          <p className="form-error" role="alert">
-            Billing portal could not be opened. Try again shortly.
-          </p>
-        ) : null}
       </section>
 
       <section

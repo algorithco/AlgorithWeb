@@ -2,7 +2,7 @@ export const dashboardRoutes = {
   overview: "/app",
   account: "/app/account",
   security: "/app/account#security",
-  billing: "/app/account#billing",
+  billing: "/app/billing",
   guard: "/app/guard",
   guardHistory: "/app/guard/history",
   guardAudit: "/app/guard/audit",
@@ -35,6 +35,7 @@ export const dashboardPageLabels: Record<
 > = {
   [dashboardRoutes.overview]: { page: "Overview" },
   [dashboardRoutes.account]: { page: "Account" },
+  [dashboardRoutes.billing]: { page: "Billing" },
   [dashboardRoutes.voice]: { page: "AlgorithVoice" },
   [dashboardRoutes.voiceAdmin]: { parent: voiceCrumb, page: "Admin" },
   [dashboardRoutes.voiceAdminModels]: {
