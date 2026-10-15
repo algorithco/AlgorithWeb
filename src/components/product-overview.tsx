@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { StatusBadge } from "@/components/status-badge";
 import type { Product } from "@/config/products";
 import { siteConfig } from "@/config/site";
+import { docsHref, getDocsProduct, productPages } from "@/content/docs";
 
 export function productMetadata(product: Product): Metadata {
   const title = product.name;
@@ -36,6 +38,8 @@ export function ProductOverview({
   children?: ReactNode;
   product: Product;
 }) {
+  // The product page is where its documentation is linked from.
+  const docs = getDocsProduct(product.slug);
   return (
     <div className={`product-page product-page--${product.accent}`}>
       <section className="product-hero" data-reveal>
@@ -93,6 +97,32 @@ export function ProductOverview({
             </ul>
           </div>
           {children}
+          {docs ? (
+            <div className="detail-row" data-reveal>
+              <div>
+                <p className="eyebrow">Documentation</p>
+                <h2>Every detail, written down.</h2>
+              </div>
+              <div>
+                <ul className="product-docs" data-stagger>
+                  {productPages(docs)
+                    .filter((page) => page.slug)
+                    .map((page) => (
+                      <li key={page.slug}>
+                        <Link href={docsHref(docs.slug, page.slug)}>
+                          {page.title}
+                          <span aria-hidden="true">→</span>
+                        </Link>
+                      </li>
+                    ))}
+                </ul>
+                <Link className="text-link" href={docsHref(docs.slug)}>
+                  Read the <span className="keep-case">{product.name}</span>{" "}
+                  documentation <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+          ) : null}
           {product.status === "preview" && (
             <aside className="preview-note" data-reveal>
               <p className="eyebrow">Status</p>

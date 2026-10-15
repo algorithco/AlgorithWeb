@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { changelogStreams } from "@/config/changelog";
 import { products } from "@/config/products";
 import { absoluteUrl } from "@/config/site";
+import { allDocsHrefs } from "@/content/docs";
 export const dynamic = "force-static";
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [
@@ -11,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...p.sections.map((s) => s.href),
       p.cta.href,
     ]),
+    "/docs",
+    ...allDocsHrefs(),
     "/changelog",
     ...changelogStreams.map((stream) => `/changelog/${stream.slug}`),
     "/about",
@@ -23,7 +26,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: absoluteUrl(route || "/"),
     changeFrequency: route.startsWith("/changelog")
       ? "weekly"
-      : products.some((p) => route.startsWith(p.href))
+      : route.startsWith("/docs") ||
+          products.some((p) => route.startsWith(p.href))
         ? "monthly"
         : "yearly",
     priority: route === "" ? 1 : 0.7,

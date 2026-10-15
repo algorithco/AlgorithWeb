@@ -70,10 +70,12 @@ export default function GuardOverviewPage() {
           <p className="eyebrow">Getting started</p>
           <h2>No decisions yet</h2>
           <p className="muted">
-            Connect a coding agent to this workspace and its first decisions
-            appear here.
+            Connect a coding agent with <code>algo init</code> and its first
+            decisions appear here.
           </p>
-          <Link href={dashboardRoutes.guardDocs}>Connect an agent →</Link>
+          <Link href={dashboardRoutes.guardProduct}>
+            How to connect an agent →
+          </Link>
         </article>
       ) : null}
       {records.length > 0 ? (
