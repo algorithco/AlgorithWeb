@@ -18,7 +18,7 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## Unreleased
+## 2026-10-15 — Staying signed in, connected apps and a Billing page
 
 ### Added
 - The account page lists the apps signed in with your account, such as AlgorithVoice on your computer, and lets you sign any of them out.
