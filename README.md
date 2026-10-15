@@ -86,8 +86,9 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 
 ## Unified routes
 
-- `/voice`, `/voice/docs/*`, `/voice/download` — Voice product section. This is the only Voice website; the `algorithvoice` repository holds the desktop app and backend.
-- `/guard`, `/guard/docs/*` — Guard product section.
+- `/voice`, `/voice/benchmarks`, `/voice/download` — Voice product section. This is the only Voice website; the `algorithvoice` repository holds the desktop app and backend.
+- `/guard` — Guard product section.
+- `/docs`, `/docs/<product>/<page>` — the one documentation of every product (Voice, Guard, Account), written in `src/content/docs/`. Links to it are on each product page and in the footer; the old `/voice/docs/*` and `/guard/docs/*` addresses redirect to it in `nginx.conf`.
 - `/changelog`, `/changelog/<product>` — every release of every product, built from each product's `CHANGELOG.md`.
 - `/brand` — the logos to download, the colors and the rules for using them. The files in `public/brand/` are generated from the source artwork, never edited by hand, and `src/content/brand.test.ts` holds the colors to `src/app/tokens.css`.
 - `/signin` and `/auth/callback` — central Account OIDC flow.

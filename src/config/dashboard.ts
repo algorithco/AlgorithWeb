@@ -8,12 +8,12 @@ export const dashboardRoutes = {
   guardAudit: "/app/guard/audit",
   guardPolicy: "/app/guard/policy",
   guardStats: "/app/guard/stats",
-  guardDocs: "/guard/docs",
+  /** The product page, which links to the documentation. */
+  guardProduct: "/guard",
   voice: "/app/voice",
   voiceAdmin: "/app/voice/admin",
   voiceAdminModels: "/app/voice/admin/models",
   voiceAdminErrors: "/app/voice/admin/errors",
-  voiceDocs: "/voice/docs",
   voiceDownload: "/voice/download",
 } as const;
 
@@ -142,8 +142,3 @@ export const dashboardNavigation: readonly DashboardNavGroup[] = [
     ],
   },
 ];
-
-export const dashboardResources = [
-  { label: "AlgorithVoice docs", href: dashboardRoutes.voiceDocs },
-  { label: "AlgorithGuard docs", href: dashboardRoutes.guardDocs },
-] as const;

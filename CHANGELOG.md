@@ -18,6 +18,19 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-14 — One documentation for every product
+
+### Added
+- **One documentation for every product, at [/docs](/docs).** AlgorithVoice, AlgorithGuard and your Algorithco account are covered in detail in one place, with a search, a list of sections on every page, and copy buttons on commands.
+- Each product page lists its documentation pages.
+
+### Changed
+- The footer groups its links into Products, Resources, Company and Legal, and links to the documentation, the AlgorithVoice download and the benchmarks.
+- The old documentation addresses under /voice/docs and /guard/docs take you to the same page in the new documentation.
+
+### Removed
+- The separate documentation of each product, the Docs tab in the product bar and the documentation links in the dashboard sidebar.
+
 ## 2026-10-13 — Brand page, a simpler dashboard, and AlgorithVoice cloud on Pro
 
 ### Added

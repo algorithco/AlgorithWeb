@@ -32,7 +32,6 @@ export const products = [
     href: "/voice",
     sections: [
       { label: "Overview", href: "/voice" },
-      { label: "Docs", href: "/voice/docs" },
       { label: "Benchmarks", href: "/voice/benchmarks" },
     ],
     cta: { label: "Download", href: "/voice/download" },
@@ -60,11 +59,8 @@ export const products = [
   {
     slug: "guard",
     href: "/guard",
-    sections: [
-      { label: "Overview", href: "/guard" },
-      { label: "Docs", href: "/guard/docs" },
-    ],
-    cta: { label: "Install", href: "/guard/docs/install" },
+    sections: [{ label: "Overview", href: "/guard" }],
+    cta: { label: "Install", href: "/docs/guard/install" },
     name: "AlgorithGuard",
     tagline: "Control for coding agents.",
     description:

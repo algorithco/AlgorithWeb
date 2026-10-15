@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { products } from "@/config/products";
+import { footerColumns } from "@/config/footer";
 import { AlgorithcoMark } from "./brand-marks";
 import { ButtonLink } from "./button-link";
 import { Container } from "./container";
@@ -70,7 +70,7 @@ export function Footer() {
           </a>
         </div>
 
-        <div className="footer-grid" data-stagger>
+        <div className="footer-grid">
           <div className="footer-brand">
             <Link aria-label="Algorithco home" className="wordmark" href="/">
               <span aria-hidden="true" className="wordmark__mark">
@@ -80,30 +80,34 @@ export function Footer() {
             </Link>
             <p>Focused software for developers and power users.</p>
           </div>
-          <nav aria-label="Product links">
-            <p>Products</p>
-            {products.map((product) => (
-              <Link href={product.href} key={product.slug}>
-                {product.name}
-                <span
-                  className={`footer-status footer-status--${product.status}`}
-                >
-                  {product.statusLabel}
-                </span>
-              </Link>
+          <nav aria-label="Site links" className="footer-links" data-stagger>
+            {footerColumns.map((column) => (
+              <section
+                aria-labelledby={`footer-${column.title.toLowerCase()}`}
+                className="footer-column"
+                key={column.title}
+              >
+                <h2 id={`footer-${column.title.toLowerCase()}`}>
+                  {column.title}
+                </h2>
+                <ul>
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href}>
+                        <span>{link.label}</span>
+                        {link.status ? (
+                          <span
+                            className={`footer-status footer-status--${link.status.kind}`}
+                          >
+                            {link.status.label}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             ))}
-          </nav>
-          <nav aria-label="Company links">
-            <p>Company</p>
-            <Link href="/about">About</Link>
-            <Link href="/brand">Brand</Link>
-            <Link href="/changelog">Changelog</Link>
-            <Link href="/contact">Contact</Link>
-          </nav>
-          <nav aria-label="Legal links">
-            <p>Legal</p>
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
           </nav>
         </div>
 
