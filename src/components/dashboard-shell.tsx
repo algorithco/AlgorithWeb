@@ -16,7 +16,6 @@ import {
   type DashboardNavLink,
   dashboardNavigation,
   dashboardPageLabels,
-  dashboardResources,
 } from "@/config/dashboard";
 import type { PlatformSession } from "@/hooks/use-platform-session";
 import { AlgorithcoMark } from "./brand-marks";
@@ -29,8 +28,6 @@ export type DashboardIconName =
   | "billing"
   | "chevron"
   | "close"
-  | "docs"
-  | "external"
   | "guard"
   | "history"
   | "home"
@@ -72,13 +69,6 @@ export function DashboardIcon({ name }: { name: DashboardIconName }) {
     ),
     chevron: <path d="m9 6 6 6-6 6" />,
     close: <path d="m6 6 12 12M18 6 6 18" />,
-    docs: (
-      <>
-        <path d="M5 3.5h9l5 5V21H5z" />
-        <path d="M14 3.5V9h5M8.5 13h7M8.5 16.5h5" />
-      </>
-    ),
-    external: <path d="M14 4h6v6M20 4l-9 9M18 13v7H4V6h7" />,
     guard: (
       <>
         <path d="M12 3 20 6v5c0 5.1-3.3 8.5-8 10-4.7-1.5-8-4.9-8-10V6z" />
@@ -397,16 +387,6 @@ export function DashboardShell({
                 ))}
               </div>
             ))}
-            <div className="dashboard-nav dashboard-nav--resources">
-              <p>Resources</p>
-              {dashboardResources.map((item) => (
-                <Link href={item.href} key={item.href} onClick={closeMenu}>
-                  <DashboardIcon name="docs" />
-                  <span>{item.label}</span>
-                  <DashboardIcon name="external" />
-                </Link>
-              ))}
-            </div>
           </nav>
 
           <div className="dashboard-sidebar__account">

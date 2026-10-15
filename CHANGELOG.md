@@ -18,6 +18,24 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-15 — One documentation, staying signed in and a Billing page
+
+### Added
+- **One documentation for every product, at [/docs](/docs).** AlgorithVoice, AlgorithGuard and your Algorithco account are covered in detail in one place, with a search, a list of sections on every page, and copy buttons on commands.
+- Each product page lists its documentation pages.
+- The account page lists the apps signed in with your account, such as AlgorithVoice on your computer, and lets you sign any of them out.
+
+### Changed
+- **You stay signed in on the site.** The dashboard no longer drops back to the sign-in page after a few minutes, after a reload or in a new tab: it follows your Algorithco session, which lasts until you sign out.
+- The top bar says "Dashboard" as soon as a page opens in a browser that is signed in.
+- Signing out in one tab signs your other tabs out as well.
+- **Billing has its own page.** Your plans, subscriptions and the billing portal are at [Billing](/app/billing) in the dashboard, and the account page keeps only your profile, security, sign-in methods and devices.
+- The footer groups its links into Products, Resources, Company and Legal, and links to the documentation, the AlgorithVoice download and the benchmarks.
+- The old documentation addresses under /voice/docs and /guard/docs take you to the same page in the new documentation.
+
+### Removed
+- The separate documentation of each product, the Docs tab in the product bar and the documentation links in the dashboard sidebar.
+
 ## 2026-10-13 — Brand page, a simpler dashboard, and AlgorithVoice cloud on Pro
 
 ### Added

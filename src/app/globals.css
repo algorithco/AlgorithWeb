@@ -644,6 +644,41 @@ summary {
   transform: translateY(-0.25rem);
   border-color: var(--color-border-strong);
 }
+.product-docs {
+  display: grid;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.product-docs a {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+  transition:
+    transform 400ms var(--ease-out-expo),
+    color 250ms ease;
+}
+.product-docs li:last-child a {
+  border-bottom: 1px solid var(--color-border);
+}
+.product-docs a:hover {
+  transform: translateX(0.6rem);
+  color: var(--color-guard-ink);
+}
+.product-docs a span {
+  color: var(--color-subtle);
+}
+@media (min-width: 40rem) {
+  .product-docs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 2rem;
+  }
+  .product-docs li:nth-last-child(2):nth-child(odd) a {
+    border-bottom: 1px solid var(--color-border);
+  }
+}
 .preview-note {
   margin-top: var(--space-8);
   padding: clamp(1.5rem, 5vw, 4rem);
@@ -1262,16 +1297,15 @@ summary {
 .back-to-top:hover .back-to-top__arrow > span {
   transform: translateY(-2.2em);
 }
+/* The brand, then one column per group of links (config/footer.ts). The
+   columns fill the row and wrap, so a new group or link needs no CSS. */
 .footer-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem 1rem;
+  gap: 2.5rem;
   padding: 2.75rem 0;
   border-top: 1px solid var(--color-border);
 }
-.footer-brand,
-.footer-grid nav[aria-label="Product links"] {
-  grid-column: 1 / -1;
+.footer-brand {
   display: grid;
   align-content: start;
   gap: 1rem;
@@ -1282,44 +1316,50 @@ summary {
   color: var(--color-muted);
   font-size: 0.86rem;
 }
-.footer-grid nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  font-size: 0.9rem;
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10.5rem), 1fr));
+  gap: 2.25rem 1.5rem;
 }
-.footer-grid nav p {
-  margin: 0 0 0.35rem;
+.footer-column h2 {
+  margin: 0 0 1rem;
   color: var(--color-subtle);
   font-size: 0.68rem;
+  font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.footer-grid nav a {
+.footer-column ul {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  gap: 0.7rem;
+  font-size: 0.9rem;
+  list-style: none;
+}
+/* A product's status badge sits under its name, the same for every product. */
+.footer-column a {
   display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.4rem;
   width: fit-content;
   color: var(--color-muted);
   transition:
     color 200ms ease,
     transform 350ms var(--ease-out-expo);
 }
-.footer-grid nav a::after {
-  content: "→";
+.footer-column a > span:first-child::after {
+  content: " →";
   opacity: 0;
-  transform: translateX(-0.4rem);
-  transition:
-    opacity 200ms ease,
-    transform 350ms var(--ease-out-expo);
+  transition: opacity 200ms ease;
 }
-.footer-grid nav a:hover {
+.footer-column a:hover {
   color: var(--color-text);
   transform: translateX(0.25rem);
 }
-.footer-grid nav a:hover::after {
+.footer-column a:hover > span:first-child::after {
   opacity: 1;
-  transform: none;
 }
 .footer-status {
   display: inline-flex;
@@ -1578,11 +1618,8 @@ summary {
     display: grid;
   }
   .footer-grid {
-    grid-template-columns: 2fr repeat(3, 1fr);
-  }
-  .footer-brand,
-  .footer-grid nav[aria-label="Product links"] {
-    grid-column: auto;
+    grid-template-columns: minmax(14rem, 0.75fr) minmax(0, 2.25fr);
+    gap: 3rem;
   }
 }
 
@@ -1615,7 +1652,8 @@ summary {
   .product-card,
   .feature-list li,
   .platform-list li,
-  .footer-grid nav a,
+  .product-docs a,
+  .footer-column a,
   .theme-toggle,
   .theme-toggle__icon,
   .sign-in,
@@ -1639,8 +1677,7 @@ summary {
 /* Unified Account and Guard platform */
 .auth-page,
 .platform-dashboard,
-.guard-console,
-.docs-shell {
+.guard-console {
   width: min(calc(100% - 2rem), var(--container));
   margin-inline: auto;
 }
@@ -2001,8 +2038,7 @@ summary {
   gap: 1rem;
 }
 .guard-grid,
-.guard-metrics,
-.docs-grid {
+.guard-metrics {
   display: grid;
   gap: 1rem;
 }
@@ -2114,83 +2150,6 @@ summary {
   padding: 0.7rem 0;
   border-top: 1px solid var(--color-border);
 }
-.docs-shell {
-  display: grid;
-  gap: 2rem;
-  padding-block: var(--space-7);
-}
-.docs-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-.docs-nav a {
-  color: var(--color-muted);
-}
-.docs-nav a:hover {
-  color: var(--color-guard-ink);
-}
-.docs-content {
-  max-width: 56rem;
-}
-.docs-content h1 {
-  font-size: clamp(2.5rem, 7vw, 5.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.06em;
-}
-.docs-lead {
-  color: var(--color-muted);
-  font-size: 1.2rem;
-}
-.docs-section {
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border);
-}
-.docs-shell--mono .docs-nav a:hover {
-  color: var(--color-text);
-}
-/* The table scrolls inside its frame instead of widening the page. */
-.docs-content {
-  min-width: 0;
-}
-.docs-table {
-  overflow-x: auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-.docs-table table {
-  width: 100%;
-  min-width: 40rem;
-  border-collapse: collapse;
-  font-size: 0.86rem;
-}
-.docs-table th,
-.docs-table td {
-  padding: 0.7rem 0.9rem;
-  border-bottom: 1px solid var(--color-border);
-  text-align: left;
-  vertical-align: top;
-}
-.docs-table tbody tr:last-child > * {
-  border-bottom: 0;
-}
-.docs-table thead th {
-  color: var(--color-muted);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.docs-table tbody th,
-.docs-table td:last-child {
-  font-weight: 400;
-  white-space: nowrap;
-}
-.docs-table small {
-  display: block;
-  margin-top: 0.2rem;
-  color: var(--color-muted);
-}
 .faq-list {
   margin: 0 0 1.5rem;
 }
@@ -2225,8 +2184,7 @@ summary {
   .dashboard-plan-list > div > span:last-child {
     text-align: right;
   }
-  .guard-grid,
-  .docs-grid {
+  .guard-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .guard-metrics {
@@ -2234,14 +2192,6 @@ summary {
   }
   .guard-grid--policy {
     grid-template-columns: minmax(0, 1.3fr) minmax(18rem, 0.7fr);
-  }
-  .docs-shell {
-    grid-template-columns: 15rem minmax(0, 1fr);
-  }
-  .docs-nav {
-    position: sticky;
-    top: 6rem;
-    align-self: start;
   }
 }
 
@@ -4626,7 +4576,20 @@ html:has(.app-route-shell) {
 .account-mfa-note {
   margin: 0;
   color: var(--color-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+}
+/* Names one of the lists in a panel that holds two: browsers, then apps. */
+.account-list-title {
+  margin: 0.4rem 0 -0.5rem;
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.account-list-title + .account-empty {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
 }
 .account-mfa-dialog {
   width: min(calc(100% - 2rem), 37rem);
@@ -5290,9 +5253,6 @@ html[data-header-hidden] .product-nav {
 }
 html[data-product-section] {
   scroll-padding-top: 8.75rem;
-}
-html[data-product-section] .docs-nav {
-  top: 9rem;
 }
 
 /* Mobile main menu (the inline links show from 48rem). */

@@ -21,6 +21,7 @@ import {
   disableMfa,
   linkProviderUrl,
   REAUTH_URL,
+  revokeApp,
   revokeSession,
   saveProfile,
   startMfaEnrollment,
@@ -597,6 +598,73 @@ export function ActiveSessions({
   );
 }
 
+/**
+ * The apps signed in with the account (AlgorithVoice on a computer, the
+ * command-line tools). Signing one out ends its sign-in there; the access it
+ * already holds runs out within ten minutes.
+ */
+export function ConnectedApps({
+  overview,
+  onChanged,
+}: {
+  overview: AccountOverview;
+  onChanged: () => void;
+}) {
+  const [pending, setPending] = useState<string | null>(null);
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const apps = overview.apps ?? [];
+
+  if (!apps.length)
+    return (
+      <p className="account-empty">
+        No app is signed in with your account. AlgorithVoice appears here once
+        you sign in from it.
+      </p>
+    );
+
+  return (
+    <>
+      <ul className="account-security-list">
+        {apps.map((app) => (
+          <li key={app.id}>
+            <div>
+              <strong>
+                {app.name}
+                {app.deviceName ? (
+                  <span className="account-badge">{app.deviceName}</span>
+                ) : null}
+              </strong>
+              <small>
+                Signed in {displayDateTime(app.connectedAt)} · last used{" "}
+                {displayDateTime(app.lastUsedAt)}
+              </small>
+            </div>
+            <button
+              className="button button--secondary"
+              type="button"
+              disabled={pending !== null}
+              onClick={async () => {
+                setPending(app.id);
+                setFailure(null);
+                const result = await revokeApp(app.id);
+                setPending(null);
+                if (!result.ok) {
+                  setFailure(result);
+                  return;
+                }
+                onChanged();
+              }}
+            >
+              {pending === app.id ? "Signing out…" : "Sign out app"}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <ErrorLine result={failure} />
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------------ */
 /* Plans and subscriptions                                                  */
 /* ------------------------------------------------------------------------ */
@@ -612,7 +680,7 @@ export function PlansAndSubscriptions({
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const returnUrl = () => `${window.location.origin}${dashboardRoutes.account}`;
+  const returnUrl = () => `${window.location.origin}${dashboardRoutes.billing}`;
 
   return (
     <div className="account-billing">

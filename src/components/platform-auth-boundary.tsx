@@ -13,7 +13,8 @@ export function PlatformAuthBoundary({
 }: {
   children: (session: PlatformSession) => ReactNode;
 }) {
-  const session = usePlatformSession();
+  // The dashboard always asks the Account service for the session first.
+  const session = usePlatformSession({ restore: "always" });
   const previewEnabled =
     process.env.NEXT_PUBLIC_DASHBOARD_PREVIEW === "visual-qa";
   const activeSession: PlatformSession = previewEnabled
@@ -29,6 +30,7 @@ export function PlatformAuthBoundary({
           expiresAt: 4_102_444_800,
         },
         ready: true,
+        restoring: false,
         signedIn: true,
       }
     : session;
@@ -37,6 +39,7 @@ export function PlatformAuthBoundary({
     if (
       previewEnabled ||
       !session.ready ||
+      session.restoring ||
       session.signedIn ||
       isAccountLogoutPending()
     )
@@ -44,7 +47,9 @@ export function PlatformAuthBoundary({
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     let cancelled = false;
     void (async () => {
-      // Expired access token but a live Account session: re-enter silently.
+      // The background restore found nothing to restore. One more way back in
+      // without a form is the same flow by redirect, for setups where the
+      // background one cannot run; after that it is the sign-in page.
       if (await trySilentSignIn(returnTo)) return;
       if (cancelled) return;
       const query = new URLSearchParams({ returnTo });
@@ -53,17 +58,26 @@ export function PlatformAuthBoundary({
     return () => {
       cancelled = true;
     };
-  }, [previewEnabled, session.ready, session.signedIn]);
+  }, [previewEnabled, session.ready, session.restoring, session.signedIn]);
 
   if (!activeSession.signedIn) {
+    const opening = !session.ready || session.restoring;
     return (
       <section className="auth-page">
         <div className="auth-card" aria-live="polite">
           <p className="eyebrow">Algorithco workspace</p>
           <h1>
-            {isAccountLogoutPending() ? "Signing out…" : "Opening sign in…"}
+            {isAccountLogoutPending()
+              ? "Signing out…"
+              : opening
+                ? "Opening your dashboard…"
+                : "Opening sign in…"}
           </h1>
-          <p className="muted">Taking you to the company sign-in page.</p>
+          <p className="muted">
+            {opening
+              ? "Checking your Algorithco session."
+              : "Taking you to the company sign-in page."}
+          </p>
         </div>
       </section>
     );

@@ -20,6 +20,14 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Security
+- **Signing in takes a code.** The app shows six digits while it waits, and the page in your browser asks for them before it signs the app in. Only the app in front of you can be approved.
+
+### Changed
+- **The app starts with Windows.** A new installation turns this on; you can turn it off in Settings.
+- Started with Windows, the app opens only the pill and keeps its window in the background. The window still opens if you need to sign in or finish setup.
+- The sign-in page and your account's list of connected apps name the computer the app runs on.
+
 ## 0.5.24 — 2026-10-13
 
 ### Changed

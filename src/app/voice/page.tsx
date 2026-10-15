@@ -1,11 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ProductOverview,
   productMetadata,
 } from "@/components/product-overview";
 import { getProduct } from "@/config/products";
-import { voiceFaq } from "@/content/voice-docs";
+import { voiceFaq } from "@/content/voice-faq";
 
 const product = getProduct("voice");
 
@@ -29,9 +28,6 @@ export default function VoicePage() {
               </div>
             ))}
           </dl>
-          <Link className="text-link" href="/voice/docs">
-            Read the documentation <span aria-hidden="true">→</span>
-          </Link>
         </div>
       </div>
     </ProductOverview>

@@ -20,6 +20,24 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-15 — Sessions that last, connected apps and sign-in codes
+
+### Added
+- **Your connected apps are listed in the account center.** Each app signed in with your account shows the computer it runs on and when it was last used, and you can sign it out from there.
+
+### Changed
+- **You stay signed in.** A browser keeps your session until you sign out or the session is ended for you; one that has not been used for 90 days asks you to sign in again. It used to be 14 days.
+- **Signing in from an app can take the code the app shows.** When the app displays a 6-digit code, the "Sign in to this app?" page asks for it, so only the app in front of you can be approved. The page also names the computer.
+- AlgorithVoice can be used on one computer with the Free plan and on three with Pro.
+- "Last active" in the list of signed-in devices is kept current to within the hour.
+
+### Fixed
+- Account pages that fit on the screen no longer show a scroll bar.
+
+### Security
+- "Sign out device", signing out, and signing in again in the same browser now end everything that browser was given, at once.
+- A browser whose session has ended can no longer be handed access by any leftover cookie: it is always sent to sign in.
+
 ## 2026-10-13 — AlgorithVoice cloud transcription moves to Pro
 
 ### Changed

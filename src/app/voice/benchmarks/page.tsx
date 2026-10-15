@@ -130,7 +130,7 @@ export default function VoiceBenchmarksPage() {
               →
             </span>
           </Link>
-          <Link className="text-link" href="/voice/docs/models">
+          <Link className="text-link" href="/docs/voice/models">
             How models are installed <span aria-hidden="true">→</span>
           </Link>
         </div>

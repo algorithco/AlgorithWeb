@@ -27,13 +27,14 @@ describe("product config", () => {
     }
   });
 
-  it("keeps navbar links inside the product's section", () => {
+  it("keeps navbar links inside the product's section or its docs", () => {
     for (const product of products) {
       expect(product.sections[0]?.href).toBe(product.href);
       for (const link of [...product.sections, product.cta]) {
         expect(
           link.href === product.href ||
-            link.href.startsWith(`${product.href}/`),
+            link.href.startsWith(`${product.href}/`) ||
+            link.href.startsWith(`/docs/${product.slug}/`),
         ).toBe(true);
       }
     }

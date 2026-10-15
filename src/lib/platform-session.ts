@@ -3,6 +3,7 @@
 export const PLATFORM_SESSION_EVENT = "algorithco-platform-session-change";
 const ACCESS_TOKEN_KEY = "algorithco-platform-access-token";
 const ORG_KEY = "algorithco-guard-org";
+export const SIGNED_IN_HINT_KEY = "algorithco-signed-in";
 
 let accessToken = "";
 
@@ -43,7 +44,34 @@ export function saveAccessToken(token: string): void {
       // Storage is optional. Keep the short-lived token in memory instead.
     }
   }
+  if (token) setSignedInHint(true);
   announce();
+}
+
+/**
+ * Remembers, across tabs and restarts, that this browser was signed in. It
+ * holds no credential: it only tells a page that it is worth asking the
+ * Account service for the session, and lets the header say "Dashboard" at
+ * once. The token above stays per tab and short-lived.
+ */
+export function hasSignedInHint(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(SIGNED_IN_HINT_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/** Clearing it reaches the other tabs as a storage event: they sign out too. */
+export function setSignedInHint(signedIn: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (signedIn) window.localStorage.setItem(SIGNED_IN_HINT_KEY, "1");
+    else window.localStorage.removeItem(SIGNED_IN_HINT_KEY);
+  } catch {
+    // Storage is optional; the page then asks the Account service each time.
+  }
 }
 
 export function loadGuardOrgId(): string {

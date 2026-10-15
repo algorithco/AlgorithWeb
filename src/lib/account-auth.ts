@@ -4,6 +4,7 @@ import {
   loadAccessToken,
   profileFromAccessToken,
   saveAccessToken,
+  setSignedInHint,
 } from "./platform-session";
 
 const SCOPES =
@@ -76,6 +77,7 @@ let logoutPending = false;
 
 export function clearAccountLocalSession(): void {
   saveAccessToken("");
+  setSignedInHint(false);
   refreshToken = "";
   if (typeof window !== "undefined") {
     window.sessionStorage.removeItem(TRANSACTION_KEY);
@@ -444,13 +446,10 @@ export async function verifyIdToken(
   return claims;
 }
 
-export async function handleAccountCallback(
-  callbackUrl = window.location.href,
-  fetcher: typeof fetch = fetch,
-): Promise<AccountSession> {
-  const config = accountWebConfig();
+/** A callback address, checked to be the redirect URI this site registered. */
+function registeredCallback(callbackUrl: string): URL {
   const callback = new URL(callbackUrl);
-  const configuredRedirect = new URL(config.redirectUri);
+  const configuredRedirect = new URL(accountWebConfig().redirectUri);
   if (
     callback.origin !== configuredRedirect.origin ||
     callback.pathname !== configuredRedirect.pathname ||
@@ -460,16 +459,38 @@ export async function handleAccountCallback(
   ) {
     throw new Error("Account callback redirect URI mismatch");
   }
+  return callback;
+}
+
+export async function handleAccountCallback(
+  callbackUrl = window.location.href,
+  fetcher: typeof fetch = fetch,
+): Promise<AccountSession> {
+  const callback = registeredCallback(callbackUrl);
   const oauthError = callback.searchParams.get("error");
   if (oauthError) {
     sessionStorage.removeItem(TRANSACTION_KEY);
     throw new Error(`Account sign-in failed: ${oauthError}`);
   }
+  if (!callback.searchParams.get("code") || !callback.searchParams.get("state"))
+    throw new Error("Account callback is missing code or state");
+  return redeemCallback(callback, takeTransaction(), fetcher);
+}
+
+/**
+ * Trade the code on a callback address for tokens and verify them against the
+ * transaction that asked for it.
+ */
+async function redeemCallback(
+  callback: URL,
+  transaction: LoginTransaction,
+  fetcher: typeof fetch,
+): Promise<AccountSession> {
+  const config = accountWebConfig();
   const code = callback.searchParams.get("code");
   const returnedState = callback.searchParams.get("state");
   if (!code || !returnedState)
     throw new Error("Account callback is missing code or state");
-  const transaction = takeTransaction();
   if (
     transaction.redirectUri !== config.redirectUri ||
     !constantTimeEqual(returnedState, transaction.state)
@@ -581,6 +602,82 @@ export function refreshAccountSession(
 
 export function canRefreshAccountSession(): boolean {
   return refreshToken !== "";
+}
+
+async function performSilentSignIn(
+  fetcher: typeof fetch,
+): Promise<AccountSession | null> {
+  const config = accountWebConfig();
+  // The answer is read from the address the redirects end at, and a browser
+  // only tells a page that address when every hop stayed on its own origin.
+  const here = window.location.origin;
+  if (
+    new URL(config.issuer).origin !== here ||
+    new URL(config.redirectUri).origin !== here
+  ) {
+    return null;
+  }
+  const metadata = await discoverAccount(config.issuer, fetcher);
+  const request = await createAuthorizationRequest(config, metadata);
+  const response = await fetcher(request.url, {
+    credentials: "include",
+    redirect: "follow",
+    headers: { Accept: "text/html" },
+    signal: AbortSignal.timeout(AUTH_FETCH_TIMEOUT_MS),
+  });
+  void response.body?.cancel().catch(() => undefined);
+  // With a live Account session the chain ends at our callback, carrying a
+  // code. Without one it ends at the sign-in page: nothing to redeem.
+  let landed: URL;
+  try {
+    landed = registeredCallback(response.url);
+  } catch {
+    return null;
+  }
+  if (!landed.searchParams.get("code")) return null;
+  return redeemCallback(landed, request.transaction, fetcher);
+}
+
+let silentInFlight: Promise<AccountSession | null> | null = null;
+
+/**
+ * Sign in without leaving the page, on the strength of the Account service's
+ * own browser session. It is the authorization code flow with PKCE, state and
+ * nonce like any other sign-in; only the trip through the Account service is
+ * made by `fetch` instead of by the address bar, which the site and the
+ * service sharing one origin allows. Resolves to null when that session is
+ * gone (or the origins differ), and the caller falls back to the sign-in page.
+ */
+export function silentAccountSignIn(
+  fetcher: typeof fetch = fetch,
+): Promise<AccountSession | null> {
+  if (silentInFlight) return silentInFlight;
+  silentInFlight = performSilentSignIn(fetcher)
+    .catch(() => null)
+    .finally(() => {
+      silentInFlight = null;
+    });
+  return silentInFlight;
+}
+
+/**
+ * A fresh access token before the current one runs out: by refresh token
+ * when this page has one, otherwise by a silent sign-in. False when neither
+ * worked; the token in use stays until it expires.
+ */
+export async function renewAccountSession(
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  if (canRefreshAccountSession()) {
+    try {
+      await refreshAccountSession(fetcher);
+      return true;
+    } catch {
+      // The refresh token was spent or revoked; the browser session may live.
+      refreshToken = "";
+    }
+  }
+  return (await silentAccountSignIn(fetcher)) !== null;
 }
 
 export function isAccountLogoutPending(): boolean {

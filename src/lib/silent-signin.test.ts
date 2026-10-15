@@ -1,12 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const beginAccountLogin = vi.fn(async () => undefined);
+const silentAccountSignIn = vi.fn();
 const accountSessionActive = vi.fn();
+const accountSessionState = vi.fn();
+const hasSignedInHint = vi.fn();
+const setSignedInHint = vi.fn();
 
-vi.mock("./account-auth", () => ({ beginAccountLogin }));
-vi.mock("./account-forms", () => ({ accountSessionActive }));
+vi.mock("./account-auth", () => ({ beginAccountLogin, silentAccountSignIn }));
+vi.mock("./account-forms", () => ({
+  accountSessionActive,
+  accountSessionState,
+}));
+vi.mock("./platform-session", () => ({ hasSignedInHint, setSignedInHint }));
 
-const { trySilentSignIn } = await import("./silent-signin");
+const { restoreSession, trySilentSignIn } = await import("./silent-signin");
 
 function stubStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial));
@@ -61,5 +69,87 @@ describe("silent re-sign-in", () => {
     beginAccountLogin.mockRejectedValueOnce(new Error("discovery failed"));
 
     await expect(trySilentSignIn("/app")).resolves.toBe(false);
+  });
+});
+
+describe("bringing the sign-in back in the background", () => {
+  beforeEach(() => {
+    silentAccountSignIn.mockReset();
+    accountSessionState.mockReset();
+    hasSignedInHint.mockReset();
+    setSignedInHint.mockReset();
+  });
+
+  it("asks nothing on a page of a browser that was never signed in", async () => {
+    hasSignedInHint.mockReturnValue(false);
+
+    await expect(restoreSession(false)).resolves.toBe(false);
+    expect(accountSessionState).not.toHaveBeenCalled();
+    expect(silentAccountSignIn).not.toHaveBeenCalled();
+  });
+
+  it("asks on the dashboard even without the hint", async () => {
+    hasSignedInHint.mockReturnValue(false);
+    accountSessionState.mockResolvedValue("active");
+    silentAccountSignIn.mockResolvedValue({ accessToken: "token" });
+
+    await expect(restoreSession(true)).resolves.toBe(true);
+    expect(silentAccountSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it("forgets the hint when the Account service says the session is gone", async () => {
+    hasSignedInHint.mockReturnValue(true);
+    accountSessionState.mockResolvedValue("none");
+
+    await expect(restoreSession(false)).resolves.toBe(false);
+    expect(setSignedInHint).toHaveBeenCalledWith(false);
+    expect(silentAccountSignIn).not.toHaveBeenCalled();
+  });
+
+  it("keeps the hint when the Account service cannot be asked", async () => {
+    hasSignedInHint.mockReturnValue(true);
+    accountSessionState.mockResolvedValue("unknown");
+
+    await expect(restoreSession(false)).resolves.toBe(false);
+    expect(setSignedInHint).not.toHaveBeenCalled();
+    expect(silentAccountSignIn).not.toHaveBeenCalled();
+  });
+
+  it("is not signed in when the session is there but the flow fails", async () => {
+    hasSignedInHint.mockReturnValue(true);
+    accountSessionState.mockResolvedValue("active");
+    silentAccountSignIn.mockResolvedValue(null);
+
+    await expect(restoreSession(false)).resolves.toBe(false);
+    expect(setSignedInHint).not.toHaveBeenCalled();
+  });
+
+  it("shares one attempt between the callers on a page", async () => {
+    hasSignedInHint.mockReturnValue(true);
+    accountSessionState.mockResolvedValue("active");
+    silentAccountSignIn.mockResolvedValue({ accessToken: "token" });
+
+    const [header, footer] = await Promise.all([
+      restoreSession(false),
+      restoreSession(false),
+    ]);
+    expect([header, footer]).toEqual([true, true]);
+    expect(accountSessionState).toHaveBeenCalledTimes(1);
+    expect(silentAccountSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not let the header's attempt answer for the dashboard's", async () => {
+    // No hint: the header's attempt gives up without asking anyone.
+    hasSignedInHint.mockReturnValue(false);
+    accountSessionState.mockResolvedValue("active");
+    silentAccountSignIn.mockResolvedValue({ accessToken: "token" });
+
+    const [header, dashboard] = await Promise.all([
+      restoreSession(false),
+      restoreSession(true),
+    ]);
+    expect(header).toBe(false);
+    expect(dashboard).toBe(true);
+    expect(silentAccountSignIn).toHaveBeenCalledTimes(1);
   });
 });

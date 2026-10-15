@@ -468,20 +468,30 @@ export async function socialEmailChallenge(): Promise<SocialEmailChallenge | nul
   }
 }
 
-/** True when the Account service already holds a signed-in browser session. */
-export async function accountSessionActive(): Promise<boolean> {
+/**
+ * Whether the Account service holds a signed-in browser session: "active",
+ * "none" when it says there is none, "unknown" when it could not be asked.
+ */
+export async function accountSessionState(): Promise<
+  "active" | "none" | "unknown"
+> {
   try {
     const response = await fetch(`${issuerBase()}/api/auth/session`, {
       credentials: "include",
       headers: { Accept: "application/json" },
       signal: timeoutSignal(),
     });
-    if (!response.ok) return false;
+    if (!response.ok) return "unknown";
     const body = (await response.json()) as { authenticated?: unknown };
-    return body.authenticated === true;
+    return body.authenticated === true ? "active" : "none";
   } catch {
-    return false;
+    return "unknown";
   }
+}
+
+/** True when the Account service already holds a signed-in browser session. */
+export async function accountSessionActive(): Promise<boolean> {
+  return (await accountSessionState()) === "active";
 }
 
 export async function completeSocialEmailCode(

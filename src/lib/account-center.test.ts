@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   describeUserAgent,
   getAccountOverview,
+  revokeApp,
   revokeSession,
   startMfaEnrollment,
   unlinkIdentity,
@@ -101,6 +102,22 @@ describe("account center client", () => {
     await expect(revokeSession("s1")).resolves.toEqual({
       ok: true,
       signedOut: true,
+    });
+  });
+
+  it("signs a connected app out, and treats one already gone as signed out", async () => {
+    const fetcher = respond(200, { ok: true });
+    vi.stubGlobal("fetch", fetcher);
+    await expect(revokeApp("grant/1")).resolves.toEqual({ ok: true });
+    expect(String(fetcher.mock.calls[1]?.[0])).toContain(
+      "/api/account/apps/grant%2F1/revoke",
+    );
+    vi.stubGlobal("fetch", respond(404, { error: "not_found" }));
+    await expect(revokeApp("gone")).resolves.toEqual({ ok: true });
+    vi.stubGlobal("fetch", respond(401, { error: "authentication_required" }));
+    await expect(revokeApp("x")).resolves.toMatchObject({
+      ok: false,
+      reauth: true,
     });
   });
 

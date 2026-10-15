@@ -2,18 +2,18 @@ export const dashboardRoutes = {
   overview: "/app",
   account: "/app/account",
   security: "/app/account#security",
-  billing: "/app/account#billing",
+  billing: "/app/billing",
   guard: "/app/guard",
   guardHistory: "/app/guard/history",
   guardAudit: "/app/guard/audit",
   guardPolicy: "/app/guard/policy",
   guardStats: "/app/guard/stats",
-  guardDocs: "/guard/docs",
+  /** The product page, which links to the documentation. */
+  guardProduct: "/guard",
   voice: "/app/voice",
   voiceAdmin: "/app/voice/admin",
   voiceAdminModels: "/app/voice/admin/models",
   voiceAdminErrors: "/app/voice/admin/errors",
-  voiceDocs: "/voice/docs",
   voiceDownload: "/voice/download",
 } as const;
 
@@ -35,6 +35,7 @@ export const dashboardPageLabels: Record<
 > = {
   [dashboardRoutes.overview]: { page: "Overview" },
   [dashboardRoutes.account]: { page: "Account" },
+  [dashboardRoutes.billing]: { page: "Billing" },
   [dashboardRoutes.voice]: { page: "AlgorithVoice" },
   [dashboardRoutes.voiceAdmin]: { parent: voiceCrumb, page: "Admin" },
   [dashboardRoutes.voiceAdminModels]: {
@@ -142,8 +143,3 @@ export const dashboardNavigation: readonly DashboardNavGroup[] = [
     ],
   },
 ];
-
-export const dashboardResources = [
-  { label: "AlgorithVoice docs", href: dashboardRoutes.voiceDocs },
-  { label: "AlgorithGuard docs", href: dashboardRoutes.guardDocs },
-] as const;

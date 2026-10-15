@@ -14,7 +14,7 @@ const DIRECTION_THRESHOLD_PX = 8;
 
 function isActive(pathname: string, href: string, sectionRoot: string) {
   // The section root (Overview) only matches itself; other links also cover
-  // their sub-pages (/guard/docs/cli under Docs).
+  // their sub-pages.
   if (href === sectionRoot) return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }

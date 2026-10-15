@@ -244,8 +244,8 @@ export default function DashboardPage() {
                 decisionsFact,
               ]}
               more={{
-                label: "Connect an agent",
-                href: dashboardRoutes.guardDocs,
+                label: "How to connect an agent",
+                href: dashboardRoutes.guardProduct,
               }}
               open={{
                 label: "Open AlgorithGuard",
