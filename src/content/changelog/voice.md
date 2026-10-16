@@ -20,6 +20,15 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Changed
+- **Choosing a microphone looks like the rest of the app**, and the names are plain: "M9 microphone" instead of "Microphone (M9 microphone) (ff01:0009)". The list works from the keyboard too.
+- **Setup fits each step.** The push-to-talk step no longer has an empty gap and shows how dictation works; the last step shows the microphone check with the microphone choice under it.
+- **Usage opens on what you use**: your cloud usage when Settings is on Cloud, the usage on this computer when it is on Local. The switch above it still shows the other.
+- **A new start screen**: while the app loads, its logo builds itself as a moving 3D figure, and when you need to sign in it stays at the top with the sign-in button below it.
+
+### Fixed
+- The pill keeps its round shape. It could stand in a black rectangle, as when the app started with Windows.
+
 ## 0.5.26 — 2026-10-16
 
 ### Security
