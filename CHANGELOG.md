@@ -18,6 +18,14 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-16 — Removing a computer signs it out
+
+### Fixed
+- **Removing a computer on the [AlgorithVoice page](/app/voice) signs AlgorithVoice out on it.** It used to free the seat only, and the app kept working. Now the app is signed out within half a minute (version 0.5.26 and later) and its seat is freed.
+
+### Changed
+- Signing AlgorithVoice out under Connected apps in the [account center](/app/account) frees that computer's seat on the AlgorithVoice page as well.
+
 ## 2026-10-15 — One documentation, staying signed in, a Billing page and corrected facts
 
 ### Added

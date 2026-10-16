@@ -26,6 +26,11 @@ export type VoiceDevice = {
   id: string;
   name: string;
   type: "desktop-macos" | "desktop-windows" | "desktop-linux";
+  /**
+   * The Account sign-in of the app on this computer, when the seat knows it
+   * (computers registered before it was kept have none).
+   */
+  grantId?: string | null;
   lastSeenAt: string | null;
   createdAt: string;
 };

@@ -11,6 +11,7 @@ import {
 import { DailyUsageChart } from "@/components/voice/daily-usage-chart";
 import { dashboardRoutes } from "@/config/dashboard";
 import { beginAccountLogin } from "@/lib/account-auth";
+import { getAccountOverview } from "@/lib/account-center";
 import {
   displayDate,
   displayDateTime,
@@ -23,13 +24,13 @@ import {
   getVoiceUsage,
   listVoiceDevices,
   listVoiceRecentUsage,
-  removeVoiceDevice,
   tokenHasScope,
   type VoiceDevice,
   type VoiceLimit,
   type VoiceUsage,
   voiceErrorMessage,
 } from "@/lib/voice-api";
+import { removeComputer } from "@/lib/voice-devices";
 
 const DAILY_DAYS = 14;
 const RECENT_LIMIT = 8;
@@ -104,9 +105,16 @@ function RemoveDeviceDialog({
 }) {
   const queryClient = useQueryClient();
   const remove = useMutation({
-    mutationFn: () => removeVoiceDevice(device.id, token),
+    // Ends the app's sign-in on that computer, then frees the seat.
+    mutationFn: () =>
+      removeComputer(
+        device,
+        token,
+        async () => (await getAccountOverview()).apps,
+      ),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["voice", "devices"] });
+      void queryClient.invalidateQueries({ queryKey: ["account", "overview"] });
       onClose();
     },
   });
@@ -127,9 +135,8 @@ function RemoveDeviceDialog({
         <p className="eyebrow">Devices</p>
         <h2 id="voice-remove-title">Remove “{device.name}”?</h2>
         <p id="voice-remove-description">
-          This frees its seat. If the app on that computer uses cloud
-          transcription again, it registers itself again and takes a seat. Local
-          dictation on it is not affected.
+          AlgorithVoice on that computer is signed out within half a minute and
+          its seat is freed. To dictate there again, sign in to the app again.
         </p>
         {remove.error ? (
           <p className="form-error" role="alert">
@@ -155,7 +162,7 @@ function RemoveDeviceDialog({
             onClick={() => remove.mutate()}
             type="button"
           >
-            {remove.isPending ? "Removing…" : "Remove device"}
+            {remove.isPending ? "Signing out…" : "Sign out and remove"}
           </button>
         </div>
       </div>
@@ -307,8 +314,8 @@ export default function VoiceOverviewPage() {
               <p className="eyebrow">Devices</p>
               <h2 id="voice-devices-title">Your computers</h2>
               <p>
-                A computer appears here the first time the app uses cloud
-                transcription with this account.
+                Each computer signed in to AlgorithVoice with this account.
+                Removing one signs the app out there and frees its seat.
               </p>
             </div>
             {devices.data ? (

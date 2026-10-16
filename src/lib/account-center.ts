@@ -37,6 +37,8 @@ export interface AccountOverview {
   /** Native apps signed in with the account. Absent from an older service. */
   apps?: Array<{
     id: string;
+    /** Which app ("voice-desktop" for AlgorithVoice). Absent from an older service. */
+    clientId?: string;
     name: string;
     deviceName: string | null;
     connectedAt: string;
