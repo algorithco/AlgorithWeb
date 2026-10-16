@@ -33,6 +33,7 @@ import {
   displayDateTime,
   displayPlan,
 } from "@/lib/dashboard-format";
+import { freeSeatsOf } from "@/lib/voice-devices";
 
 export const SECURITY_CHANGED_KEY = "algorithco-security-changed";
 
@@ -600,15 +601,18 @@ export function ActiveSessions({
 
 /**
  * The apps signed in with the account (AlgorithVoice on a computer, the
- * command-line tools). Signing one out ends its sign-in there; the access it
- * already holds runs out within ten minutes.
+ * command-line tools). Signing one out ends its sign-in there: AlgorithVoice
+ * notices within half a minute, and its computer's seat is freed too.
  */
 export function ConnectedApps({
   overview,
   onChanged,
+  token,
 }: {
   overview: AccountOverview;
   onChanged: () => void;
+  /** Dashboard access token, to free an AlgorithVoice seat. */
+  token?: string;
 }) {
   const [pending, setPending] = useState<string | null>(null);
   const [failure, setFailure] = useState<Failure | null>(null);
@@ -647,6 +651,7 @@ export function ConnectedApps({
                 setPending(app.id);
                 setFailure(null);
                 const result = await revokeApp(app.id);
+                if (result.ok && token) await freeSeatsOf(app, token);
                 setPending(null);
                 if (!result.ok) {
                   setFailure(result);

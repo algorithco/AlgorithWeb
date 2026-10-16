@@ -783,7 +783,11 @@ export default function AccountPage() {
             <h3 className="account-list-title">Browsers</h3>
             <ActiveSessions overview={account} onChanged={refreshOverview} />
             <h3 className="account-list-title">Apps</h3>
-            <ConnectedApps overview={account} onChanged={refreshOverview} />
+            <ConnectedApps
+              overview={account}
+              onChanged={refreshOverview}
+              token={session.signedIn ? session.token : undefined}
+            />
           </>
         ) : (
           pending
