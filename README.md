@@ -114,7 +114,7 @@ The repository-level compose file builds the static frontend, serves it with Ngi
 docker compose -f compose.frontends.yml up -d --build --wait
 ```
 
-Create `../algo/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
+Create `../algorith-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
 ## Human decisions / TODO
 

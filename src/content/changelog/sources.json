@@ -1,5 +1,5 @@
 {
-  "voice": "../algorithvoice/CHANGELOG.md",
-  "guard": "../algo/CHANGELOG.md",
-  "account": "../algorithco-account/CHANGELOG.md"
+  "voice": "../algorith-voice/CHANGELOG.md",
+  "guard": "../algorith-guard/CHANGELOG.md",
+  "account": "../algorith-account/CHANGELOG.md"
 }

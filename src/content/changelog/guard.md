@@ -1,4 +1,4 @@
-<!-- Copied from algo/CHANGELOG.md by `pnpm changelog:sync`. Edit the original, not this file. -->
+<!-- Copied from algorith-guard/CHANGELOG.md by `pnpm changelog:sync`. Edit the original, not this file. -->
 
 # Changelog
 
@@ -7,7 +7,7 @@ published at https://trqsh.uz/changelog. The rules for writing it are in
 `AGENTS.md`, under "Changelog".
 
 <!--
-Format (read by algorithco-web/src/lib/changelog.ts):
+Format (read by algorith-web/src/lib/changelog.ts):
 
   ## Unreleased                changes that have not shipped; never published
   ## 0.1.5 — 2026-10-20        a public release: its version, then its date
