@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.27 — 2026-10-16
+
 ### Changed
 - **Choosing a microphone looks like the rest of the app**, and the names are plain: "M9 microphone" instead of "Microphone (M9 microphone) (ff01:0009)". The list works from the keyboard too.
 - **Setup fits each step.** The push-to-talk step no longer has an empty gap and shows how dictation works; the last step shows the microphone check with the microphone choice under it.
