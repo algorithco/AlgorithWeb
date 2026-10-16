@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.25 — 2026-10-16
+
 ### Security
 - **Signing in takes a code.** The app shows six digits while it waits, and the page in your browser asks for them before it signs the app in. Only the app in front of you can be approved.
 
