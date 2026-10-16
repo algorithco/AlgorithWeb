@@ -20,6 +20,12 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-16 — Limits on approving apps, and signing apps out at once
+
+### Security
+- Approving an app's access to your account can be done only a limited number of times a minute from one network.
+- An app you sign out under Connected apps can now find out right away. The next version of AlgorithVoice uses this to sign out on that computer within half a minute instead of carrying on.
+
 ## 2026-10-15 — Sessions that last, connected apps and sign-in codes
 
 ### Added
@@ -30,6 +36,7 @@ with the next deploy.
 - **Signing in from an app can take the code the app shows.** When the app displays a 6-digit code, the "Sign in to this app?" page asks for it, so only the app in front of you can be approved. The page also names the computer.
 - AlgorithVoice can be used on one computer with the Free plan and on three with Pro.
 - "Last active" in the list of signed-in devices is kept current to within the hour.
+- **A deleted account is erased after 24 hours, not 30 days.** It stops working the moment you confirm the deletion, and everything in it is removed for good a day later.
 
 ### Fixed
 - Account pages that fit on the screen no longer show a scroll bar.
