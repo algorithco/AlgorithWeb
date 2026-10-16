@@ -5,7 +5,7 @@
   "license": "UNLICENSED",
   "repository": {
     "type": "git",
-    "url": "https://github.com/algorithco/algorithco-web.git"
+    "url": "https://github.com/algorithco/algorith-web.git"
   },
   "engines": {
     "node": ">=22.12.0 <23"

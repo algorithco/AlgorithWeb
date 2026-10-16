@@ -1,6 +1,6 @@
 # GitHub setup — algorithco-web
 
-Remote: <https://github.com/algorithco/algorithco-web> (private).
+Remote: <https://github.com/algorithco/algorith-web> (private).
 
 Published on 2026-10-02 under the `algorithco` organization (GitHub Free) by `@hamroqulovv`, an active organization admin.
 
@@ -9,13 +9,13 @@ Published on 2026-10-02 under the `algorithco` organization (GitHub Free) by `@h
 The repository was created without pushing, then verified private:
 
 ```json
-{"isPrivate":true,"url":"https://github.com/algorithco/algorithco-web","visibility":"PRIVATE"}
+{"isPrivate":true,"url":"https://github.com/algorithco/algorith-web","visibility":"PRIVATE"}
 ```
 
 After the initial push, it was verified private again with `main` as the default branch:
 
 ```json
-{"defaultBranchRef":{"name":"main"},"isPrivate":true,"url":"https://github.com/algorithco/algorithco-web","visibility":"PRIVATE"}
+{"defaultBranchRef":{"name":"main"},"isPrivate":true,"url":"https://github.com/algorithco/algorith-web","visibility":"PRIVATE"}
 ```
 
 ## Applied repository settings
@@ -37,7 +37,7 @@ Dependabot update jobs are free; CI runs triggered by Dependabot pull requests c
 
 ## Verification results
 
-- First `main` CI run: [successful](https://github.com/algorithco/algorithco-web/actions/runs/36998930994) in 59 seconds. The timing API reported four Ubuntu jobs but exposed zero billable milliseconds.
+- First `main` CI run: [successful](https://github.com/algorithco/algorith-web/actions/runs/36998930994) in 59 seconds. The timing API reported four Ubuntu jobs but exposed zero billable milliseconds.
 - The exact CI runtime, Node.js `22.20.0`, passed frozen install, Biome lint, Next.js type generation, TypeScript, five unit tests, static production build, and production dependency audit.
 - Fresh-clone proof: following the README from a local clone outside the workspace produced `out/index.html`; the temporary clone was then removed.
 - Gitleaks `8.30.1` scanned the staged source and full one-commit pre-publication history with redaction; zero leaks were found. Additional source/history checks found no private-key block, Google secret, GitHub PAT, Stripe key, Slack token, credential-bearing database URL, machine-specific path, real `.env`, private key/JWKS, user export, or tracked generated output.
