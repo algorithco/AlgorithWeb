@@ -20,6 +20,18 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Security
+- **Signing this computer out in your Algorithco account now ends its session in the app within half a minute.** The app comes forward on its sign-in page and says why; it used to keep working.
+
+### Changed
+- **The app is called AlgorithVoice, by Algorithco.** Windows lists it under that name and publisher. The update moves the app over by itself: your settings, history, models and sign-in stay, and so do its shortcuts and start with Windows.
+- **The models recommended for your computer come first** in the list of on-device models.
+- Model cards show only what you need to choose: the name, the size and the languages. The rest is under Details.
+- **A model download can be cancelled until it is 30% done, and cancelling removes what was downloaded.** Past 30% it finishes by itself; you can delete the model afterwards.
+
+### Fixed
+- After an update or a quick restart, the app no longer joins the web view processes its previous start left behind, which Task Manager then listed apart from AlgorithVoice.
+
 ## 0.5.25 — 2026-10-16
 
 ### Security
