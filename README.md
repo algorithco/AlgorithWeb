@@ -1,6 +1,6 @@
 # Algorithco web
 
-[![CI](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/algorithco-web/actions/workflows/ci.yml)
+[![CI](https://github.com/algorithco/algorith-web/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/algorith-web/actions/workflows/ci.yml)
 
 The unified Algorithco platform frontend. It serves the company site, central-account sign-in flow, the Voice and Guard product sections with their documentation, and the Voice and Guard consoles from one Next.js static export. Voice and Guard API calls stay same-origin through the production Nginx proxy.
 
