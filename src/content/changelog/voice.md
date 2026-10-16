@@ -20,6 +20,8 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.26 — 2026-10-16
+
 ### Security
 - **Signing this computer out in your Algorithco account now ends its session in the app within half a minute.** The app comes forward on its sign-in page and says why; it used to keep working.
 

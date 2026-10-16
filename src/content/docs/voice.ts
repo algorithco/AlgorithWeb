@@ -272,7 +272,7 @@ export const voiceDocs: DocProduct = {
                 {
                   type: "code",
                   label: "Terminal",
-                  code: "sudo apt install ./Algorith.Voice_*_amd64.deb",
+                  code: "sudo apt install ./AlgorithVoice_*_amd64.deb",
                 },
                 {
                   type: "p",
@@ -281,7 +281,7 @@ export const voiceDocs: DocProduct = {
                 {
                   type: "code",
                   label: "Terminal",
-                  code: "chmod +x Algorith.Voice_*_amd64.AppImage\n./Algorith.Voice_*_amd64.AppImage",
+                  code: "chmod +x AlgorithVoice_*_amd64.AppImage\n./AlgorithVoice_*_amd64.AppImage",
                 },
                 {
                   type: "note",
