@@ -1,5 +1,5 @@
 # Topology (two stacks, one shared network):
-#   1. Account stack FIRST:  (in algorithco-account)
+#   1. Account stack FIRST:  (in algorith-account)
 #      cd infra
 #      docker compose --env-file ../.env --env-file ../.env.tunnel \
 #        --env-file ../apps/api/.env \
@@ -35,10 +35,10 @@ services:
 
   guard-backend:
     build:
-      context: ../algo/backend
+      context: ../algorith-guard/backend
     restart: unless-stopped
     env_file:
-      - ../algo/backend/.env.tunnel
+      - ../algorith-guard/backend/.env.tunnel
     environment:
       DATABASE_URL: postgresql://guard:${GUARD_POSTGRES_PASSWORD:-guard-dev-pw-change-me}@guard-postgres:5432/guard
     depends_on:
@@ -83,7 +83,7 @@ services:
 
   voice-migrate:
     build:
-      context: ../algorithvoice
+      context: ../algorith-voice
       dockerfile: apps/backend/Dockerfile
     image: algorithco-voice-backend:local
     restart: "no"
@@ -103,7 +103,7 @@ services:
       # OPENROUTER_API_KEY. Optional so
       # the gateway still builds without it; voice-backend then refuses to
       # start (production requires the service key).
-      - path: ../algorithvoice/.env.gateway.local
+      - path: ../algorith-voice/.env.gateway.local
         required: false
     environment: &voice-env
       NODE_ENV: production
@@ -116,7 +116,7 @@ services:
       VOICE_ACCOUNT_CLIENT_IDS: algorithco-platform-web,voice-desktop
       VOICE_ACCOUNT_REQUIRED_SCOPES: voice:access
       # The gateway and the Docker host hop in front of it (see
-      # algorithvoice/infra/docker-compose.yml): rate limits per visitor.
+      # algorith-voice/infra/docker-compose.yml): rate limits per visitor.
       TRUST_PROXY_HOPS: "2"
       LOG_LEVEL: info
     networks:
@@ -132,7 +132,7 @@ services:
     image: algorithco-voice-backend:local
     restart: unless-stopped
     env_file:
-      - path: ../algorithvoice/.env.gateway.local
+      - path: ../algorith-voice/.env.gateway.local
         required: false
     environment: *voice-env
     command: ["node", "apps/backend/dist/queues/worker.js"]

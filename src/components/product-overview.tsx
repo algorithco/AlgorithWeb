@@ -88,7 +88,7 @@ export function ProductOverview({
           <div className="detail-row detail-row--compact" data-reveal>
             <div>
               <p className="eyebrow">Works with</p>
-              <h2>Platforms</h2>
+              <h2>{product.platformsLabel}</h2>
             </div>
             <ul className="platform-list" data-stagger>
               {product.platforms.map((platform) => (
@@ -126,10 +126,13 @@ export function ProductOverview({
           {product.status === "preview" && (
             <aside className="preview-note" data-reveal>
               <p className="eyebrow">Status</p>
-              <h2>Early preview—not generally available.</h2>
+              <h2>Early preview.</h2>
               <p>
-                AlgorithGuard is currently a private MVP. Its product page is
-                the source for future availability updates.
+                Anyone can install{" "}
+                <span className="keep-case">{product.name}</span> today.
+                Commands and defaults may still change between versions; the{" "}
+                <Link href={`/changelog/${product.slug}`}>changelog</Link> lists
+                every change.
               </p>
             </aside>
           )}

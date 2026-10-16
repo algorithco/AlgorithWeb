@@ -83,9 +83,8 @@ const clauses: readonly LegalClause[] = [
           AlgorithVoice turns speech into text and types it into the app you are
           using. Transcription can make mistakes, so check anything important
           before you rely on it. Local mode works on your device. Cloud
-          transcription runs only if you set it up, with your own Groq key or
-          through Algorithco, as described in our{" "}
-          <Link href="/privacy">privacy policy</Link>.
+          transcription is part of the Pro plan and runs only when you choose
+          it, as described in our <Link href="/privacy">privacy policy</Link>.
         </p>
         <h3>AlgorithGuard</h3>
         <p>
@@ -223,7 +222,7 @@ const clauses: readonly LegalClause[] = [
         <p>
           You can stop using the services at any time and delete your account in{" "}
           <Link href="/app/account">account settings</Link>. Deletion becomes
-          permanent {legal.deletionGraceDays} days later. Cancel any paid plan
+          permanent {legal.deletionGraceHours} hours later. Cancel any paid plan
           before you delete your account.
         </p>
         <p>

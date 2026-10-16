@@ -18,7 +18,7 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## 2026-10-15 — One documentation, staying signed in and a Billing page
+## 2026-10-15 — One documentation, staying signed in, a Billing page and corrected facts
 
 ### Added
 - **One documentation for every product, at [/docs](/docs).** AlgorithVoice, AlgorithGuard and your Algorithco account are covered in detail in one place, with a search, a list of sections on every page, and copy buttons on commands.
@@ -30,8 +30,15 @@ with the next deploy.
 - The top bar says "Dashboard" as soon as a page opens in a browser that is signed in.
 - Signing out in one tab signs your other tabs out as well.
 - **Billing has its own page.** Your plans, subscriptions and the billing portal are at [Billing](/app/billing) in the dashboard, and the account page keeps only your profile, security, sign-in methods and devices.
+- The account page, the documentation, the [privacy policy](/privacy) and the [terms](/terms) say that a deleted account is erased 24 hours later, no longer 30 days.
 - The footer groups its links into Products, Resources, Company and Legal, and links to the documentation, the AlgorithVoice download and the benchmarks.
 - The old documentation addresses under /voice/docs and /guard/docs take you to the same page in the new documentation.
+
+### Fixed
+- The home and [About](/about) pages give the right number of on-device speech models in AlgorithVoice: nine, not six.
+- The site no longer lists macOS among the systems AlgorithVoice runs on today; the macOS app is still in development.
+- The [privacy policy](/privacy) and [terms](/terms) no longer describe cloud transcription with your own Groq key, which the app no longer has, and the privacy policy gives today's session lifetimes: 90 days without use, two years at most.
+- The AlgorithGuard page says that anyone can install the preview, and calls the tools it works with coding agents rather than platforms.
 
 ### Removed
 - The separate documentation of each product, the Docs tab in the product bar and the documentation links in the dashboard sidebar.

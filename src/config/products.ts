@@ -16,6 +16,8 @@ export type Product = {
   description: string;
   status: ProductStatus;
   statusLabel: string;
+  /** Heading of the "Works with" list: what `platforms` names. */
+  platformsLabel: string;
   platforms: readonly string[];
   features: readonly string[];
   accent: "mono" | "yellow";
@@ -41,7 +43,8 @@ export const products = [
       "Push-to-talk voice dictation that puts your words into the app you are already using.",
     status: "available",
     statusLabel: "Available",
-    platforms: ["Windows", "Linux", "macOS"],
+    platformsLabel: "Platforms",
+    platforms: ["Windows", "Linux"],
     features: [
       "Hold a hotkey, speak, and text appears in the focused app.",
       "Offline transcription with on-device models.",
@@ -67,6 +70,7 @@ export const products = [
       "An intelligent control layer for CLI coding agents that makes their work safer, quieter, and auditable.",
     status: "preview",
     statusLabel: "Early preview",
+    platformsLabel: "Coding agents",
     platforms: ["Claude Code", "Codex CLI", "OpenCode"],
     features: [
       "Attaches through hooks and plugins.",

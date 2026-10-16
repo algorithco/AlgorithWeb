@@ -17,7 +17,7 @@ const summary = [
   "AlgorithVoice and AlgorithGuard are local-first. By default your audio and your coding agents’ activity stay on your device.",
   "An Algorithco account keeps what it needs to sign you in and keep you safe. IP addresses are stored only as keyed hashes.",
   "We do not sell personal data.",
-  `You can delete your account yourself. It is permanently erased ${legal.deletionGraceDays} days later.`,
+  `You can delete your account yourself. It is permanently erased ${legal.deletionGraceHours} hours later.`,
 ] as const;
 
 const clauses: readonly LegalClause[] = [
@@ -118,18 +118,12 @@ const clauses: readonly LegalClause[] = [
             device, never on our servers. You can delete entries or clear it.
           </li>
           <li>
-            <strong>Cloud mode with your own Groq key.</strong> Audio is sent
-            straight from your device to Groq with your API key. The key is kept
-            in your operating system’s credential store. Neither the key nor the
-            audio passes through Algorithco.
-          </li>
-          <li>
-            <strong>Algorithco cloud transcription.</strong> If you use it,
-            audio is sent to our backend and forwarded to OpenRouter for
-            transcription. Longer recordings may be queued, in which case the
-            audio and the result are held for at most one hour. We record usage,
-            such as seconds transcribed, the model and timing, but not the
-            audio.
+            <strong>Cloud mode.</strong> Only when you choose it, on the Pro
+            plan: audio is sent to our backend and forwarded through OpenRouter
+            to Microsoft’s MAI-Transcribe 2 for transcription. Longer recordings
+            may be queued, in which case the audio and the result are held for
+            at most one hour. We record usage, such as seconds transcribed, the
+            model and timing, but not the audio.
           </li>
           <li>
             <strong>Local usage meter.</strong> On-device counts (sessions,
@@ -234,7 +228,7 @@ const clauses: readonly LegalClause[] = [
                 <td>Keeps you signed in to your Algorithco account.</td>
                 <td>
                   {legal.sessionIdleDays} days without use,{" "}
-                  {legal.sessionMaxDays} days at most
+                  {legal.sessionMaxYears} years at most
                 </td>
               </tr>
               <tr>
@@ -328,16 +322,8 @@ const clauses: readonly LegalClause[] = [
               </tr>
               <tr>
                 <td>OpenRouter</td>
-                <td>Algorithco cloud transcription in AlgorithVoice.</td>
+                <td>AlgorithVoice cloud transcription.</td>
                 <td>Only when you use it</td>
-              </tr>
-              <tr>
-                <td>Groq</td>
-                <td>
-                  AlgorithVoice cloud mode with your own key. Your device talks
-                  to Groq directly.
-                </td>
-                <td>Only if you add a Groq key</td>
               </tr>
               <tr>
                 <td>Hugging Face</td>
@@ -387,12 +373,12 @@ const clauses: readonly LegalClause[] = [
         <li>
           <strong>Deleted accounts.</strong> When you delete your account, it is
           scheduled for deletion and permanently erased{" "}
-          {legal.deletionGraceDays} days later, together with its credentials,
+          {legal.deletionGraceHours} hours later, together with its credentials,
           sessions, linked sign-in providers, subscriptions and entitlements.
         </li>
         <li>
           <strong>Sessions</strong> end after {legal.sessionIdleDays} days
-          without use, and no later than {legal.sessionMaxDays} days after you
+          without use, and no later than {legal.sessionMaxYears} years after you
           sign in.
         </li>
         <li>
@@ -432,10 +418,6 @@ const clauses: readonly LegalClause[] = [
         <ul>
           <li>Passwords are hashed with Argon2id.</li>
           <li>Two-factor secrets are encrypted with AES-256-GCM.</li>
-          <li>
-            AlgorithVoice keeps your Groq key in your operating system’s
-            credential store, not in plain files.
-          </li>
           <li>
             IP addresses, session tokens and email codes are stored as keyed
             hashes, not in readable form.

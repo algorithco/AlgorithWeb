@@ -1,4 +1,4 @@
-<!-- Copied from algorithco-account/CHANGELOG.md by `pnpm changelog:sync`. Edit the original, not this file. -->
+<!-- Copied from algorith-account/CHANGELOG.md by `pnpm changelog:sync`. Edit the original, not this file. -->
 
 # Changelog
 
@@ -7,7 +7,7 @@ file is published at https://trqsh.uz/changelog. The rules for writing it are
 in `AGENTS.md`, under "Changelog".
 
 <!--
-Format (read by algorithco-web/src/lib/changelog.ts):
+Format (read by algorith-web/src/lib/changelog.ts):
 
   ## Unreleased                changes that have not shipped; never published
   ## 2026-10-20 — Short title  a release: its day, then a title
@@ -37,6 +37,7 @@ with the next deploy.
 ### Security
 - "Sign out device", signing out, and signing in again in the same browser now end everything that browser was given, at once.
 - A browser whose session has ended can no longer be handed access by any leftover cookie: it is always sent to sign in.
+- The page that signs an app in to your account can be opened only a limited number of times a minute from one network.
 
 ## 2026-10-13 — AlgorithVoice cloud transcription moves to Pro
 

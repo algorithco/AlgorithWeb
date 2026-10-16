@@ -40,7 +40,7 @@ const SOCIAL_FAILURES: Record<string, string> = {
   failed: "Social sign-in did not complete. Try again.",
   unavailable: "That sign-in provider is not available right now.",
   account_deleting:
-    "This account is scheduled for deletion, so it can no longer sign in. Contact support within the 30-day grace period if this was a mistake.",
+    "This account is scheduled for deletion, so it can no longer sign in. Contact support within 24 hours if this was a mistake.",
   account_unavailable:
     "This account cannot sign in right now. Contact support for help.",
   email_mismatch:
