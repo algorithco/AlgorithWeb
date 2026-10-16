@@ -20,7 +20,13 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## 2026-10-16 — Limits on approving apps, and signing apps out at once
+## 2026-10-16 — Approving apps with one press, limits on approving, and signing apps out at once
+
+### Changed
+- **Signing an app in is one press of Approve in your browser.** AlgorithVoice no longer has you type a code from the app first.
+
+### Fixed
+- An approval page that was already used, or waited too long, now says that the sign-in has ended instead of showing an error.
 
 ### Security
 - Approving an app's access to your account can be done only a limited number of times a minute from one network.

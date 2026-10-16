@@ -20,6 +20,15 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.28 — 2026-10-16
+
+### Changed
+- **Signing in is one press of Approve in your browser.** The app no longer shows a code to type there, and it comes back to the front by itself once you approve.
+- The 3D logo on the start screen is sharper and larger on big windows, and it builds itself more slowly.
+
+### Fixed
+- Pressing Deny in the browser no longer shows an error in the app: the sign-in simply goes back to the start.
+
 ## 0.5.27 — 2026-10-16
 
 ### Changed
