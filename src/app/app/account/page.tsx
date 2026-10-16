@@ -118,7 +118,7 @@ function DeleteAccountControl({ email }: { email: string }) {
           </h2>
           <p id="account-delete-description">
             {step === "warning"
-              ? "We’ll email a one-time code to verify this request. Confirming it immediately revokes every session and schedules permanent deletion after 30 days."
+              ? "We’ll email a one-time code to verify this request. Confirming it immediately revokes every session and schedules permanent deletion after 24 hours."
               : `Enter the 6-digit code sent to ${destination}. It expires in 10 minutes.`}
           </p>
           {expiresAt && step === "code" ? (
@@ -800,8 +800,8 @@ export default function AccountPage() {
             <p className="eyebrow">Danger zone</p>
             <h2 id="delete-title">Delete account</h2>
             <p>
-              Revoke access now and permanently remove this account after a
-              30-day grace period. A code sent to your email is required.
+              Revoke access now and permanently remove this account 24 hours
+              later. A code sent to your email is required.
             </p>
           </div>
           <DeleteAccountControl email={email ?? "your verified email"} />

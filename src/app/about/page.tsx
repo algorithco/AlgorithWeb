@@ -111,9 +111,10 @@ export default function AboutPage() {
           <p className="eyebrow">Where we are</p>
           <div className="large-prose">
             <p>
-              AlgorithVoice is available on Windows, Linux and macOS.
-              AlgorithGuard is in early preview: it starts in shadow mode, so
-              you can watch what it would do before you let it enforce anything.
+              AlgorithVoice is available on Windows and Linux, and a native
+              macOS app is in development. AlgorithGuard is in early preview: it
+              starts in shadow mode, so you can watch what it would do before
+              you let it enforce anything.
             </p>
             <p>
               We publish what we collect and why in plain language. Read our{" "}

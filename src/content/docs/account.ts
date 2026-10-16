@@ -319,7 +319,7 @@ export const accountDocs: DocProduct = {
               blocks: [
                 {
                   type: "p",
-                  text: "**Delete account** at the bottom of the [account page](/app/account) asks for a code sent to your email. Access ends at once: every browser and app is signed out. The account is removed permanently after a 30-day grace period.",
+                  text: "**Delete account** at the bottom of the [account page](/app/account) asks for a code sent to your email. Access ends at once: every browser and app is signed out. The account is removed permanently 24 hours later.",
                 },
               ],
             },

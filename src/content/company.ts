@@ -1,9 +1,14 @@
 /** Company facts and principles shared by the home and About pages. */
 
+import { voiceModels } from "./docs/voice";
+
 // Every figure here is a fact about the shipped products, not a target.
 export const companyFacts = [
   { value: "2", label: "products, one standard" },
-  { value: "6", label: "on-device speech models in AlgorithVoice" },
+  {
+    value: String(voiceModels.length),
+    label: "on-device speech models in AlgorithVoice",
+  },
   { value: "3", label: "coding agents AlgorithGuard works with" },
   { value: "0", label: "trackers on this website" },
 ] as const;
@@ -26,7 +31,7 @@ export const companyPrinciples = [
     title: "Opt-in, not assumed",
     body: "Anything that sends data elsewhere stays off until you turn it on.",
     practice:
-      "AlgorithVoice sends audio to the cloud only if you set that up, with your own Groq key or through Algorithco. AlgorithGuard asks for consent for each agent before it installs hooks, backs up your configuration first, and its install is reversible.",
+      "AlgorithVoice starts in Local mode and sends audio to the cloud only when you choose Cloud. AlgorithGuard asks for consent for each agent before it installs hooks, backs up your configuration first, and its install is reversible.",
   },
   {
     title: "Collect less, protect the rest",
