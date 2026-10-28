@@ -20,6 +20,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-28 — Your account is now at algorithco.trqsh.uz
+
+### Changed
+- **Algorithco Account, the website and the dashboards moved to algorithco.trqsh.uz.** You may be asked to sign in once more, and older versions of AlgorithVoice need an update to find the new address.
+
 ## 2026-10-16 — Approving apps with one press, limits on approving, and signing apps out at once
 
 ### Changed
