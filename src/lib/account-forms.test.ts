@@ -18,13 +18,19 @@ import {
 
 describe("embedded company sign-in", () => {
   beforeEach(() => {
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", "https://trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_ISSUER",
+      "https://algorithco.trqsh.uz/account",
+    );
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_CLIENT_ID", "algorithco-platform-web");
     vi.stubEnv(
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
-      "https://trqsh.uz/auth/callback",
+      "https://algorithco.trqsh.uz/auth/callback",
     );
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", "https://trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_BILLING_URL",
+      "https://algorithco.trqsh.uz/account",
+    );
   });
 
   afterEach(() => {
@@ -48,12 +54,12 @@ describe("embedded company sign-in", () => {
     ).resolves.toEqual({ ok: true });
     expect(fetcher).toHaveBeenNthCalledWith(
       1,
-      "https://trqsh.uz/account/api/auth/csrf",
+      "https://algorithco.trqsh.uz/account/api/auth/csrf",
       expect.objectContaining({ credentials: "include" }),
     );
     expect(fetcher).toHaveBeenNthCalledWith(
       2,
-      "https://trqsh.uz/account/api/auth/mfa",
+      "https://algorithco.trqsh.uz/account/api/auth/mfa",
       expect.objectContaining({
         credentials: "include",
         method: "POST",
@@ -101,13 +107,13 @@ describe("embedded company sign-in", () => {
       setItem: (key: string, value: string) => values.set(key, value),
     });
     vi.stubGlobal("window", {
-      location: { origin: "https://trqsh.uz" },
+      location: { origin: "https://algorithco.trqsh.uz" },
     });
 
     const start = new URL(socialStartUrl("github", "/app/guard"));
     expect(start.pathname).toBe("/account/auth/social/github");
     expect(start.searchParams.get("return_to")).toBe(
-      "https://trqsh.uz/signin?social=complete",
+      "https://algorithco.trqsh.uz/signin?social=complete",
     );
     expect(takeSocialReturnTo()).toBe("/app/guard");
     expect(takeSocialReturnTo()).toBeNull();
@@ -148,7 +154,7 @@ describe("embedded company sign-in", () => {
     });
     expect(fetcher).toHaveBeenNthCalledWith(
       3,
-      "https://trqsh.uz/account/api/auth/social/code",
+      "https://algorithco.trqsh.uz/account/api/auth/social/code",
       expect.objectContaining({ method: "POST", credentials: "include" }),
     );
     const body = fetcher.mock.calls[2][1].body as URLSearchParams;
@@ -214,10 +220,10 @@ describe("embedded company sign-in", () => {
       ok: true,
     });
     expect(fetcher.mock.calls[1][0]).toBe(
-      "https://trqsh.uz/account/api/account/deletion/code",
+      "https://algorithco.trqsh.uz/account/api/account/deletion/code",
     );
     expect(fetcher.mock.calls[3][0]).toBe(
-      "https://trqsh.uz/account/api/account/deletion/confirm",
+      "https://algorithco.trqsh.uz/account/api/account/deletion/confirm",
     );
     const body = fetcher.mock.calls[3][1].body as URLSearchParams;
     expect(body.get("code")).toBe("123456");
@@ -248,7 +254,7 @@ describe("embedded company sign-in", () => {
       expiresAt: "2026-10-08T18:00:00.000Z",
     });
     expect(fetcher.mock.calls[1][0]).toBe(
-      "https://trqsh.uz/account/api/account/password/code",
+      "https://algorithco.trqsh.uz/account/api/account/password/code",
     );
     expect(fetcher.mock.calls[1][1]).toEqual(
       expect.objectContaining({ credentials: "include", method: "POST" }),
@@ -365,7 +371,7 @@ describe("embedded company sign-in", () => {
       confirmPasswordChange(" 123456 ", "a brand new password"),
     ).resolves.toEqual({ ok: true });
     expect(fetcher.mock.calls[1][0]).toBe(
-      "https://trqsh.uz/account/api/account/password/confirm",
+      "https://algorithco.trqsh.uz/account/api/account/password/confirm",
     );
     const body = fetcher.mock.calls[1][1].body as URLSearchParams;
     expect(body.get("code")).toBe("123456");
@@ -409,7 +415,7 @@ describe("embedded company sign-in", () => {
 
     await expect(accountSessionActive()).resolves.toBe(true);
     expect(fetcher.mock.calls[0][0]).toBe(
-      "https://trqsh.uz/account/api/auth/session",
+      "https://algorithco.trqsh.uz/account/api/auth/session",
     );
     await expect(accountSessionActive()).resolves.toBe(false);
     await expect(accountSessionActive()).resolves.toBe(false);

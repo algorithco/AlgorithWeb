@@ -8,13 +8,13 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 COPY . .
 
-ARG NEXT_PUBLIC_SITE_URL=https://trqsh.uz
-ARG NEXT_PUBLIC_VOICE_URL=https://trqsh.uz/app/voice
-ARG NEXT_PUBLIC_GUARD_URL=https://trqsh.uz/app/guard
-ARG NEXT_PUBLIC_ACCOUNT_ISSUER=https://trqsh.uz/account
+ARG NEXT_PUBLIC_SITE_URL=https://algorithco.trqsh.uz
+ARG NEXT_PUBLIC_VOICE_URL=https://algorithco.trqsh.uz/app/voice
+ARG NEXT_PUBLIC_GUARD_URL=https://algorithco.trqsh.uz/app/guard
+ARG NEXT_PUBLIC_ACCOUNT_ISSUER=https://algorithco.trqsh.uz/account
 ARG NEXT_PUBLIC_ACCOUNT_CLIENT_ID=algorithco-platform-web
-ARG NEXT_PUBLIC_ACCOUNT_REDIRECT_URI=https://trqsh.uz/auth/callback
-ARG NEXT_PUBLIC_ACCOUNT_BILLING_URL=https://trqsh.uz/account
+ARG NEXT_PUBLIC_ACCOUNT_REDIRECT_URI=https://algorithco.trqsh.uz/auth/callback
+ARG NEXT_PUBLIC_ACCOUNT_BILLING_URL=https://algorithco.trqsh.uz/account
 ARG NEXT_PUBLIC_GUARD_API_BASE=/api/guard
 ARG NEXT_PUBLIC_ACCOUNT_API_BASE=/api/account
 ARG NEXT_PUBLIC_VOICE_API_BASE=/api/voice

@@ -870,7 +870,7 @@ export const guardDocs: DocProduct = {
               blocks: [
                 {
                   type: "p",
-                  text: "Sign in at [trqsh.uz](/signin) and open [AlgorithGuard in the dashboard](/app/guard). Choose a workspace at the top. The CLI and the console use the same [Algorithco account](/docs/account).",
+                  text: "Sign in at [algorithco.trqsh.uz](/signin) and open [AlgorithGuard in the dashboard](/app/guard). Choose a workspace at the top. The CLI and the console use the same [Algorithco account](/docs/account).",
                 },
                 {
                   type: "note",

@@ -3,14 +3,14 @@ const env = (value: string | undefined, fallback: string) =>
 
 export const siteConfig = {
   name: "Algorithco",
-  siteUrl: env(process.env.NEXT_PUBLIC_SITE_URL, "https://trqsh.uz"),
+  siteUrl: env(process.env.NEXT_PUBLIC_SITE_URL, "https://algorithco.trqsh.uz"),
   authUrl: new URL(
     "/signin",
-    env(process.env.NEXT_PUBLIC_SITE_URL, "https://trqsh.uz"),
+    env(process.env.NEXT_PUBLIC_SITE_URL, "https://algorithco.trqsh.uz"),
   ).toString(),
   accountUrl: new URL(
     "/app/account",
-    env(process.env.NEXT_PUBLIC_SITE_URL, "https://trqsh.uz"),
+    env(process.env.NEXT_PUBLIC_SITE_URL, "https://algorithco.trqsh.uz"),
   ).toString(),
   contactEmail: env(
     process.env.NEXT_PUBLIC_CONTACT_EMAIL,

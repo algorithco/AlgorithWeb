@@ -10,7 +10,7 @@ import {
   silentAccountSignIn,
 } from "./account-auth";
 
-const issuer = "https://trqsh.uz/account";
+const issuer = "https://algorithco.trqsh.uz/account";
 const metadata: OidcMetadata = {
   issuer,
   authorization_endpoint: `${issuer}/auth`,
@@ -24,7 +24,7 @@ describe("platform Account client", () => {
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", issuer);
     vi.stubEnv(
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
-      "https://trqsh.uz/auth/callback",
+      "https://algorithco.trqsh.uz/auth/callback",
     );
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", issuer);
   });
@@ -37,7 +37,7 @@ describe("platform Account client", () => {
   it("uses the unified platform callback", () => {
     expect(accountWebConfig()).toEqual({
       issuer,
-      redirectUri: "https://trqsh.uz/auth/callback",
+      redirectUri: "https://algorithco.trqsh.uz/auth/callback",
       billingUrl: issuer,
     });
   });
@@ -63,7 +63,7 @@ describe("platform Account client", () => {
     const url = new URL(request.url);
     expect(url.searchParams.get("client_id")).toBe("algorithco-platform-web");
     expect(url.searchParams.get("redirect_uri")).toBe(
-      "https://trqsh.uz/auth/callback",
+      "https://algorithco.trqsh.uz/auth/callback",
     );
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
     expect(url.searchParams.get("scope")).toContain("entitlements:read");
@@ -112,7 +112,9 @@ describe("platform Account client", () => {
     ) as unknown as typeof fetch;
     await discoverAccount(issuer, fetcher);
     expect(fetcher).toHaveBeenCalledWith(
-      new URL("https://trqsh.uz/account/.well-known/openid-configuration"),
+      new URL(
+        "https://algorithco.trqsh.uz/account/.well-known/openid-configuration",
+      ),
       expect.any(Object),
     );
   });
@@ -137,9 +139,11 @@ describe("platform Account client", () => {
       fetcher.mock.calls.filter(([input]) => String(input).endsWith("/token"));
 
     it("follows the flow in the background, with the browser's session", async () => {
-      vi.stubGlobal("window", { location: { origin: "https://trqsh.uz" } });
+      vi.stubGlobal("window", {
+        location: { origin: "https://algorithco.trqsh.uz" },
+      });
       const fetcher = accountAnswering(
-        "https://trqsh.uz/signin?reauth=1&continue=x",
+        "https://algorithco.trqsh.uz/signin?reauth=1&continue=x",
       );
 
       // No Account session: the trip ends at the sign-in page, not at a code.
@@ -161,10 +165,12 @@ describe("platform Account client", () => {
     });
 
     it("redeems nothing from a callback that is not its own", async () => {
-      vi.stubGlobal("window", { location: { origin: "https://trqsh.uz" } });
+      vi.stubGlobal("window", {
+        location: { origin: "https://algorithco.trqsh.uz" },
+      });
       // A code, but under a state this request never made.
       const forged = accountAnswering(
-        "https://trqsh.uz/auth/callback?code=stolen&state=someone-elses",
+        "https://algorithco.trqsh.uz/auth/callback?code=stolen&state=someone-elses",
       );
       await expect(
         silentAccountSignIn(forged as unknown as typeof fetch),
@@ -173,7 +179,7 @@ describe("platform Account client", () => {
 
       // A page that is not the registered callback, however it is dressed.
       const elsewhere = accountAnswering(
-        "https://trqsh.uz/auth/other?code=x&state=y",
+        "https://algorithco.trqsh.uz/auth/other?code=x&state=y",
       );
       await expect(
         silentAccountSignIn(elsewhere as unknown as typeof fetch),
@@ -185,7 +191,9 @@ describe("platform Account client", () => {
       vi.stubGlobal("window", {
         location: { origin: "http://localhost:3000" },
       });
-      const fetcher = accountAnswering("https://trqsh.uz/auth/callback?code=x");
+      const fetcher = accountAnswering(
+        "https://algorithco.trqsh.uz/auth/callback?code=x",
+      );
       await expect(
         silentAccountSignIn(fetcher as unknown as typeof fetch),
       ).resolves.toBeNull();
@@ -220,7 +228,7 @@ describe("platform Account client", () => {
       `${issuer}/api/auth/logout`,
       expect.objectContaining({ method: "POST", credentials: "include" }),
     );
-    expect(navigate).toHaveBeenCalledWith("https://trqsh.uz/signin");
+    expect(navigate).toHaveBeenCalledWith("https://algorithco.trqsh.uz/signin");
     expect(navigate).not.toHaveBeenCalledWith(
       metadataWithLogout.end_session_endpoint,
     );
