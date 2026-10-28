@@ -18,13 +18,19 @@ import {
 
 describe("embedded company sign-in", () => {
   beforeEach(() => {
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", "https://algorithco.trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_ISSUER",
+      "https://algorithco.trqsh.uz/account",
+    );
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_CLIENT_ID", "algorithco-platform-web");
     vi.stubEnv(
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
       "https://algorithco.trqsh.uz/auth/callback",
     );
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", "https://algorithco.trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_BILLING_URL",
+      "https://algorithco.trqsh.uz/account",
+    );
   });
 
   afterEach(() => {

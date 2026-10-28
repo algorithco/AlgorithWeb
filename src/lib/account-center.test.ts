@@ -20,13 +20,19 @@ function respond(status: number, body: unknown) {
 
 describe("account center client", () => {
   beforeEach(() => {
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", "https://algorithco.trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_ISSUER",
+      "https://algorithco.trqsh.uz/account",
+    );
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_CLIENT_ID", "algorithco-platform-web");
     vi.stubEnv(
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
       "https://algorithco.trqsh.uz/auth/callback",
     );
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", "https://algorithco.trqsh.uz/account");
+    vi.stubEnv(
+      "NEXT_PUBLIC_ACCOUNT_BILLING_URL",
+      "https://algorithco.trqsh.uz/account",
+    );
   });
 
   afterEach(() => {
@@ -35,9 +41,9 @@ describe("account center client", () => {
   });
 
   it("continues only to OIDC interactions on the configured issuer", () => {
-    expect(safeContinueUrl("https://algorithco.trqsh.uz/account/interaction/abc123")).toBe(
-      "https://algorithco.trqsh.uz/account/interaction/abc123",
-    );
+    expect(
+      safeContinueUrl("https://algorithco.trqsh.uz/account/interaction/abc123"),
+    ).toBe("https://algorithco.trqsh.uz/account/interaction/abc123");
     for (const value of [
       "https://evil.example/account/interaction/abc",
       "https://algorithco.trqsh.uz/app",

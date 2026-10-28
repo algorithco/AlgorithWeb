@@ -112,7 +112,9 @@ describe("platform Account client", () => {
     ) as unknown as typeof fetch;
     await discoverAccount(issuer, fetcher);
     expect(fetcher).toHaveBeenCalledWith(
-      new URL("https://algorithco.trqsh.uz/account/.well-known/openid-configuration"),
+      new URL(
+        "https://algorithco.trqsh.uz/account/.well-known/openid-configuration",
+      ),
       expect.any(Object),
     );
   });
@@ -137,7 +139,9 @@ describe("platform Account client", () => {
       fetcher.mock.calls.filter(([input]) => String(input).endsWith("/token"));
 
     it("follows the flow in the background, with the browser's session", async () => {
-      vi.stubGlobal("window", { location: { origin: "https://algorithco.trqsh.uz" } });
+      vi.stubGlobal("window", {
+        location: { origin: "https://algorithco.trqsh.uz" },
+      });
       const fetcher = accountAnswering(
         "https://algorithco.trqsh.uz/signin?reauth=1&continue=x",
       );
@@ -161,7 +165,9 @@ describe("platform Account client", () => {
     });
 
     it("redeems nothing from a callback that is not its own", async () => {
-      vi.stubGlobal("window", { location: { origin: "https://algorithco.trqsh.uz" } });
+      vi.stubGlobal("window", {
+        location: { origin: "https://algorithco.trqsh.uz" },
+      });
       // A code, but under a state this request never made.
       const forged = accountAnswering(
         "https://algorithco.trqsh.uz/auth/callback?code=stolen&state=someone-elses",
@@ -185,7 +191,9 @@ describe("platform Account client", () => {
       vi.stubGlobal("window", {
         location: { origin: "http://localhost:3000" },
       });
-      const fetcher = accountAnswering("https://algorithco.trqsh.uz/auth/callback?code=x");
+      const fetcher = accountAnswering(
+        "https://algorithco.trqsh.uz/auth/callback?code=x",
+      );
       await expect(
         silentAccountSignIn(fetcher as unknown as typeof fetch),
       ).resolves.toBeNull();
