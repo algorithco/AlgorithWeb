@@ -3,7 +3,7 @@
 # Changelog
 
 What changed in AlgorithVoice, written for the people who use it. This file is
-published at https://trqsh.uz/changelog. The rules for writing it are in
+published at https://algorithco.trqsh.uz/changelog. The rules for writing it are in
 `AGENTS.md`, under "Changelog".
 
 <!--

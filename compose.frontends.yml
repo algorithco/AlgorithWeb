@@ -110,8 +110,8 @@ services:
       PORT: "3001"
       DATABASE_URL: postgresql://voice:${VOICE_POSTGRES_PASSWORD:-voice-dev-pw-change-me}@voice-postgres:5432/voice
       REDIS_URL: redis://voice-redis:6379
-      APP_URL: https://trqsh.uz
-      VOICE_ACCOUNT_ISSUER: https://trqsh.uz/account
+      APP_URL: https://algorithco.trqsh.uz
+      VOICE_ACCOUNT_ISSUER: https://algorithco.trqsh.uz/account
       VOICE_ACCOUNT_AUDIENCES: algorithco-platform-api
       VOICE_ACCOUNT_CLIENT_IDS: algorithco-platform-web,voice-desktop
       VOICE_ACCOUNT_REQUIRED_SCOPES: voice:access
@@ -148,13 +148,13 @@ services:
     build:
       context: .
       args:
-        NEXT_PUBLIC_SITE_URL: https://trqsh.uz
-        NEXT_PUBLIC_VOICE_URL: https://trqsh.uz/app/voice
-        NEXT_PUBLIC_GUARD_URL: https://trqsh.uz/app/guard
-        NEXT_PUBLIC_ACCOUNT_ISSUER: https://trqsh.uz/account
+        NEXT_PUBLIC_SITE_URL: https://algorithco.trqsh.uz
+        NEXT_PUBLIC_VOICE_URL: https://algorithco.trqsh.uz/app/voice
+        NEXT_PUBLIC_GUARD_URL: https://algorithco.trqsh.uz/app/guard
+        NEXT_PUBLIC_ACCOUNT_ISSUER: https://algorithco.trqsh.uz/account
         NEXT_PUBLIC_ACCOUNT_CLIENT_ID: algorithco-platform-web
-        NEXT_PUBLIC_ACCOUNT_REDIRECT_URI: https://trqsh.uz/auth/callback
-        NEXT_PUBLIC_ACCOUNT_BILLING_URL: https://trqsh.uz/account
+        NEXT_PUBLIC_ACCOUNT_REDIRECT_URI: https://algorithco.trqsh.uz/auth/callback
+        NEXT_PUBLIC_ACCOUNT_BILLING_URL: https://algorithco.trqsh.uz/account
         NEXT_PUBLIC_GUARD_API_BASE: /api/guard
         NEXT_PUBLIC_ACCOUNT_API_BASE: /api/account
         NEXT_PUBLIC_VOICE_API_BASE: /api/voice
@@ -165,7 +165,7 @@ services:
     depends_on:
       # Unordered on purpose (no service_healthy gate): single-host auth
       # makes guard depend on this gateway for OIDC discovery
-      # (trqsh.uz/account/.well-known), so gating the gateway on guard
+      # (algorithco.trqsh.uz/account/.well-known), so gating the gateway on guard
       # readiness deadlocks both. /api/guard/* briefly 502s until guard
       # is up; the gateway itself is fully static otherwise. Voice is not
       # listed at all: nginx resolves voice-backend per request, and a Voice

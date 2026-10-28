@@ -26,12 +26,12 @@ All public destinations are configured in `.env.local` and documented in `.env.e
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | `https://trqsh.uz` | Canonical site URL and sitemap origin |
-| `NEXT_PUBLIC_VOICE_URL` | `https://trqsh.uz/app/voice` | Voice dashboard inside the unified platform |
-| `NEXT_PUBLIC_GUARD_URL` | `https://trqsh.uz/app/guard` | Guard console inside the unified platform |
-| `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://trqsh.uz/account` | OIDC issuer used for sign-in and discovery |
-| `NEXT_PUBLIC_ACCOUNT_REDIRECT_URI` | `https://trqsh.uz/auth/callback` | Unified platform OIDC callback |
-| `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://trqsh.uz/account` | Account and billing destination |
+| `NEXT_PUBLIC_SITE_URL` | `https://algorithco.trqsh.uz` | Canonical site URL and sitemap origin |
+| `NEXT_PUBLIC_VOICE_URL` | `https://algorithco.trqsh.uz/app/voice` | Voice dashboard inside the unified platform |
+| `NEXT_PUBLIC_GUARD_URL` | `https://algorithco.trqsh.uz/app/guard` | Guard console inside the unified platform |
+| `NEXT_PUBLIC_ACCOUNT_ISSUER` | `https://algorithco.trqsh.uz/account` | OIDC issuer used for sign-in and discovery |
+| `NEXT_PUBLIC_ACCOUNT_REDIRECT_URI` | `https://algorithco.trqsh.uz/auth/callback` | Unified platform OIDC callback |
+| `NEXT_PUBLIC_ACCOUNT_BILLING_URL` | `https://algorithco.trqsh.uz/account` | Account and billing destination |
 | `NEXT_PUBLIC_GUARD_API_BASE` | `/api/guard` | Same-origin Guard API prefix |
 | `NEXT_PUBLIC_VOICE_API_BASE` | `/api/voice` | Same-origin Voice API prefix |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | empty | Public email; hidden when empty |
@@ -99,8 +99,8 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `/api/releases/voice` — the gateway's copy of the latest public AlgorithVoice release, kept for five minutes. `/voice/download` is built with the release of build time and reads this one in the browser, so a new version appears without a rebuild.
 
 The browser uses the public OIDC client `algorithco-platform-web`. The Account
-service must register `https://trqsh.uz/auth/callback` as an exact redirect URI
-and `https://trqsh.uz` as an allowed origin. The client requests
+service must register `https://algorithco.trqsh.uz/auth/callback` as an exact redirect URI
+and `https://algorithco.trqsh.uz` as an allowed origin. The client requests
 `entitlements:read` and `billing:write` for the unified dashboard. A short-lived access token is kept
 in per-tab `sessionStorage` so reloads retain the session; refresh and ID tokens
 remain memory-only. When local state is unavailable, protected Guard routes
@@ -114,7 +114,7 @@ The repository-level compose file builds the static frontend, serves it with Ngi
 docker compose -f compose.frontends.yml up -d --build --wait
 ```
 
-Create `../algorith-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
+Create `../algorith-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `algorithco.trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
 The Account service owns identities and billing. This repository only implements its browser OIDC client and links to Account for billing management; it never stores provider secrets.
 

@@ -40,7 +40,7 @@ it.
   for the written content of the website, such as the texts of the legal pages
   and the documentation: they are copyright Algorithco, and you may quote them
   but not republish them as your own.
-- **Our hosted services.** Using the services on trqsh.uz is governed by the
+- **Our hosted services.** Using the services on algorithco.trqsh.uz is governed by the
   terms published there, not by this license.
 
 ## Contributing

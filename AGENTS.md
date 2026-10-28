@@ -11,7 +11,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## Changelog (required)
 
 `CHANGELOG.md` in the root of this repository is the public changelog of the
-website and the dashboard. It is published at https://trqsh.uz/changelog, so
+website and the dashboard. It is published at https://algorithco.trqsh.uz/changelog, so
 writing it is part of the change, not a follow-up.
 
 1. **Every change a visitor can notice gets one line**, in the same commit as

@@ -1,7 +1,7 @@
 # Changelog
 
 What changed on the Algorithco website and in the dashboard, written for the
-people who use them. This file is published at https://trqsh.uz/changelog. The
+people who use them. This file is published at https://algorithco.trqsh.uz/changelog. The
 rules for writing it are in `AGENTS.md`, under "Changelog".
 
 <!--
@@ -21,6 +21,7 @@ with the next deploy.
 ## 2026-10-28 — Open-source license named in the terms
 
 ### Changed
+- **The website and the dashboards moved to algorithco.trqsh.uz.** Old links to the previous address no longer reach them, and you may be asked to sign in once more.
 - The terms now name the GNU Affero General Public License as the license of our open-source software; earlier releases keep the GNU General Public License.
 
 ## 2026-10-16 — Removing a computer signs it out

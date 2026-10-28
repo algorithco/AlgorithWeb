@@ -55,7 +55,7 @@ export const products = [
     accent: "mono",
     externalUrl: externalUrl(
       process.env.NEXT_PUBLIC_VOICE_URL,
-      "https://trqsh.uz/app/voice",
+      "https://algorithco.trqsh.uz/app/voice",
     ),
     externalLabel: "Open AlgorithVoice",
   },
@@ -82,7 +82,7 @@ export const products = [
     accent: "yellow",
     externalUrl: externalUrl(
       process.env.NEXT_PUBLIC_GUARD_URL,
-      "https://trqsh.uz/app/guard",
+      "https://algorithco.trqsh.uz/app/guard",
     ),
     externalLabel: "Open AlgorithGuard",
   },

@@ -20,13 +20,13 @@ function respond(status: number, body: unknown) {
 
 describe("account center client", () => {
   beforeEach(() => {
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", "https://trqsh.uz/account");
+    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_ISSUER", "https://algorithco.trqsh.uz/account");
     vi.stubEnv("NEXT_PUBLIC_ACCOUNT_CLIENT_ID", "algorithco-platform-web");
     vi.stubEnv(
       "NEXT_PUBLIC_ACCOUNT_REDIRECT_URI",
-      "https://trqsh.uz/auth/callback",
+      "https://algorithco.trqsh.uz/auth/callback",
     );
-    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", "https://trqsh.uz/account");
+    vi.stubEnv("NEXT_PUBLIC_ACCOUNT_BILLING_URL", "https://algorithco.trqsh.uz/account");
   });
 
   afterEach(() => {
@@ -35,13 +35,13 @@ describe("account center client", () => {
   });
 
   it("continues only to OIDC interactions on the configured issuer", () => {
-    expect(safeContinueUrl("https://trqsh.uz/account/interaction/abc123")).toBe(
-      "https://trqsh.uz/account/interaction/abc123",
+    expect(safeContinueUrl("https://algorithco.trqsh.uz/account/interaction/abc123")).toBe(
+      "https://algorithco.trqsh.uz/account/interaction/abc123",
     );
     for (const value of [
       "https://evil.example/account/interaction/abc",
-      "https://trqsh.uz/app",
-      "https://trqsh.uz/account/interaction/abc?x=1",
+      "https://algorithco.trqsh.uz/app",
+      "https://algorithco.trqsh.uz/account/interaction/abc?x=1",
       "https://user:pw@trqsh.uz/account/interaction/abc",
       "/account/interaction/abc",
       "javascript:alert(1)",
@@ -61,7 +61,7 @@ describe("account center client", () => {
       profile: { email: "a@b.c" },
     });
     expect(fetcher.mock.calls[0][0]).toBe(
-      "https://trqsh.uz/account/api/account/overview",
+      "https://algorithco.trqsh.uz/account/api/account/overview",
     );
     expect(fetcher.mock.calls[0][1]).toMatchObject({ credentials: "include" });
   });

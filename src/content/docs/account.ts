@@ -14,7 +14,7 @@ export const accountDocs: DocProduct = {
           slug: "",
           title: "Overview",
           summary:
-            "One Algorithco account signs you in to AlgorithVoice, AlgorithGuard and the dashboard on trqsh.uz.",
+            "One Algorithco account signs you in to AlgorithVoice, AlgorithGuard and the dashboard on algorithco.trqsh.uz.",
           sections: [
             {
               id: "one-account",
@@ -22,7 +22,7 @@ export const accountDocs: DocProduct = {
               blocks: [
                 {
                   type: "p",
-                  text: "Your profile, your security settings and your plans live in one account. The website, the AlgorithVoice app and the `algo` command all sign in with it, always through your browser, so your password is only ever typed on trqsh.uz.",
+                  text: "Your profile, your security settings and your plans live in one account. The website, the AlgorithVoice app and the `algo` command all sign in with it, always through your browser, so your password is only ever typed on algorithco.trqsh.uz.",
                 },
               ],
             },

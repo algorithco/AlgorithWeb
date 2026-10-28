@@ -3,7 +3,7 @@
 # Changelog
 
 What changed in Algorithco Account, written for the people who use it. This
-file is published at https://trqsh.uz/changelog. The rules for writing it are
+file is published at https://algorithco.trqsh.uz/changelog. The rules for writing it are
 in `AGENTS.md`, under "Changelog".
 
 <!--
@@ -107,5 +107,5 @@ with the next deploy.
 ## 2026-10-04 — Algorithco Account
 
 ### Added
-- One account for every Algorithco product, on trqsh.uz: sign up with an email and a password, or continue with Google or GitHub.
+- One account for every Algorithco product, on algorithco.trqsh.uz: sign up with an email and a password, or continue with Google or GitHub.
 - Your plan and billing in one place.

@@ -24,5 +24,5 @@ You may not:
 - Show a mark or a name beside content that is unlawful or meant to deceive.
 
 The official brand files and the full guidelines are at
-<https://trqsh.uz/brand>. For anything they do not cover, write to
+<https://algorithco.trqsh.uz/brand>. For anything they do not cover, write to
 <hello@algorithco.com>.
