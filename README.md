@@ -116,13 +116,6 @@ docker compose -f compose.frontends.yml up -d --build --wait
 
 Create `../algorith-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
-## Human decisions / TODO
-
-- Set the public contact email.
-- Replace the Privacy and Terms placeholders with text approved by legal counsel.
-- Rotate temporary deployment credentials after the platform cutover.
-- Review and approve the short company-description wording used on Home and About.
-
 The Account service owns identities and billing. This repository only implements its browser OIDC client and links to Account for billing management; it never stores provider secrets.
 
 ## Contributing and security
