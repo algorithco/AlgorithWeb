@@ -1,6 +1,6 @@
 # Algorithco web
 
-[![CI](https://github.com/algorithco/algorith-web/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/algorith-web/actions/workflows/ci.yml)
+[![CI](https://github.com/algorithco/AlgorithWeb/actions/workflows/ci.yml/badge.svg)](https://github.com/algorithco/AlgorithWeb/actions/workflows/ci.yml)
 
 The unified Algorithco platform frontend. It serves the company site, central-account sign-in flow, the Voice and Guard product sections with their documentation, and the Voice and Guard consoles from one Next.js static export. Voice and Guard API calls stay same-origin through the production Nginx proxy.
 
@@ -116,17 +116,18 @@ docker compose -f compose.frontends.yml up -d --build --wait
 
 Create `../algorith-guard/backend/.env.tunnel` from that repository's `.env.example` before starting the stack. Nginx proxies `/api/guard/*` and `/api/voice/*` over the private Compose network. Voice has no host of its own: its site, dashboard and API are all under `trqsh.uz`. Ports `3000` and, temporarily, `3007` bind only to loopback for the Cloudflare Tunnel cutover.
 
-## Human decisions / TODO
-
-- Set the public contact email.
-- Replace the Privacy and Terms placeholders with text approved by legal counsel.
-- Rotate temporary deployment credentials after the platform cutover.
-- Review and approve the short company-description wording used on Home and About.
-
 The Account service owns identities and billing. This repository only implements its browser OIDC client and links to Account for billing management; it never stores provider secrets.
 
 ## Contributing and security
 
 Use a short-lived branch and pull request; see [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately using [SECURITY.md](SECURITY.md). Never put secrets in `NEXT_PUBLIC_*` variables: Next.js embeds them in public output.
 
-Copyright (c) 2026 Algorithco. All rights reserved.
+## License
+
+The code is licensed under the [GNU AGPL-3.0-or-later](LICENSE). A commercial
+license is available if the AGPL does not fit your use; see
+[LICENSING.md](LICENSING.md). Our names and logos are not part of the license:
+see [TRADEMARK.md](TRADEMARK.md). Third-party components are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Copyright (c) 2026 Algorithco.

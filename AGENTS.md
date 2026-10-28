@@ -27,8 +27,8 @@ writing it is part of the change, not a follow-up.
    pull request numbers or internal terms. A link to a page of this site is
    written `[text](/path)`.
 4. **Never give a repository address.** No GitHub links, repository names or
-   clone URLs: the page is public and the source is not. The site drops any
-   line that has one.
+   clone URLs: a line says what changed for the visitor, not where the code
+   lives. The site drops any line that has one.
 5. **Leave out what a visitor cannot see**: refactors, tests, CI, dependency
    updates, internal documentation. For those, no line is the right answer.
 6. Put the line under `### Added`, `### Changed`, `### Fixed`, `### Removed`,

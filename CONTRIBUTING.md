@@ -1,6 +1,8 @@
 # Contributing
 
-Use pull requests even when GitHub Free cannot enforce branch protection, required reviews, or CODEOWNERS for this private repository.
+Thank you for helping. By sending a pull request you agree to the [Contributor License Agreement](CLA.md), which lets us offer the code under both the AGPL and a commercial license (see [LICENSING.md](LICENSING.md)). A bot asks you to confirm on your first pull request. Please also read the [code of conduct](CODE_OF_CONDUCT.md).
+
+Open an issue before you start on a large change, so we can agree on it first.
 
 ## Workflow
 
@@ -17,13 +19,3 @@ Use pull requests even when GitHub Free cannot enforce branch protection, requir
 - [ ] The staged Gitleaks pre-commit scan and the PR CI secret scan pass.
 - [ ] README, docs, and `.env.example` are updated where needed.
 - [ ] CI is green on the pull request.
-
-## Initial-publish bypass
-
-The local pre-push hook blocks `main`. The one-time initial publication uses:
-
-```powershell
-git push --no-verify -u origin main
-```
-
-Document any later bypass. The normal workflow is always branch, PR, and squash merge.

@@ -18,6 +18,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-28 — Open-source license named in the terms
+
+### Changed
+- The terms now name the GNU Affero General Public License as the license of our open-source software; earlier releases keep the GNU General Public License.
+
 ## 2026-10-16 — Removing a computer signs it out
 
 ### Fixed

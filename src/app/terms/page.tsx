@@ -201,7 +201,8 @@ const clauses: readonly LegalClause[] = [
         </p>
         <p>
           Where we distribute software under an open-source license, such as the
-          GNU General Public License version 3, that license governs the
+          GNU Affero General Public License version 3 or, for earlier releases,
+          the GNU General Public License version 3, that license governs the
           software, and nothing in these terms limits your rights under it.
           Third-party components, including the speech models used by
           AlgorithVoice, come with their own licenses, which AlgorithVoice shows
