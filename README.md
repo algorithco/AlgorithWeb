@@ -129,4 +129,12 @@ The Account service owns identities and billing. This repository only implements
 
 Use a short-lived branch and pull request; see [CONTRIBUTING.md](CONTRIBUTING.md). Report vulnerabilities privately using [SECURITY.md](SECURITY.md). Never put secrets in `NEXT_PUBLIC_*` variables: Next.js embeds them in public output.
 
-Copyright (c) 2026 Algorithco. All rights reserved.
+## License
+
+The code is licensed under the [GNU AGPL-3.0-or-later](LICENSE). A commercial
+license is available if the AGPL does not fit your use; see
+[LICENSING.md](LICENSING.md). Our names and logos are not part of the license:
+see [TRADEMARK.md](TRADEMARK.md). Third-party components are listed in
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Copyright (c) 2026 Algorithco.
