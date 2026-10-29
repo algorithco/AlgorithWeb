@@ -6,6 +6,7 @@ import {
   formatUtcDay,
   type VoiceDailyUsage,
 } from "@/lib/voice-api";
+import { dayTick } from "@/lib/voice-usage";
 
 const requestsLabel = (count: number) =>
   `${count} ${count === 1 ? "request" : "requests"}`;
@@ -13,7 +14,8 @@ const requestsLabel = (count: number) =>
 /**
  * Cloud transcription time per day as columns. Pointing at a day shows its
  * figures in the readout above the plot; the table below carries the same
- * numbers for keyboard and screen-reader users.
+ * numbers for keyboard and screen-reader users. Windows longer than a month
+ * label only the first day of each month.
  */
 export function DailyUsageChart({
   daily,
@@ -26,7 +28,9 @@ export function DailyUsageChart({
   const shown = active === null ? undefined : daily[active];
 
   return (
-    <div className="voice-chart">
+    <div
+      className={`voice-chart${daily.length > 14 && daily.length <= 31 ? " voice-chart--dense" : ""}`}
+    >
       <p className="voice-chart__readout" aria-hidden="true">
         <strong>{formatSeconds(shown ? shown.seconds : total)}</strong>
         <span>
@@ -59,7 +63,7 @@ export function DailyUsageChart({
               ) : null}
             </span>
             <span className="voice-chart__tick">
-              {formatUtcDay(day.date, { day: "numeric" })}
+              {dayTick(day.date, daily.length)}
             </span>
           </div>
         ))}

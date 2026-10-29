@@ -18,6 +18,14 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-29 — AlgorithVoice pages in the dashboard
+
+### Added
+- **AlgorithVoice has its own pages in the dashboard**, like AlgorithGuard: Usage, Request history, Devices, and Plan & limits.
+- [Usage](/app/voice/usage) shows your cloud time by day over 7 days to a year, by month and by model, and downloads it as CSV or JSON.
+- [Request history](/app/voice/history) lists every cloud request with date and model filters, and the requests that failed.
+- [Devices](/app/voice/devices) shows your free seats and how to add another computer; [Plan & limits](/app/voice/plan) shows what your plan includes and what you have used this month.
+
 ## 2026-10-28 — Open-source license named in the terms
 
 ### Changed

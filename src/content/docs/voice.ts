@@ -577,7 +577,7 @@ export const voiceDocs: DocProduct = {
                   type: "list",
                   items: [
                     "Cloud transcription is part of the Pro plan, with 70 hours a month.",
-                    "The length of each recording counts toward your month. The dashboard shows what you have used under [AlgorithVoice](/app/voice).",
+                    "The length of each recording counts toward your month. The dashboard shows what you have used under [AlgorithVoice](/app/voice): [Usage](/app/voice/usage) goes back a year and [Request history](/app/voice/history) lists each request. Neither holds what you said.",
                     "Audio is held only while it is processed, and no transcript is kept by Algorithco.",
                   ],
                 },
