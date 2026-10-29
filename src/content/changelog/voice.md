@@ -20,6 +20,23 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.30 — 2026-10-28
+
+### Changed
+- **AlgorithVoice and your Algorithco account now live at algorithco.trqsh.uz.** Versions up to 0.5.29 still look for the old address, so update to this version to keep signing in and transcribing in the cloud; you may be asked to sign in once more.
+- **AlgorithVoice is now released under the GNU Affero General Public License**, with a commercial license for those who need one. Versions up to 0.5.29 stay under the GNU General Public License.
+
+## 0.5.29 — 2026-10-24
+
+### Changed
+- **Dictation starts sooner after you press the key.** The start sound is shorter and plays the moment the microphone is ready; before, it could hold recording back by more than half a second.
+- **The pill moves smoothly**: it grows and shrinks from where it stands, what it shows fades in, and a small wave runs across it while the microphone opens.
+
+### Fixed
+- The pill no longer has a light outline around it.
+- **Links in the app open in your browser again**: Terms and Privacy Policy on the sign-in page, Manage plan, Manage account and See plans. They did nothing.
+- Release notes open the AlgorithVoice changelog on the website, and Open logs folder opens the folder instead of only copying its path.
+
 ## 0.5.28 — 2026-10-16
 
 ### Changed

@@ -25,6 +25,8 @@ stay in proto/CHANGELOG.md, not here.
 - `algo tui` opens the terminal viewer; running `algo` on its own does the same.
 
 ### Changed
+- **`algo` now signs in through the new Algorithco address, algorithco.trqsh.uz.** Earlier versions look for the old address, so update the CLI to keep signing in.
+- **AlgorithGuard is now released under the GNU Affero General Public License**, with a commercial license for those who need one. Earlier releases stay under the GNU General Public License.
 - AlgorithGuard uses your Algorithco account: one sign-in for the CLI and the console.
 
 ### Fixed
