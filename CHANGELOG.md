@@ -18,6 +18,15 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-30 — How it works, what we believe, and a lighter footer
+
+### Added
+- **The home page shows how it works**: a line drawing of your computer marks where your voice, its text and your logs stay, and a switch you can flip shows the one moment anything goes to the cloud.
+- The home page ends with what we believe, "Software should give you leverage, not take control", which lights up word by word as you scroll.
+
+### Changed
+- The footer is lighter: a short invitation to try the products replaces its large statement.
+
 ## 2026-10-29 — AlgorithVoice pages in the dashboard
 
 ### Added

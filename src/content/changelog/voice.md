@@ -20,6 +20,13 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Added
+- Settings has an About page with the app's version, its license, and links to the release notes, privacy policy and terms.
+- **After an update, the app shows what is new** in a window of its own, once per update: the main changes first, then the smaller ones, and every version you skipped.
+
+### Fixed
+- The pill no longer shows a thin white line along its left side after a dictation.
+
 ## 0.5.30 — 2026-10-28
 
 ### Changed

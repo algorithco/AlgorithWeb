@@ -23,6 +23,7 @@ stay in proto/CHANGELOG.md, not here.
 ### Added
 - `algo login` signs the CLI in with your Algorithco account, and `algo logout` signs it out.
 - `algo tui` opens the terminal viewer; running `algo` on its own does the same.
+- AlgorithGuard's background service now runs on Windows and checks each command, so with enforcement on a dangerous command such as `rm -rf /` is blocked instead of every command ending in a question.
 
 ### Changed
 - **`algo` now signs in through the new Algorithco address, algorithco.trqsh.uz.** Earlier versions look for the old address, so update the CLI to keep signing in.
@@ -32,6 +33,11 @@ stay in proto/CHANGELOG.md, not here.
 ### Fixed
 - `algo uninstall` no longer fails on a computer without a system keyring when you never signed in.
 - A command containing certain Unicode characters could crash the parser.
+- When the background service is not running, a command now waits up to a second for it to start instead of giving up and asking right away.
+- On Windows, `algo doctor` reports whether the background service is running and whether the hook program is installed.
+- **`algo init` now connects AlgorithGuard to Claude Code where Claude Code actually looks for hooks.** Before, it wrote to a file Claude Code ignores, so no command was ever checked. Running `algo init` again moves an entry left by an older version.
+- `algo uninstall` now removes only AlgorithGuard's own entry from your Claude Code settings, so changes you or Claude Code made after `algo init` are kept.
+- `algo init` now stops with a message instead of overwriting a Claude Code settings file it cannot read.
 
 ## 0.1.4 — 2026-09-29
 

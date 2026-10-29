@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
+import { MachineDrawing } from "@/components/home/machine-drawing";
+import { Manifesto } from "@/components/home/manifesto";
 import { Section } from "@/components/section";
+import { SplitWords } from "@/components/split-words";
 import { StatusBadge } from "@/components/status-badge";
 import { products } from "@/config/products";
 import { companyFacts, companyPrinciples } from "@/content/company";
 import { copy } from "@/content/copy";
+import { howItWorks } from "@/content/how-it-works";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
@@ -37,6 +41,23 @@ export default function Home() {
           <div className="hero-foot">
             <p>{copy.companyDescription}</p>
             <ButtonLink href="/about">About the company</ButtonLink>
+          </div>
+        </Container>
+      </section>
+
+      <section className="section" data-reveal id="how-it-works">
+        <Container>
+          <div className="how-it-works">
+            <div className="how-it-works__head">
+              <p className="eyebrow">{howItWorks.eyebrow}</p>
+              <h2 aria-label={howItWorks.title} className="how-it-works__title">
+                <span aria-hidden="true">
+                  <SplitWords text={howItWorks.title} />
+                </span>
+              </h2>
+              <p className="how-it-works__lead">{howItWorks.lead}</p>
+            </div>
+            <MachineDrawing />
           </div>
         </Container>
       </section>
@@ -110,6 +131,8 @@ export default function Home() {
           ))}
         </ul>
       </Section>
+
+      <Manifesto />
     </>
   );
 }

@@ -35,12 +35,9 @@ export function Footer() {
         <div className="footer-cta" data-reveal>
           <div>
             <p className="eyebrow">Two tools. One point of view.</p>
-            <h2 aria-label="Software should give you leverage, not take control.">
+            <h2 aria-label="Try them on your own machine.">
               <span aria-hidden="true">
-                <SplitWords text="Software should give you leverage," />{" "}
-                <span className="footer-cta__muted">
-                  <SplitWords offset={5} text="not take control." />
-                </span>
+                <SplitWords text="Try them on your own machine." />
               </span>
             </h2>
             <div className="footer-cta__actions">
