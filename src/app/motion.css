@@ -649,10 +649,10 @@ dialog.social-completion[open]::backdrop {
 }
 
 /* ---------------------------------------------------------------------------
-   9. Home: the drawing of your machine
+   9. Home: the drawing of your machine, and the manifesto
    The drawing draws itself once it is in view (.is-in); a quiet loop in
    components/home/machine-drawing.tsx then lights one numbered part at a
-   time.
+   time. The manifesto follows the scroll (components/home/manifesto.tsx).
    ------------------------------------------------------------------------- */
 .machine__paper {
   opacity: 0;
@@ -861,6 +861,22 @@ dialog.social-completion[open]::backdrop {
     opacity: 0;
     transform: scale(2.1);
   }
+}
+
+/* Manifesto: the words light up as the section scrolls by. */
+.manifesto.is-live .manifesto__word {
+  opacity: 0.22;
+  transition: opacity 450ms ease;
+}
+.manifesto.is-live .manifesto__word.is-lit {
+  opacity: 1;
+}
+.manifesto.is-live .manifesto__title.is-crossed .manifesto__word--cross {
+  opacity: 0.45;
+}
+.manifesto__word--key::after,
+.manifesto__word--cross::before {
+  transition: transform 700ms var(--ease-out-expo);
 }
 
 /* ---------------------------------------------------------------------------

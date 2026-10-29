@@ -6197,6 +6197,132 @@ kbd {
   outline-offset: 3px;
 }
 
+/* Home: the manifesto, the company's point of view at the end of the page
+   (components/home/manifesto.tsx). Script pins it and plays it with the
+   scroll; without script, or with reduced motion, it is a plain section. */
+.manifesto {
+  border-top: 1px solid var(--color-border);
+}
+.manifesto.is-live {
+  height: 220vh;
+}
+.manifesto__pin {
+  padding: var(--space-8) 0;
+}
+.manifesto.is-live .manifesto__pin {
+  position: sticky;
+  top: 0;
+  display: grid;
+  align-items: center;
+  min-height: 100vh;
+}
+.manifesto__inner {
+  display: grid;
+  gap: var(--space-7);
+}
+.manifesto__title {
+  max-width: 16ch;
+  margin: 1.25rem 0 0;
+  font-size: clamp(2.4rem, 6vw, 5.4rem);
+  font-weight: 540;
+  letter-spacing: -0.06em;
+  line-height: 1;
+  text-wrap: balance;
+}
+.manifesto__word {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+/* "leverage," gets a yellow marker and "take control." is struck out. */
+.manifesto__word--key::after,
+.manifesto__word--cross::before {
+  content: "";
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+.manifesto__word--key::after {
+  z-index: -1;
+  right: 0;
+  bottom: 0.08em;
+  left: 0;
+  height: 0.3em;
+  background: var(--color-guard);
+}
+.manifesto__word--cross::before {
+  top: 55%;
+  right: -0.04em;
+  left: -0.04em;
+  height: 0.06em;
+  background: currentColor;
+}
+.manifesto__word--key.is-lit::after,
+.manifesto__title.is-crossed .manifesto__word--cross::before {
+  transform: scaleX(1);
+}
+.manifesto__title.is-crossed .manifesto__word--cross {
+  opacity: 0.45;
+}
+.manifesto__lever {
+  margin: 0;
+}
+.manifesto__lever figcaption {
+  margin-top: 0.75rem;
+  color: var(--color-subtle);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.manifesto__svg {
+  --k: 1;
+  --line: color-mix(in srgb, var(--color-text) 82%, transparent);
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.manifesto__ground {
+  stroke: var(--color-border-strong);
+  stroke-width: calc(1px * var(--k));
+}
+.manifesto__fulcrum,
+.manifesto__beam,
+.manifesto__block {
+  stroke: var(--line);
+  stroke-width: calc(1.5px * var(--k));
+  stroke-linejoin: round;
+}
+.manifesto__fulcrum,
+.manifesto__block {
+  fill: var(--color-bg);
+}
+.manifesto__beam {
+  fill: color-mix(in srgb, var(--color-text) 6%, var(--color-bg));
+}
+.manifesto__hand {
+  fill: var(--color-guard);
+}
+.manifesto__pivot {
+  fill: var(--line);
+}
+.manifesto__label {
+  fill: var(--color-text);
+  font-size: max(13px, calc(10px * var(--k)));
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.manifesto__label--you {
+  fill: var(--color-muted);
+}
+@media (min-width: 64rem) {
+  .manifesto__inner {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    gap: var(--space-8);
+  }
+}
+
 /* Changelog (/changelog and /changelog/<product>): the product filter beside
    a rail of releases, newest first. */
 .changelog {

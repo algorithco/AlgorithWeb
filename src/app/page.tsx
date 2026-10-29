@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { MachineDrawing } from "@/components/home/machine-drawing";
+import { Manifesto } from "@/components/home/manifesto";
 import { Section } from "@/components/section";
 import { SplitWords } from "@/components/split-words";
 import { StatusBadge } from "@/components/status-badge";
@@ -130,6 +131,8 @@ export default function Home() {
           ))}
         </ul>
       </Section>
+
+      <Manifesto />
     </>
   );
 }
