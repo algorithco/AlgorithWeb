@@ -1224,17 +1224,15 @@ summary {
   align-items: end;
   padding: var(--space-8) 0 var(--space-7);
 }
+/* Kept small: the giant wordmark below is the footer's one large element. */
 .footer-cta h2 {
-  max-width: 18ch;
-  margin: 1.5rem 0 2.25rem;
-  font-size: clamp(2.5rem, 6.4vw, 6rem);
-  font-weight: 530;
-  letter-spacing: -0.065em;
-  line-height: 0.95;
+  max-width: 16ch;
+  margin: 1.25rem 0 2rem;
+  font-size: clamp(1.9rem, 3.6vw, 3rem);
+  font-weight: 540;
+  letter-spacing: -0.055em;
+  line-height: 1;
   text-wrap: balance;
-}
-.footer-cta__muted {
-  color: var(--color-muted);
 }
 .footer-cta__actions {
   display: flex;
