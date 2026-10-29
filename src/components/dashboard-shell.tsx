@@ -28,6 +28,7 @@ export type DashboardIconName =
   | "billing"
   | "chevron"
   | "close"
+  | "devices"
   | "guard"
   | "history"
   | "home"
@@ -69,6 +70,12 @@ export function DashboardIcon({ name }: { name: DashboardIconName }) {
     ),
     chevron: <path d="m9 6 6 6-6 6" />,
     close: <path d="m6 6 12 12M18 6 6 18" />,
+    devices: (
+      <>
+        <rect x="3.5" y="4.5" width="17" height="11.5" rx="1.6" />
+        <path d="M9 20h6M12 16v4" />
+      </>
+    ),
     guard: (
       <>
         <path d="M12 3 20 6v5c0 5.1-3.3 8.5-8 10-4.7-1.5-8-4.9-8-10V6z" />

@@ -11,6 +11,10 @@ export const dashboardRoutes = {
   /** The product page, which links to the documentation. */
   guardProduct: "/guard",
   voice: "/app/voice",
+  voiceUsage: "/app/voice/usage",
+  voiceHistory: "/app/voice/history",
+  voiceDevices: "/app/voice/devices",
+  voicePlan: "/app/voice/plan",
   voiceAdmin: "/app/voice/admin",
   voiceAdminModels: "/app/voice/admin/models",
   voiceAdminErrors: "/app/voice/admin/errors",
@@ -37,6 +41,13 @@ export const dashboardPageLabels: Record<
   [dashboardRoutes.account]: { page: "Account" },
   [dashboardRoutes.billing]: { page: "Billing" },
   [dashboardRoutes.voice]: { page: "AlgorithVoice" },
+  [dashboardRoutes.voiceUsage]: { parent: voiceCrumb, page: "Usage" },
+  [dashboardRoutes.voiceHistory]: {
+    parent: voiceCrumb,
+    page: "Request history",
+  },
+  [dashboardRoutes.voiceDevices]: { parent: voiceCrumb, page: "Devices" },
+  [dashboardRoutes.voicePlan]: { parent: voiceCrumb, page: "Plan & limits" },
   [dashboardRoutes.voiceAdmin]: { parent: voiceCrumb, page: "Admin" },
   [dashboardRoutes.voiceAdminModels]: {
     parent: voiceCrumb,
@@ -66,6 +77,7 @@ export type DashboardNavIcon =
   | "account"
   | "audit"
   | "billing"
+  | "devices"
   | "guard"
   | "history"
   | "home"
@@ -104,7 +116,24 @@ export const dashboardNavigation: readonly DashboardNavGroup[] = [
         label: "AlgorithVoice",
         href: dashboardRoutes.voice,
         icon: "mic",
-        includeSubpaths: true,
+        children: [
+          { label: "Usage", href: dashboardRoutes.voiceUsage, icon: "pulse" },
+          {
+            label: "Request history",
+            href: dashboardRoutes.voiceHistory,
+            icon: "history",
+          },
+          {
+            label: "Devices",
+            href: dashboardRoutes.voiceDevices,
+            icon: "devices",
+          },
+          {
+            label: "Plan & limits",
+            href: dashboardRoutes.voicePlan,
+            icon: "billing",
+          },
+        ],
       },
       {
         label: "AlgorithGuard",

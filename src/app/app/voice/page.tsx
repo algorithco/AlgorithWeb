@@ -1,22 +1,14 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRef, useState } from "react";
 import { ButtonLink } from "@/components/button-link";
-import {
-  DashboardIcon,
-  useDashboardSession,
-} from "@/components/dashboard-shell";
+import { CloudMeter } from "@/components/voice/cloud-meter";
 import { DailyUsageChart } from "@/components/voice/daily-usage-chart";
+import { DeviceList, seatsLabel } from "@/components/voice/device-list";
+import { useVoiceAccess, VoiceAlerts } from "@/components/voice/voice-access";
 import { dashboardRoutes } from "@/config/dashboard";
-import { beginAccountLogin } from "@/lib/account-auth";
-import { getAccountOverview } from "@/lib/account-center";
-import {
-  displayDate,
-  displayDateTime,
-  displayPlan,
-} from "@/lib/dashboard-format";
+import { displayDateTime, displayPlan } from "@/lib/dashboard-format";
 import {
   formatSeconds,
   getVoiceAdminUsage,
@@ -24,183 +16,47 @@ import {
   getVoiceUsage,
   listVoiceDevices,
   listVoiceRecentUsage,
-  tokenHasScope,
-  type VoiceDevice,
-  type VoiceLimit,
-  type VoiceUsage,
-  voiceErrorMessage,
 } from "@/lib/voice-api";
-import { removeComputer } from "@/lib/voice-devices";
 
 const DAILY_DAYS = 14;
 const RECENT_LIMIT = 8;
 
-const PLATFORM_LABELS: Record<VoiceDevice["type"], string> = {
-  "desktop-windows": "Windows",
-  "desktop-linux": "Linux",
-  "desktop-macos": "macOS",
-};
-
-function dateLabel(value: string | null, fallback: string) {
-  return value ? displayDateTime(value) : fallback;
-}
-
-/** "2 of 3 seats", for the heading of the device list. */
-function seatsLabel(used: number, seats: VoiceLimit) {
-  if (seats === "unlimited") return `${used} in use · unlimited seats`;
-  if (seats === null) return `${used} in use`;
-  return `${used} of ${seats} ${seats === 1 ? "seat" : "seats"}`;
-}
-
-function CloudMeter({ usage }: { usage: VoiceUsage }) {
-  const limit = usage.cloudSecondsLimit;
-  const resets = displayDate(usage.periodEnd);
-  const percent =
-    typeof limit === "number" && limit > 0
-      ? Math.min(100, (usage.cloudSecondsUsed / limit) * 100)
-      : 0;
-  const exhausted =
-    typeof limit === "number" && usage.cloudSecondsUsed >= limit;
+/** "See all →" in a panel heading, to the page with the whole story. */
+function PanelLink({ href, label }: { href: string; label: string }) {
   return (
-    <div className="voice-meter">
-      <div className="voice-meter__figures">
-        <strong>{formatSeconds(usage.cloudSecondsUsed)}</strong>
-        <span>
-          {limit === "unlimited"
-            ? "used · unlimited on your plan"
-            : limit === null
-              ? "used · cloud transcription is part of the Pro plan"
-              : `of ${formatSeconds(limit)} used`}
-        </span>
-      </div>
-      {typeof limit === "number" ? (
-        <div
-          aria-label="Cloud transcription used this month"
-          aria-valuemax={limit}
-          aria-valuemin={0}
-          aria-valuenow={Math.min(usage.cloudSecondsUsed, limit)}
-          className={`voice-meter__bar${exhausted ? " is-exhausted" : ""}`}
-          role="meter"
-        >
-          <span style={{ width: `${percent}%` }} />
-        </div>
-      ) : null}
-      <p className="voice-meter__note">
-        {exhausted
-          ? `Cloud time is used up until ${resets}. Local dictation keeps working.`
-          : `${usage.requests} cloud ${usage.requests === 1 ? "request" : "requests"} this month · resets on ${resets}.`}
-      </p>
-    </div>
-  );
-}
-
-function RemoveDeviceDialog({
-  device,
-  onClose,
-  token,
-}: {
-  device: VoiceDevice;
-  onClose: () => void;
-  token: string;
-}) {
-  const queryClient = useQueryClient();
-  const remove = useMutation({
-    // Ends the app's sign-in on that computer, then frees the seat.
-    mutationFn: () =>
-      removeComputer(
-        device,
-        token,
-        async () => (await getAccountOverview()).apps,
-      ),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["voice", "devices"] });
-      void queryClient.invalidateQueries({ queryKey: ["account", "overview"] });
-      onClose();
-    },
-  });
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  return (
-    <dialog
-      aria-describedby="voice-remove-description"
-      aria-labelledby="voice-remove-title"
-      className="dashboard-confirm-dialog"
-      // Only the explicit Cancel button dismisses this dialog.
-      onCancel={(event) => event.preventDefault()}
-      ref={(node) => {
-        dialogRef.current = node;
-        if (node && !node.open) node.showModal();
-      }}
-    >
-      <div className="dashboard-confirm-dialog__content">
-        <p className="eyebrow">Devices</p>
-        <h2 id="voice-remove-title">Remove “{device.name}”?</h2>
-        <p id="voice-remove-description">
-          AlgorithVoice on that computer is signed out within half a minute and
-          its seat is freed. To dictate there again, sign in to the app again.
-        </p>
-        {remove.error ? (
-          <p className="form-error" role="alert">
-            {voiceErrorMessage(remove.error)}
-          </p>
-        ) : null}
-        <div className="dashboard-confirm-dialog__actions">
-          <button
-            autoFocus
-            className="button button--secondary"
-            disabled={remove.isPending}
-            onClick={() => {
-              dialogRef.current?.close();
-              onClose();
-            }}
-            type="button"
-          >
-            Cancel
-          </button>
-          <button
-            className="button button--primary"
-            disabled={remove.isPending}
-            onClick={() => remove.mutate()}
-            type="button"
-          >
-            {remove.isPending ? "Signing out…" : "Sign out and remove"}
-          </button>
-        </div>
-      </div>
-    </dialog>
+    <Link className="text-link" href={href}>
+      {label}
+      <span aria-hidden="true">→</span>
+    </Link>
   );
 }
 
 export default function VoiceOverviewPage() {
-  const session = useDashboardSession();
-  const [removing, setRemoving] = useState<VoiceDevice | null>(null);
-  const [reauthError, setReauthError] = useState("");
-  const hasScope =
-    session.signedIn && tokenHasScope(session.token, "voice:access");
-  const ready = session.signedIn && hasScope;
+  const { session, ready, subject } = useVoiceAccess();
 
   const usage = useQuery({
-    queryKey: ["voice", "usage", session.profile?.subject],
+    queryKey: ["voice", "usage", subject],
     queryFn: () => getVoiceUsage(session.token),
     enabled: ready,
   });
   const devices = useQuery({
-    queryKey: ["voice", "devices", session.profile?.subject],
+    queryKey: ["voice", "devices", subject],
     queryFn: () => listVoiceDevices(session.token),
     enabled: ready,
   });
   const daily = useQuery({
-    queryKey: ["voice", "daily", session.profile?.subject, DAILY_DAYS],
+    queryKey: ["voice", "daily", subject, DAILY_DAYS],
     queryFn: () => getVoiceDailyUsage(DAILY_DAYS, session.token),
     enabled: ready,
   });
   const recent = useQuery({
-    queryKey: ["voice", "recent", session.profile?.subject],
+    queryKey: ["voice", "recent", subject],
     queryFn: () => listVoiceRecentUsage(RECENT_LIMIT, session.token),
     enabled: ready,
   });
   // Admins see a link to the admin tools; everyone else gets a quiet 403.
   const admin = useQuery({
-    queryKey: ["voice", "admin-probe", session.profile?.subject],
+    queryKey: ["voice", "admin-probe", subject],
     queryFn: () => getVoiceAdminUsage(session.token),
     enabled: ready,
     retry: false,
@@ -229,51 +85,13 @@ export default function VoiceOverviewPage() {
           <ButtonLink href={dashboardRoutes.voiceDownload}>
             Download the app
           </ButtonLink>
-          <ButtonLink href={dashboardRoutes.billing} variant="secondary">
-            Plans and billing
+          <ButtonLink href={dashboardRoutes.voicePlan} variant="secondary">
+            Plan &amp; limits
           </ButtonLink>
         </div>
       </header>
 
-      {session.signedIn && !hasScope ? (
-        <div className="dashboard-alerts">
-          <div className="dashboard-alert voice-reauth" role="status">
-            <strong>AlgorithVoice needs one more permission.</strong>
-            <span>
-              Your sign-in predates AlgorithVoice joining your Algorithco
-              account. Refreshing it takes a second and does not ask for your
-              password while your account session is active.
-            </span>
-            <button
-              className="button button--primary"
-              onClick={() => {
-                setReauthError("");
-                beginAccountLogin(dashboardRoutes.voice).catch(
-                  (failure: unknown) =>
-                    setReauthError(
-                      failure instanceof Error
-                        ? failure.message
-                        : "Sign-in could not start.",
-                    ),
-                );
-              }}
-              type="button"
-            >
-              Refresh sign-in
-            </button>
-            {reauthError ? <p className="form-error">{reauthError}</p> : null}
-          </div>
-        </div>
-      ) : null}
-
-      {error ? (
-        <div className="dashboard-alerts">
-          <p className="dashboard-alert" role="alert">
-            <strong>AlgorithVoice data is unavailable.</strong>
-            <span>{voiceErrorMessage(error)}</span>
-          </p>
-        </div>
-      ) : null}
+      <VoiceAlerts error={error} returnTo={dashboardRoutes.voice} />
 
       <div className="dashboard-detail-grid">
         <section
@@ -325,29 +143,7 @@ export default function VoiceOverviewPage() {
             ) : null}
           </div>
           {devices.data?.devices.length ? (
-            <ul className="voice-devices">
-              {devices.data.devices.map((device) => (
-                <li key={device.id}>
-                  <span className="voice-devices__mark" aria-hidden="true">
-                    <DashboardIcon name="mic" />
-                  </span>
-                  <span className="voice-devices__body">
-                    <strong>{device.name}</strong>
-                    <small>
-                      {PLATFORM_LABELS[device.type]} · last used{" "}
-                      {dateLabel(device.lastSeenAt, "never")}
-                    </small>
-                  </span>
-                  <button
-                    className="button button--secondary voice-devices__remove"
-                    onClick={() => setRemoving(device)}
-                    type="button"
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <DeviceList devices={devices.data.devices} token={session.token} />
           ) : (
             <p className="muted">
               {devices.isPending && ready
@@ -361,6 +157,10 @@ export default function VoiceOverviewPage() {
               use cloud transcription. Local dictation is unaffected.
             </p>
           ) : null}
+          <PanelLink
+            href={dashboardRoutes.voiceDevices}
+            label="Manage devices"
+          />
         </section>
       </div>
 
@@ -374,6 +174,7 @@ export default function VoiceOverviewPage() {
               <p className="eyebrow">Last {DAILY_DAYS} days</p>
               <h2 id="voice-daily-title">Daily cloud time</h2>
             </div>
+            <PanelLink href={dashboardRoutes.voiceUsage} label="All usage" />
           </div>
           {daily.data ? (
             <DailyUsageChart daily={daily.data.daily} />
@@ -395,6 +196,10 @@ export default function VoiceOverviewPage() {
               <p className="eyebrow">Activity</p>
               <h2 id="voice-recent-title">Recent requests</h2>
             </div>
+            <PanelLink
+              href={dashboardRoutes.voiceHistory}
+              label="All requests"
+            />
           </div>
           {recentRequests.length ? (
             <ul className="voice-recent">
@@ -402,7 +207,7 @@ export default function VoiceOverviewPage() {
                 <li key={item.id}>
                   <span>
                     <strong>{formatSeconds(item.seconds)}</strong>
-                    <small>{dateLabel(item.recordedAt, "")}</small>
+                    <small>{displayDateTime(item.recordedAt)}</small>
                   </span>
                   <span>
                     {item.model ? <code>{item.model}</code> : null}
@@ -437,14 +242,6 @@ export default function VoiceOverviewPage() {
             Open admin
           </Link>
         </section>
-      ) : null}
-
-      {removing ? (
-        <RemoveDeviceDialog
-          device={removing}
-          onClose={() => setRemoving(null)}
-          token={session.token}
-        />
       ) : null}
     </div>
   );

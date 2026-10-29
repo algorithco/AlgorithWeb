@@ -93,7 +93,7 @@ All colors, type, radii, spacing, and layout tokens live in `src/app/tokens.css`
 - `/brand` — the logos to download, the colors and the rules for using them. The files in `public/brand/` are generated from the source artwork, never edited by hand, and `src/content/brand.test.ts` holds the colors to `src/app/tokens.css`.
 - `/signin` and `/auth/callback` — central Account OIDC flow.
 - `/app` — unified account, subscription, and product dashboard.
-- `/app/voice`, `/app/voice/admin/*` — authenticated Voice dashboard and operator pages.
+- `/app/voice`, `/app/voice/{usage,history,devices,plan}`, `/app/voice/admin/*` — authenticated Voice dashboard pages and operator pages.
 - `/app/guard/*` — authenticated Guard console.
 - `/api/voice/*`, `/api/guard/*` — reverse proxies to the Voice and Guard backends; not part of the static export.
 - `/api/releases/voice` — the gateway's copy of the latest public AlgorithVoice release, kept for five minutes. `/voice/download` is built with the release of build time and reads this one in the browser, so a new version appears without a rebuild.

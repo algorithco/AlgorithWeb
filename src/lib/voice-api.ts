@@ -78,6 +78,57 @@ export type VoiceRecentUsage = {
   }>;
 };
 
+/** One metered cloud request. Only numbers: transcripts never leave the app. */
+export type VoiceUsageRecord = {
+  id: string;
+  seconds: number;
+  model: string | null;
+  latencyMs: number | null;
+  recordedAt: string;
+};
+
+export type VoiceUsageRecords = {
+  records: VoiceUsageRecord[];
+  /** Pass back as `cursor` for the next page; null on the last one. */
+  nextCursor: string | null;
+};
+
+export type VoiceRecordFilters = {
+  /** Inclusive UTC days, `YYYY-MM-DD`. */
+  from?: string;
+  to?: string;
+  model?: string;
+};
+
+export type VoiceMonthlyUsage = {
+  /** One entry per UTC month (`YYYY-MM`), oldest first, empty months too. */
+  months: Array<{ month: string; seconds: number; requests: number }>;
+};
+
+export type VoiceModelUsage = {
+  days: number;
+  models: Array<{
+    model: string;
+    requests: number;
+    seconds: number;
+    avgLatencyMs: number | null;
+  }>;
+};
+
+export type VoiceFailedRequest = {
+  id: string;
+  model: string;
+  /** An HTTP status from the provider, or `rate_limited`, `provider_error`, `error`. */
+  code: string;
+  latencyMs: number;
+  recordedAt: string;
+};
+
+export type VoiceFailedRequests = {
+  errors: VoiceFailedRequest[];
+  nextCursor: string | null;
+};
+
 export type VoiceAdminOverview = {
   period: { from: string; to: string };
   totalRequests: number;
@@ -145,6 +196,67 @@ export function listVoiceRecentUsage(limit: number, token: string) {
   return voiceFetch<VoiceRecentUsage>(`/usage/recent${buildQuery({ limit })}`, {
     token,
   });
+}
+
+export function listVoiceUsageRecords(
+  params: VoiceRecordFilters & { cursor?: string; limit?: number },
+  token: string,
+) {
+  return voiceFetch<VoiceUsageRecords>(`/usage/records${buildQuery(params)}`, {
+    token,
+  });
+}
+
+export function getVoiceMonthlyUsage(months: number, token: string) {
+  return voiceFetch<VoiceMonthlyUsage>(
+    `/usage/monthly${buildQuery({ months })}`,
+    { token },
+  );
+}
+
+export function getVoiceModelUsage(days: number, token: string) {
+  return voiceFetch<VoiceModelUsage>(`/usage/models${buildQuery({ days })}`, {
+    token,
+  });
+}
+
+export function listVoiceFailedRequests(
+  params: { cursor?: string; limit?: number },
+  token: string,
+) {
+  return voiceFetch<VoiceFailedRequests>(`/usage/errors${buildQuery(params)}`, {
+    token,
+  });
+}
+
+/**
+ * The caller's cloud requests as one CSV or JSON file. The backend answers
+ * with a download, so this reads the raw body instead of JSON.
+ */
+export async function fetchVoiceUsageExport(
+  format: "csv" | "json",
+  filters: VoiceRecordFilters,
+  token: string,
+): Promise<Blob> {
+  let response: Response;
+  try {
+    response = await fetch(
+      `${API_BASE()}/usage/export${buildQuery({ format, ...filters })}`,
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+  } catch {
+    throw new VoiceApiError(0, "Backend is unreachable.");
+  }
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as {
+      error?: string;
+    };
+    throw new VoiceApiError(
+      response.status,
+      body.error ?? `HTTP ${response.status}`,
+    );
+  }
+  return response.blob();
 }
 
 export function listVoiceDevices(token: string) {
@@ -244,6 +356,12 @@ export function voiceErrorMessage(error: unknown): string | undefined {
       return "You cannot block your own account.";
     case "model_not_found":
       return "That model is no longer configured. Reload the page.";
+    case "invalid_date":
+      return "Pick the dates again: one of them is not a valid day.";
+    case "invalid_range":
+      return "The start date is after the end date.";
+    case "invalid_cursor":
+      return "The list changed. Reload the page.";
     default:
       return error.status === 0
         ? "The AlgorithVoice service is unreachable."
