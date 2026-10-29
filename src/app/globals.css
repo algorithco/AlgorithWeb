@@ -5770,6 +5770,433 @@ kbd {
   }
 }
 
+/* Home: how it works. A line drawing of the visitor's computer beside a
+   numbered list of its parts (components/home/machine-drawing.tsx); its
+   motion is in motion.css. */
+.how-it-works {
+  display: grid;
+  grid-template-areas: "head" "art" "parts";
+  gap: var(--space-7) 5rem;
+}
+.how-it-works__head {
+  grid-area: head;
+}
+.how-it-works__title {
+  max-width: 14ch;
+  margin: 1rem 0 0;
+  font-size: clamp(2rem, 4.4vw, 3.8rem);
+  font-weight: 540;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  text-wrap: balance;
+}
+.how-it-works__lead {
+  max-width: 30rem;
+  margin: 1.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+}
+.how-it-works__art {
+  grid-area: art;
+  min-width: 0;
+}
+.how-it-works__parts {
+  grid-area: parts;
+}
+@media (min-width: 64rem) {
+  .how-it-works {
+    grid-template-areas: "head art" "parts art";
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-rows: auto 1fr;
+    align-items: start;
+  }
+  .how-it-works__art {
+    align-self: center;
+  }
+}
+.machine {
+  position: relative;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+.machine__paper {
+  --grid: color-mix(in srgb, var(--color-text) 6%, transparent);
+  position: absolute;
+  inset: -8% -6%;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-position: center;
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(closest-side, #000 25%, transparent);
+  mask-image: radial-gradient(closest-side, #000 25%, transparent);
+}
+/* --k is viewBox units per CSS pixel (set from script). Multiplied into
+   stroke widths and font sizes, it keeps them the same on screen at any
+   width. */
+.machine__svg {
+  --k: 1;
+  --line: color-mix(in srgb, var(--color-text) 82%, transparent);
+  --soft: var(--color-border-strong);
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.machine__line {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: calc(1.5px * var(--k));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.machine__soft {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: calc(1px * var(--k));
+  stroke-linecap: round;
+}
+.machine__fill-lid {
+  fill: color-mix(in srgb, var(--color-text) 3%, var(--color-bg));
+}
+.machine__fill-screen {
+  fill: var(--color-bg);
+}
+.machine__fill-base {
+  fill: color-mix(in srgb, var(--color-text) 6%, var(--color-bg));
+}
+.machine__camera {
+  fill: var(--line);
+}
+.machine__disk {
+  fill: var(--soft);
+}
+.machine__disk.is-busy {
+  fill: var(--color-guard);
+  filter: drop-shadow(0 0 4px var(--color-guard));
+}
+.machine__doc-line {
+  fill: var(--color-border);
+}
+.machine__typed {
+  fill: var(--color-text);
+  font-size: max(15px, calc(10.5px * var(--k)));
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.machine__caret {
+  fill: var(--color-guard);
+  font-weight: 300;
+}
+.machine__pill > rect {
+  fill: var(--color-surface);
+  stroke: var(--soft);
+  stroke-width: calc(1px * var(--k));
+}
+.machine__rec {
+  fill: var(--color-guard);
+}
+.machine__wave rect,
+.machine__dots circle {
+  fill: var(--color-text);
+}
+.machine__key-base {
+  fill: var(--color-bg);
+  stroke: var(--line);
+  stroke-width: calc(1.5px * var(--k));
+}
+.machine__key-top {
+  fill: color-mix(in srgb, var(--color-text) 5%, var(--color-bg));
+  stroke: var(--soft);
+  stroke-width: calc(1px * var(--k));
+}
+.machine__key text {
+  fill: var(--color-text);
+  font-size: max(13px, calc(9.5px * var(--k)));
+  font-weight: 600;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.machine__keys.is-down .machine__key-top {
+  fill: var(--color-guard);
+  stroke: var(--color-guard);
+}
+.machine__keys.is-down .machine__key text {
+  fill: var(--color-on-guard);
+}
+.machine__hint {
+  fill: var(--color-subtle);
+  font-size: max(12px, calc(9px * var(--k)));
+  letter-spacing: 0.02em;
+  text-anchor: middle;
+}
+.machine__wire {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: calc(1.5px * var(--k));
+  stroke-linecap: round;
+}
+.machine__wire--far,
+.machine__cloud {
+  stroke-dasharray: calc(3px * var(--k)) calc(5px * var(--k));
+}
+.machine__terminal {
+  fill: var(--color-bg);
+  stroke: var(--line);
+  stroke-width: calc(1.5px * var(--k));
+}
+/* The switch: a lever that stays open until Cloud is turned on. */
+.machine__lever {
+  stroke: var(--line);
+  stroke-width: calc(2px * var(--k));
+  stroke-linecap: round;
+  transform: rotate(-30deg);
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+}
+.machine__cloud {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: calc(1.5px * var(--k));
+  stroke-linejoin: round;
+}
+.machine__cloud.is-busy {
+  fill: color-mix(in srgb, var(--color-guard) 28%, transparent);
+  stroke: var(--color-guard);
+}
+.machine__state {
+  fill: var(--color-subtle);
+  font-size: max(11px, calc(8.5px * var(--k)));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-anchor: middle;
+}
+.machine__label {
+  fill: var(--color-muted);
+  font-size: max(12px, calc(9px * var(--k)));
+  text-anchor: middle;
+}
+.machine__svg.is-cloud .machine__wire,
+.machine__svg.is-cloud .machine__terminal {
+  stroke: var(--color-guard);
+}
+.machine__svg.is-cloud .machine__wire--far,
+.machine__svg.is-cloud .machine__cloud {
+  stroke-dasharray: none;
+}
+.machine__svg.is-cloud .machine__lever {
+  stroke: var(--color-guard);
+  transform: rotate(0deg);
+}
+.machine__svg.is-cloud .machine__cloud {
+  stroke: var(--line);
+}
+.machine__svg.is-cloud .machine__state {
+  fill: var(--color-guard-ink);
+}
+.machine__packet {
+  fill: var(--color-guard);
+  r: calc(4.5px * var(--k));
+  opacity: 0;
+}
+.machine__packet.is-moving {
+  opacity: 1;
+}
+.machine__hit {
+  fill: transparent;
+  cursor: pointer;
+}
+.machine__leader {
+  fill: none;
+  stroke: var(--soft);
+  stroke-width: calc(1px * var(--k));
+  stroke-dasharray: calc(2px * var(--k)) calc(3px * var(--k));
+}
+.machine__dot,
+.machine__ring {
+  r: max(12px, calc(10px * var(--k)));
+}
+.machine__dot {
+  fill: var(--color-bg);
+  stroke: var(--line);
+  stroke-width: calc(1.2px * var(--k));
+}
+.machine__ring {
+  fill: none;
+  stroke: var(--color-guard);
+  stroke-width: calc(1.5px * var(--k));
+  opacity: 0;
+}
+.machine__callout text {
+  fill: var(--color-text);
+  font-size: max(11px, calc(9px * var(--k)));
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.machine__callout.is-on .machine__dot {
+  fill: var(--color-guard);
+  stroke: var(--color-guard);
+}
+.machine__callout.is-on text {
+  fill: var(--color-on-guard);
+}
+/* Pointing at a part, in the list or in the drawing, lights it. */
+.machine__line.is-lit,
+.machine__wire.is-lit,
+.machine__lever.is-lit,
+.machine__cloud.is-lit {
+  stroke: var(--color-guard);
+}
+.machine__camera.is-lit,
+.machine__disk.is-lit {
+  fill: var(--color-guard);
+}
+.machine__typed.is-lit {
+  fill: var(--color-guard-ink);
+}
+.machine__status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 1.25rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  font-weight: 550;
+  text-align: center;
+}
+.machine__status > span {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--color-subtle);
+}
+.machine__status.is-live {
+  color: var(--color-text);
+}
+.machine__status.is-live > span {
+  background: var(--color-guard);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-guard) 25%, transparent);
+}
+.machine__pause {
+  margin-top: 1.25rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--color-subtle);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.machine__pause:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text);
+}
+.machine-parts {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+.machine-parts__item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.machine-parts__item::before {
+  content: "";
+  position: absolute;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  left: -1rem;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-guard);
+  transform: scaleY(0);
+}
+.machine-parts__item.is-on::before {
+  transform: scaleY(1);
+}
+.machine-parts__no {
+  padding-top: 0.25rem;
+  color: var(--color-subtle);
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.machine-parts h3 {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.machine-parts p {
+  max-width: 30rem;
+  margin: 0.3rem 0 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.machine-parts__item.is-on .machine-parts__no {
+  color: var(--color-guard-ink);
+}
+.machine-parts__item.is-on h3 {
+  color: var(--color-text);
+}
+.machine-parts__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  font-weight: 550;
+  cursor: pointer;
+}
+.machine-toggle {
+  position: relative;
+  flex: none;
+  width: 3.2rem;
+  height: 1.8rem;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  cursor: pointer;
+}
+.machine-toggle::after {
+  content: "";
+  position: absolute;
+  top: 0.18rem;
+  left: 0.2rem;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  background: var(--color-text);
+}
+.machine-toggle[aria-checked="true"] {
+  border-color: var(--color-guard);
+  background: var(--color-guard);
+}
+.machine-toggle[aria-checked="true"]::after {
+  background: var(--color-on-guard);
+  transform: translateX(1.38rem);
+}
+.machine-toggle:focus-visible,
+.machine__pause:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
 /* Changelog (/changelog and /changelog/<product>): the product filter beside
    a rail of releases, newest first. */
 .changelog {

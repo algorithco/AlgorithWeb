@@ -649,7 +649,222 @@ dialog.social-completion[open]::backdrop {
 }
 
 /* ---------------------------------------------------------------------------
-   9. Reduced motion — keep every state change, drop the travel.
+   9. Home: the drawing of your machine
+   The drawing draws itself once it is in view (.is-in); a quiet loop in
+   components/home/machine-drawing.tsx then lights one numbered part at a
+   time.
+   ------------------------------------------------------------------------- */
+.machine__paper {
+  opacity: 0;
+  transition: opacity 1400ms ease;
+}
+.machine.is-in .machine__paper {
+  opacity: 1;
+}
+.machine__fade {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out-expo) var(--dl, 0s);
+}
+.machine.is-in .machine__fade {
+  opacity: 1;
+}
+/* With pathLength="1", a dash as long as the path and offset by all of it
+   draws the line in. */
+.machine__draw {
+  opacity: 0;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition:
+    stroke-dashoffset 1400ms var(--ease-out-expo) var(--dl, 0s),
+    opacity 200ms ease var(--dl, 0s),
+    stroke var(--dur-base) ease;
+}
+.machine.is-in .machine__draw {
+  opacity: 1;
+  stroke-dashoffset: 0;
+}
+.machine__doc-line {
+  transform: scaleX(0);
+  transform-box: fill-box;
+  transform-origin: left center;
+  transition: transform 1000ms var(--ease-out-expo) var(--dl, 0s);
+}
+.machine.is-in .machine__doc-line {
+  transform: none;
+}
+.machine__keys {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 900ms var(--ease-out-expo) var(--dl, 0s),
+    transform 900ms var(--ease-out-expo) var(--dl, 0s);
+}
+.machine.is-in .machine__keys {
+  opacity: 1;
+  transform: none;
+}
+.machine__callout {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-out-expo) var(--dl, 0s);
+}
+.machine.is-in .machine__callout {
+  opacity: 1;
+}
+/* The switch opens as the drawing appears: Cloud is off by default. */
+.machine:not(.is-in) .machine__lever {
+  transform: rotate(0deg);
+}
+.machine__lever {
+  transition:
+    opacity 900ms var(--ease-out-expo) var(--dl, 0s),
+    transform 800ms var(--ease-spring) calc(var(--dl, 0s) + 350ms),
+    stroke var(--dur-base) ease;
+}
+.machine__cloud,
+.machine__terminal,
+.machine__wire--far,
+.machine__state,
+.machine__camera,
+.machine__disk {
+  transition:
+    opacity 900ms var(--ease-out-expo) var(--dl, 0s),
+    stroke var(--dur-slow) ease,
+    fill var(--dur-slow) ease,
+    filter var(--dur-base) ease;
+}
+/* After the entrance, state changes no longer wait for its delays. */
+.machine__svg.is-settled,
+.machine__svg.is-settled * {
+  transition-delay: 0s !important;
+}
+.machine__key {
+  transition: transform 140ms ease;
+}
+.machine__key-top,
+.machine__key text {
+  transition:
+    fill 140ms ease,
+    stroke 140ms ease;
+}
+.machine__keys.is-down .machine__key {
+  transform: translateY(3px);
+}
+.machine__pill {
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 350ms ease,
+    transform var(--dur-slow) var(--ease-spring);
+}
+.machine__pill.is-listen,
+.machine__pill.is-think {
+  opacity: 1;
+  transform: none;
+}
+.machine__wave,
+.machine__dots {
+  transition: opacity 200ms ease;
+}
+.machine__dots,
+.machine__pill.is-think .machine__wave {
+  opacity: 0;
+}
+.machine__pill.is-think .machine__dots {
+  opacity: 1;
+}
+.machine__wave rect {
+  transform: scaleY(0.3);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.machine__pill.is-listen .machine__wave rect {
+  animation: machine-wave 500ms ease-in-out infinite alternate;
+  animation-delay: var(--d);
+}
+.machine__dots circle {
+  animation: machine-dots 1s ease-in-out infinite;
+  animation-delay: var(--d);
+}
+.machine__caret {
+  animation: machine-caret 1s steps(1) infinite;
+}
+.machine__packet {
+  transition: opacity 200ms ease;
+}
+.machine__dot,
+.machine__callout text {
+  transition:
+    fill 350ms ease,
+    stroke 350ms ease;
+}
+.machine__ring {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.machine__callout.is-on .machine__ring {
+  animation: machine-ring 1.6s ease-out infinite;
+}
+.machine__svg.is-paused,
+.machine__svg.is-paused * {
+  animation-play-state: paused !important;
+}
+.machine__status > span {
+  transition:
+    background var(--dur-base) ease,
+    box-shadow var(--dur-base) ease;
+}
+.machine-parts__item::before {
+  transition: transform var(--dur-slow) var(--ease-out-expo);
+}
+.machine-parts__no,
+.machine-parts h3 {
+  transition: color var(--dur-base) ease;
+}
+.machine-toggle {
+  transition:
+    background var(--dur-base) ease,
+    border-color var(--dur-base) ease;
+}
+.machine-toggle::after {
+  transition:
+    transform var(--dur-slow) var(--ease-spring),
+    background var(--dur-base) ease;
+}
+@keyframes machine-wave {
+  from {
+    transform: scaleY(0.25);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes machine-dots {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes machine-caret {
+  50% {
+    fill-opacity: 0;
+  }
+}
+@keyframes machine-ring {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   10. Reduced motion — keep every state change, drop the travel.
    ------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *,

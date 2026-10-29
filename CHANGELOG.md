@@ -18,6 +18,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-30 — How it works, drawn
+
+### Added
+- **The home page shows how it works**: a line drawing of your computer marks where your voice, its text and your logs stay, and a switch you can flip shows the one moment anything goes to the cloud.
+
 ## 2026-10-29 — AlgorithVoice pages in the dashboard
 
 ### Added
