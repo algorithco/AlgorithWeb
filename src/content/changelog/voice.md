@@ -20,9 +20,15 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.31 — 2026-10-30
+
 ### Added
+- **Bring your own OpenRouter key:** a new "Own key" transcription mode sends your recording straight from your computer to OpenRouter with your own API key, on any plan, and Algorithco charges nothing for it. Microsoft's MAI-Transcribe 2 is the default model, and you can pick another.
+- A new OpenRouter page in the app holds everything about your own key, in sections like Settings: the key itself, what is left on it and what it has spent, the model, every request you made with it (how many, the minutes of audio, the words, the cost and the wait), account sync and privacy.
+- After you add your key, the app asks whether to keep that usage in your Algorithco account so it outlasts the app; if you say no, it stays on your computer only, and your key is never sent to us either way.
 - Settings has an About page with the app's version, its license, and links to the release notes, privacy policy and terms.
 - **After an update, the app shows what is new** in a window of its own, once per update: the main changes first, then the smaller ones, and every version you skipped.
+- **Sado, a second model for Uzbek**, is in the model list: it makes fewer mistakes than FastConformer Uzbek and is a little slower; custom words do not apply to it yet.
 
 ### Fixed
 - The pill no longer shows a thin white line along its left side after a dictation.
