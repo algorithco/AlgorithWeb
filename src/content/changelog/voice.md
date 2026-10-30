@@ -20,6 +20,11 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.32 — 2026-10-30
+
+### Fixed
+- The pill no longer says to add an OpenRouter key when you have just added one; before, it needed the app to be restarted.
+
 ## 0.5.31 — 2026-10-30
 
 ### Added
