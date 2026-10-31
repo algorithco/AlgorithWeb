@@ -29,6 +29,7 @@ with the next deploy.
 - The header, menu, footer and home page now fit and read well on phones.
 - The documentation is easy to read and navigate on phones: a bar under the header shows where you are and opens the search, the sections of the page and every page, and tables, code and links fit the screen.
 - The dashboard and sign-in pages fit and work well on phones: tables become easy-to-read rows, charts fit the screen, and every button is easy to tap.
+- The product, MCP, download, benchmark, changelog, brand and legal pages now read well on phones: nothing runs off the screen, the MCP drawing stands upright with readable labels, and long tables become short entries.
 
 ## 2026-10-30 — How it works, what we believe, and a lighter footer
 

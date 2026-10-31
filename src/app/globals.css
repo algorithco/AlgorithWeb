@@ -561,6 +561,18 @@ summary {
 .text-link span {
   margin-left: 0.4rem;
 }
+/* A standalone link is one short line; a finger gets a 44px target around
+   it without moving its underline. */
+@media (pointer: coarse) {
+  .text-link {
+    position: relative;
+  }
+  .text-link::before {
+    content: "";
+    position: absolute;
+    inset: -0.7rem -0.25rem;
+  }
+}
 .principles-grid {
   display: grid;
   border-top: 1px solid var(--color-border);
@@ -682,6 +694,29 @@ summary {
 }
 .detail-row:first-child {
   padding-top: 0;
+}
+@media (max-width: 47.99rem) {
+  /* Stacked, the heading sits closer to what it introduces. */
+  .detail-row {
+    gap: 2rem;
+  }
+  .product-hero h1 {
+    margin: clamp(3rem, 14vw, 5rem) 0 2.5rem;
+  }
+  /* The path and the status badge each keep one line; the badge drops
+     below when both do not fit. */
+  .product-hero__meta {
+    flex-wrap: wrap;
+    row-gap: 0.6rem;
+  }
+  .product-hero__meta > * {
+    white-space: nowrap;
+  }
+}
+/* "Read the <product> documentation": the product name is a span, not the
+   arrow, so it takes no arrow gap. */
+.text-link .keep-case {
+  margin-left: 0;
 }
 .detail-row h2,
 .preview-note h2 {
@@ -976,6 +1011,12 @@ summary {
   color: var(--color-muted);
   font-size: 0.92rem;
 }
+/* On a phone the "In practice" note takes the full width under the number. */
+@media (max-width: 29.99rem) {
+  .about-principles__practice {
+    grid-column: 1 / -1;
+  }
+}
 .about-principles__practice strong {
   display: block;
   margin-bottom: 0.4rem;
@@ -1025,8 +1066,9 @@ summary {
 }
 .legal-doc__meta {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
+  /* The date takes what it needs, so the email address keeps one line. */
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 1rem 2rem;
   margin: 0;
   padding: 1rem 0;
   border-top: 1px solid var(--color-border-strong);
@@ -1050,11 +1092,69 @@ summary {
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
-.legal-toc {
-  display: none;
-}
 .legal-toc > p {
   margin-bottom: 0.75rem;
+}
+/* Above the text (below 64rem) the contents fold behind one button. */
+.legal-toc__toggle {
+  display: none;
+}
+@media (max-width: 63.99rem) {
+  .legal-toc > p {
+    display: none;
+  }
+  .legal-toc__toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+  }
+  .legal-toc__count {
+    margin-left: auto;
+    color: var(--color-subtle);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+  .legal-toc__chevron {
+    flex: none;
+    width: 0.45rem;
+    height: 0.45rem;
+    margin: 0 0.15rem 0.2rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg);
+    transition: transform var(--dur-base) var(--ease-out-expo);
+  }
+  .legal-toc[data-open] .legal-toc__chevron {
+    margin-bottom: -0.2rem;
+    transform: rotate(-135deg);
+  }
+  .legal-toc ol {
+    display: none;
+    margin-top: 0.5rem;
+    padding: 0.4rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+  .legal-toc[data-open] ol {
+    display: grid;
+  }
+  .legal-toc a {
+    align-items: center;
+    min-height: 2.75rem;
+    padding-block: 0.5rem;
+  }
 }
 .legal-toc ol {
   display: grid;
@@ -1264,6 +1364,54 @@ summary {
 .legal-table code {
   white-space: nowrap;
   overflow-wrap: normal;
+}
+/* On a phone each row is a short entry instead of a table to scroll
+   sideways: the name, what it is for, then the third column with its
+   heading (the table sets it as --third). */
+@media (max-width: 39.99rem) {
+  .legal-table {
+    overflow: visible;
+  }
+  .legal-table table {
+    min-width: 0;
+  }
+  .legal-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .legal-table tbody,
+  .legal-table tr,
+  .legal-table td {
+    display: block;
+  }
+  .legal-table tr {
+    padding: 0.9rem 1rem;
+  }
+  .legal-table tr + tr {
+    border-top: 1px solid var(--color-border);
+  }
+  .legal-table td {
+    padding: 0;
+    border-top: 0;
+  }
+  .legal-table td + td {
+    margin-top: 0.3rem;
+  }
+  .legal-table td:nth-child(3) {
+    color: var(--color-subtle);
+    font-size: 0.8rem;
+  }
+  .legal-table td:nth-child(3)::before {
+    content: var(--third) ": ";
+  }
+  .legal-table code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 .not-found {
   min-height: 65svh;
@@ -5883,8 +6031,9 @@ kbd {
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--color-border);
 }
-.bench-row__model,
-.bench-measure {
+/* Stacked (below 62rem): the model on its own line, then two measures side
+   by side, then memory and download, so a row stays short on a phone. */
+.bench-row__model {
   grid-column: 1 / -1;
 }
 .bench-row__model {
@@ -5997,6 +6146,14 @@ kbd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+/* A tablet has room for all four figures on one line under the model. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  .bench-row {
+    grid-template-columns:
+      minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.6fr)
+      minmax(0, 0.6fr);
+  }
+}
 @media (min-width: 62rem) {
   .bench-table__head,
   .bench-row {
@@ -6023,8 +6180,7 @@ kbd {
   .bench-row {
     padding: 1.1rem 0;
   }
-  .bench-row__model,
-  .bench-measure {
+  .bench-row__model {
     grid-column: auto;
   }
   .bench-measure__label,
@@ -6710,6 +6866,13 @@ kbd {
   display: grid;
   gap: var(--space-6);
 }
+/* A product changelog is headed by one long word ("AlgorithGuard."); on the
+   narrowest phones it shrinks to fit rather than run off the screen. */
+@media (max-width: 30rem) {
+  .page-hero:has(+ .changelog) h1 {
+    font-size: min(3.2rem, 13.5vw);
+  }
+}
 .changelog__aside {
   min-width: 0;
 }
@@ -6747,6 +6910,11 @@ kbd {
     color var(--dur-fast) ease,
     background-color var(--dur-fast) ease,
     border-color var(--dur-fast) ease;
+}
+@media (pointer: coarse) {
+  .changelog-filter a {
+    min-height: 2.75rem;
+  }
 }
 .changelog-filter a > span:not(.changelog-mark) {
   flex: 1;
@@ -6868,11 +7036,17 @@ kbd {
   letter-spacing: -0.01em;
   text-transform: none;
 }
-/* On a phone the date takes its own line, so the product and "Latest" share
-   the first one instead of the badge wrapping alone. */
+/* On a phone the product takes the first line and the date and "Latest"
+   share the second, so a long product name never leaves the badge wrapping
+   alone. */
+.changelog-entry__stream {
+  flex-basis: 100%;
+}
 .changelog-entry__meta time {
   order: 1;
-  flex-basis: 100%;
+}
+.changelog-entry__latest {
+  order: 2;
 }
 .changelog-entry__latest {
   display: inline-flex;
@@ -7031,9 +7205,12 @@ kbd {
   .changelog-entry {
     padding-left: 2.5rem;
   }
-  .changelog-entry__meta time {
-    order: 0;
+  .changelog-entry__stream {
     flex-basis: auto;
+  }
+  .changelog-entry__meta time,
+  .changelog-entry__latest {
+    order: 0;
   }
   .changelog-group {
     grid-template-columns: 6.5rem minmax(0, 1fr);
@@ -7126,6 +7303,15 @@ kbd {
 }
 .brand-kit__nav a:hover {
   color: var(--color-text);
+}
+/* A finger gets 44px targets for the section links and the file buttons. */
+@media (pointer: coarse) {
+  .brand-kit__nav a {
+    padding-block: 0.7rem;
+  }
+  .brand-file {
+    min-height: 2.75rem;
+  }
 }
 .brand-lead {
   max-width: 44rem;
@@ -7406,6 +7592,12 @@ kbd {
   border-bottom: 1px solid var(--color-border);
   background: var(--swatch);
   color: var(--swatch-text);
+}
+@media (max-width: 39.99rem) {
+  /* One swatch per row: a shorter chip keeps the four colors close. */
+  .brand-swatch__chip {
+    min-height: 6rem;
+  }
 }
 .brand-swatch__chip h3 {
   margin: 0;
@@ -8220,6 +8412,7 @@ kbd {
    and adds its own parts below; its motion is in motion.css. */
 .mcp-hero__foot {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
   justify-items: end;
 }
@@ -8267,6 +8460,17 @@ kbd {
 .mcp-copy:hover {
   border-color: var(--color-border-strong);
 }
+/* A finger gets a 44px target without making the pill taller. */
+@media (pointer: coarse) {
+  .mcp-copy {
+    position: relative;
+  }
+  .mcp-copy::after {
+    content: "";
+    position: absolute;
+    inset: -0.5rem -0.25rem;
+  }
+}
 .mcp-copy[data-copied] {
   border-color: var(--color-guard);
   background: var(--color-guard);
@@ -8278,6 +8482,14 @@ kbd {
   }
   .mcp-address__label {
     display: none;
+  }
+  /* The whole address stays readable down to a 320px phone. */
+  .mcp-address {
+    gap: 0.5rem;
+    padding-left: 0.85rem;
+  }
+  .mcp-address__url {
+    font-size: clamp(0.7rem, 3.25vw, 0.92rem);
   }
 }
 
@@ -8307,6 +8519,25 @@ kbd {
 .mcp-intro__art {
   grid-area: art;
   min-width: 0;
+  /* The paper grid reaches past the drawing; it must not widen a phone page. */
+  overflow-x: clip;
+}
+/* On a phone the drawing stands tall (mcp-drawing.tsx); it stays narrow
+   enough that its labels keep the size of the text around them. */
+.machine.is-tall {
+  max-width: 26rem;
+}
+@media (max-width: 40rem) {
+  .mcp-intro .machine__status {
+    align-items: flex-start;
+    justify-content: flex-start;
+    max-width: 26rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+  .mcp-intro .machine__status > span {
+    margin-top: 0.42em;
+  }
 }
 .mcp-intro__parts {
   grid-area: parts;
@@ -8627,6 +8858,18 @@ kbd {
 .mcp-connect__tab[aria-selected="true"] {
   color: var(--color-text);
 }
+/* On a phone the four tabs share the row instead of scrolling out of it. */
+@media (max-width: 40rem) {
+  .mcp-connect__tabs {
+    gap: 0;
+  }
+  .mcp-connect__tab {
+    flex: 1 0 auto;
+    min-height: 2.75rem;
+    padding-inline: clamp(0.3rem, 2vw, 0.9rem);
+    font-size: clamp(0.84rem, 3.6vw, 0.95rem);
+  }
+}
 .mcp-connect__bar {
   position: absolute;
   bottom: 0;
@@ -8694,6 +8937,16 @@ kbd {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.86rem;
   line-height: 1.65;
+}
+/* On a phone a command wraps instead of hiding past the edge; Copy still
+   copies it as one line. */
+@media (max-width: 40rem) {
+  .mcp-code pre {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 }
 .mcp-connect__address {
   margin-top: var(--space-5);

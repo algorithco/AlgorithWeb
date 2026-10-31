@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { type LegalClause, LegalDocument } from "@/components/legal-document";
 import { legal } from "@/content/legal";
 
@@ -212,7 +213,7 @@ const clauses: readonly LegalClause[] = [
           cookies are secure, HTTP-only and limited to our own site.
         </p>
         <div className="legal-table">
-          <table>
+          <table style={{ "--third": '"Lifetime"' } as CSSProperties}>
             <thead>
               <tr>
                 <th scope="col">Name</th>
@@ -289,7 +290,7 @@ const clauses: readonly LegalClause[] = [
           only what its job requires.
         </p>
         <div className="legal-table">
-          <table>
+          <table style={{ "--third": '"Whose data"' } as CSSProperties}>
             <thead>
               <tr>
                 <th scope="col">Provider</th>
