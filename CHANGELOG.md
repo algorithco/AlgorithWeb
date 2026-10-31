@@ -25,6 +25,9 @@ with the next deploy.
 - The home page and the AlgorithVoice and AlgorithGuard pages point to it, and the header has an MCP link.
 - The account documentation has a guide to connecting an AI assistant and signing it out.
 
+### Fixed
+- The header, menu, footer and home page now fit and read well on phones.
+
 ## 2026-10-30 — How it works, what we believe, and a lighter footer
 
 ### Added
