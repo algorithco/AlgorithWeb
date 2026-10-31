@@ -2331,6 +2331,8 @@ summary {
   flex: none;
 }
 .social-button--google {
+  /* The edge shows the white button on a white card, as GitHub's does. */
+  border-color: var(--color-border-strong);
   background: #ffffff;
   color: #111111;
 }
@@ -2369,7 +2371,7 @@ summary {
   font-size: 0.88rem;
 }
 .login-card .form-error a {
-  color: var(--color-guard);
+  color: var(--color-guard-ink);
   font-weight: 650;
 }
 .login-card .form-error a:hover {
@@ -2538,7 +2540,7 @@ dialog.social-completion::backdrop {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--color-guard);
+  color: var(--color-guard-ink);
   font: inherit;
   font-weight: 650;
   cursor: pointer;
@@ -2681,6 +2683,64 @@ dialog.social-completion::backdrop {
   }
   .login-card {
     justify-self: stretch;
+  }
+  /* 16px keeps iOS from zooming in on a field; links and the eye are
+     big enough for a thumb. */
+  .field__control input {
+    font-size: 1rem;
+  }
+  .field__toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.75rem;
+  }
+  .login-card__forgot {
+    margin: -0.9rem 0 0.5rem;
+  }
+  .login-card__forgot button,
+  .login-card__switch button,
+  .auth-inline-action {
+    min-height: 2.75rem;
+  }
+  .login-card__switch {
+    margin-top: 0.8rem;
+  }
+}
+@media (max-width: 30rem) {
+  .auth-page--signin {
+    width: min(calc(100% - 2rem), 90rem);
+    padding-block: var(--space-6) var(--space-7);
+  }
+  .signin-hero {
+    gap: var(--space-6);
+  }
+  .signin-hero__lead {
+    margin-top: 1.25rem;
+  }
+  /* On a phone the form comes first: the three promises stay on wider
+     screens, where they sit beside it. */
+  .signin-benefits {
+    display: none;
+  }
+  .login-card {
+    padding: 1.6rem 1.25rem 1.4rem;
+    border-radius: 1.1rem;
+  }
+  .login-card h2 {
+    font-size: 1.85rem;
+  }
+  .login-card__social {
+    margin-top: 1.5rem;
+  }
+  .social-button {
+    padding-inline: 1rem;
+  }
+  .field__control {
+    padding-inline: 0.95rem;
+  }
+  .login-card__name-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 
