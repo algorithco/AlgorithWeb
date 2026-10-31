@@ -64,6 +64,7 @@ export function DocArticle({ location }: { location: DocLocation }) {
           <section
             aria-labelledby={`${section.id}-title`}
             className="docs-section"
+            data-toc-title={plainText(section.title)}
             id={section.id}
             key={section.id}
           >
