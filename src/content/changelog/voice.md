@@ -20,6 +20,17 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+## 0.5.33 — 2026-10-31
+
+### Added
+- **Dictionary:** a new page where you tell the app how to write what you say, for example "algorithvoice" as "@AlgorithVoice" or "trqsh" as "trqsh.uz". The rules apply to every dictation in every mode, and you can try them out on the page as you type.
+- You can choose how the floating pill looks in Dictate: Classic as before, Dot, the smallest, or Orb, a round button.
+- Two more pill styles: Island, a small tab at the top of the screen that grows only while you use it, and Line, a thin line above the taskbar.
+- You can start and send a dictation by clicking the pill, if you turn on "Start from the pill" in Dictate; your hotkey keeps working, and dragging still moves the pill.
+
+### Changed
+- Custom words have moved from Settings to the Dictionary page.
+
 ## 0.5.32 — 2026-10-30
 
 ### Fixed
