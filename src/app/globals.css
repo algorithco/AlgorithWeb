@@ -4913,6 +4913,25 @@ html:has(.app-route-shell) {
 .voice-devices__remove {
   min-height: 2.4rem;
 }
+/* On a phone a computer's full name wraps instead of being cut short. */
+@media (max-width: 40rem) {
+  .voice-devices li {
+    align-items: start;
+    gap: 0.75rem;
+  }
+  .voice-devices__body strong {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .voice-devices__mark {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .voice-devices__remove {
+    min-height: 2.75rem;
+  }
+}
 .voice-note {
   margin: 0;
   padding: 0.75rem 0.9rem;
@@ -5050,6 +5069,10 @@ html:has(.app-route-shell) {
 .voice-chart {
   display: grid;
   gap: 0.9rem;
+}
+/* Thirty columns share the width they are given instead of setting it. */
+.voice-chart > * {
+  min-width: 0;
 }
 .voice-chart__readout {
   display: flex;
@@ -7744,8 +7767,154 @@ kbd {
   .voice-chart--dense .voice-chart__day:nth-child(odd) .voice-chart__tick {
     visibility: hidden;
   }
+  .voice-chart--long .voice-chart__tick.is-minor {
+    visibility: hidden;
+  }
+  .voice-chart__plot {
+    height: 9.5rem;
+  }
+  .voice-chart__table summary {
+    padding-block: 0.75rem;
+  }
+  /* The ranges share the width of the screen, one equal button each. */
+  .voice-range {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+  .voice-range button {
+    min-height: 2.75rem;
+    padding-inline: 0.4rem;
+  }
+  /* From and To side by side, the model and the buttons each a row. */
+  .voice-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .voice-filters label {
+    min-width: 0;
+  }
+  .voice-filters label:nth-of-type(3),
   .voice-filters__actions {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
+  }
+  .voice-filters__actions .button {
+    flex: 1;
+    justify-content: center;
+  }
+  .voice-filters input,
+  .voice-filters select,
+  .voice-admin__search input {
+    width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+  }
+  .voice-admin__search .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .voice-admin__table .button {
+    min-height: 2.75rem;
+  }
+  .voice-admin-tabs a {
+    flex: 1;
+    text-align: center;
+  }
+  .voice-share__track {
+    width: 4.5rem;
+  }
+
+  /* A table becomes one block per row: its first cell as the title, then
+     each other cell beside the name of its column. */
+  .dashboard-shell table.dashboard-stack-table {
+    display: block;
+    min-width: 0;
+  }
+  .dashboard-stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dashboard-stack-table tbody,
+  .dashboard-stack-table tr {
+    display: block;
+  }
+  .dashboard-shell .dashboard-stack-table tr {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--dashboard-line, var(--color-border));
+  }
+  .dashboard-shell .dashboard-stack-table tr:last-child {
+    border-bottom: 0;
+  }
+  .dashboard-shell .dashboard-stack-table :is(td, th) {
+    display: flex;
+    min-width: 0;
+    max-width: none;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.2rem 0;
+    border: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: normal;
+  }
+  .dashboard-shell .dashboard-stack-table tr > :first-child {
+    display: block;
+    padding-bottom: 0.35rem;
+    color: var(--dashboard-ink, var(--color-text));
+    font-weight: 650;
+    text-align: left;
+  }
+  .dashboard-shell .dashboard-stack-table td[data-label]::before {
+    flex: none;
+    max-width: 50%;
+    color: var(--dashboard-muted, var(--color-muted));
+    content: attr(data-label);
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: left;
+    text-transform: none;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-action {
+    justify-content: flex-start;
+    padding-top: 0.6rem;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-action > * {
+    width: 100%;
+  }
+  .dashboard-stack-table .voice-admin__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  }
+  .dashboard-stack-table .voice-admin__actions .button {
+    justify-content: center;
+  }
+  /* Long text reads from the left, under the name of its column. */
+  .dashboard-shell .dashboard-stack-table td.is-block {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: 0.35rem;
+    text-align: left;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-block::before {
+    max-width: none;
+  }
+  .dashboard-stack-table .voice-share {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.3rem;
+  }
+  .dashboard-stack-table .text-button {
+    min-height: 2.75rem;
+    margin-block: -0.6rem;
+    overflow-wrap: anywhere;
+    text-align: right;
   }
 }
 

@@ -183,7 +183,7 @@ export default function VoiceHistoryPage() {
 
         {rows.length ? (
           <div className="voice-admin__table voice-table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -198,9 +198,11 @@ export default function VoiceHistoryPage() {
                     <td className="is-nowrap">
                       {displayDateTime(row.recordedAt)}
                     </td>
-                    <td>{formatSeconds(row.seconds)}</td>
-                    <td>{row.model ? <code>{row.model}</code> : "—"}</td>
-                    <td>{latency(row.latencyMs)}</td>
+                    <td data-label="Audio">{formatSeconds(row.seconds)}</td>
+                    <td data-label="Model">
+                      {row.model ? <code>{row.model}</code> : "—"}
+                    </td>
+                    <td data-label="Response time">{latency(row.latencyMs)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -246,7 +248,7 @@ export default function VoiceHistoryPage() {
           </p>
         ) : failed.length ? (
           <div className="voice-admin__table voice-table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">When</th>
@@ -261,11 +263,13 @@ export default function VoiceHistoryPage() {
                     <td className="is-nowrap">
                       {displayDateTime(item.recordedAt)}
                     </td>
-                    <td>{failedRequestLabel(item.code)}</td>
-                    <td>
+                    <td data-label="What happened">
+                      {failedRequestLabel(item.code)}
+                    </td>
+                    <td data-label="Code">
                       <code>{item.code}</code>
                     </td>
-                    <td>
+                    <td data-label="Model">
                       <code>{item.model}</code>
                     </td>
                   </tr>
