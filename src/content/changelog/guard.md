@@ -23,6 +23,8 @@ stay in proto/CHANGELOG.md, not here.
 ### Added
 - `algo login` signs the CLI in with your Algorithco account, and `algo logout` signs it out.
 - `algo tui` opens the terminal viewer; running `algo` on its own does the same.
+- **The optional Jev judge now ships with AlgorithGuard and really judges commands no rule settles.** It stays off until you choose the redacted or full privacy mode and set your own TypeSafe key; in the default local-only mode nothing leaves your computer.
+- `algo doctor` now says whether the optional Jev judge is on and whether its key is set.
 - AlgorithGuard's background service now runs on Windows and checks each command, so with enforcement on a dangerous command such as `rm -rf /` is blocked instead of every command ending in a question.
 
 ### Changed

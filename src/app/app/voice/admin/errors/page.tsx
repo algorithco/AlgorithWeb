@@ -68,7 +68,7 @@ export default function VoiceAdminErrorsPage() {
         </div>
         {errors.data?.data.length ? (
           <div className="voice-admin__table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">Time</th>
@@ -81,11 +81,14 @@ export default function VoiceAdminErrorsPage() {
                 {errors.data.data.map((row) => (
                   <tr key={row.id}>
                     <td className="is-nowrap">{timeLabel(row.createdAt)}</td>
-                    <td>
+                    <td data-label="Model">
                       <code>{row.model}</code>
                     </td>
-                    <td>{row.errorCode ?? "—"}</td>
-                    <td className="voice-admin__message">
+                    <td data-label="Code">{row.errorCode ?? "—"}</td>
+                    <td
+                      className="voice-admin__message is-block"
+                      data-label="Message"
+                    >
                       {row.errorMessage ?? "—"}
                     </td>
                   </tr>

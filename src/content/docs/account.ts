@@ -262,6 +262,169 @@ export const accountDocs: DocProduct = {
                   items: [
                     ["AlgorithVoice", "**Settings → Account → Sign out**."],
                     ["AlgorithGuard", "Run `algo logout`."],
+                    [
+                      "An AI assistant",
+                      "Sign it out under **Apps** on the [account page](/app/account).",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          slug: "ai-assistants",
+          title: "AI assistants (MCP)",
+          summary:
+            "Connect Claude, Cursor or another AI assistant to your Algorithco products through one MCP server, signed in with your account.",
+          sections: [
+            {
+              id: "what",
+              title: "What it is",
+              blocks: [
+                {
+                  type: "p",
+                  text: "MCP, the Model Context Protocol, is an open standard that lets an AI assistant use tools outside the chat. Algorithco runs one MCP server for all its products. An assistant you connect can answer questions such as how much cloud time is left this month from your own account. The [MCP page](/ai) shows it working.",
+                },
+                {
+                  type: "code",
+                  label: "Server address",
+                  code: "https://algorithco.trqsh.uz/mcp",
+                },
+              ],
+            },
+            {
+              id: "connect",
+              title: "Connect an assistant",
+              blocks: [
+                {
+                  type: "defs",
+                  items: [
+                    [
+                      "Claude",
+                      "**Settings → Connectors → Add custom connector**, paste the server address, then **Connect**.",
+                    ],
+                    [
+                      "Claude Code",
+                      "Run `claude mcp add --transport http algorithco https://algorithco.trqsh.uz/mcp`, then type `/mcp` and sign in.",
+                    ],
+                    [
+                      "Cursor",
+                      "Add the server under `mcpServers` in `~/.cursor/mcp.json` with the address as `url`, then press **Connect** in **Cursor Settings → MCP**.",
+                    ],
+                    [
+                      "VS Code",
+                      "Add the server to `.vscode/mcp.json` with `type` `http` and the address as `url`, then start it.",
+                    ],
+                  ],
+                },
+                {
+                  type: "steps",
+                  items: [
+                    {
+                      title: "Your browser opens",
+                      text: "The assistant sends you to Algorithco Account. Sign in if you are not already.",
+                    },
+                    {
+                      title: "Approve",
+                      text: "The page names the assistant, marks it **not made by Algorithco** and says what it may read. Press **Approve** only if you just started this yourself.",
+                    },
+                    {
+                      title: "Ask",
+                      text: "Back in the assistant, the tools are ready. Ask in your own words.",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: "tools",
+              title: "What it can read",
+              blocks: [
+                {
+                  type: "table",
+                  head: ["Tool", "Product", "What it returns"],
+                  codeColumns: [0],
+                  rows: [
+                    [
+                      "get_plan",
+                      "AlgorithVoice",
+                      "Plan, status, end date, cloud limit, computers allowed.",
+                    ],
+                    [
+                      "get_usage_summary",
+                      "AlgorithVoice",
+                      "This month's cloud seconds, limit and requests.",
+                    ],
+                    [
+                      "get_usage_daily",
+                      "AlgorithVoice",
+                      "Cloud seconds and requests per day.",
+                    ],
+                    [
+                      "get_usage_monthly",
+                      "AlgorithVoice",
+                      "Cloud seconds and requests per month.",
+                    ],
+                    [
+                      "list_recent_sessions",
+                      "AlgorithVoice",
+                      "Recent cloud requests: length, model, time. Never the words.",
+                    ],
+                    [
+                      "list_errors",
+                      "AlgorithVoice",
+                      "Recent failed cloud requests and why.",
+                    ],
+                    [
+                      "list_devices",
+                      "AlgorithVoice",
+                      "Signed-in computers and the seat limit.",
+                    ],
+                  ],
+                },
+                {
+                  type: "note",
+                  tone: "info",
+                  text: "AlgorithGuard comes next, behind the same address. An assistant that is already connected sees the new tools the next time it connects.",
+                },
+              ],
+            },
+            {
+              id: "privacy",
+              title: "What it cannot do",
+              blocks: [
+                {
+                  type: "list",
+                  items: [
+                    "Every tool only reads. An assistant cannot change settings, remove a computer, pay or write anything.",
+                    "AlgorithVoice does not store what you dictate, so no tool can return it.",
+                    "The pass an assistant receives names your account by a number, without your email address or name, and lasts ten minutes before it is renewed.",
+                    "It does not use your cloud transcription time.",
+                  ],
+                },
+              ],
+            },
+            {
+              id: "sign-out",
+              title: "Signing an assistant out",
+              blocks: [
+                {
+                  type: "p",
+                  text: "Each connected assistant is listed under **Apps** on the [account page](/app/account). **Sign out** ends its access at once; it has to ask for your approval again to reconnect.",
+                },
+              ],
+            },
+            {
+              id: "trouble",
+              title: "If it does not connect",
+              blocks: [
+                {
+                  type: "list",
+                  items: [
+                    "**Couldn't register**: check the address is exactly `https://algorithco.trqsh.uz/mcp`, without a slash at the end, and try again.",
+                    "**The approval page does not appear**: allow pop-ups for the assistant and start the connection again.",
+                    "**Tools fail after a while**: sign the assistant out on the account page and connect it again.",
                   ],
                 },
               ],

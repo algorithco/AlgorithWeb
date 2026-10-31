@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ...p.sections.map((s) => s.href),
       p.cta.href,
     ]),
+    "/ai",
     "/docs",
     ...allDocsHrefs(),
     "/changelog",

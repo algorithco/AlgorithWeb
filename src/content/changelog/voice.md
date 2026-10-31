@@ -20,6 +20,9 @@ apps/desktop-tauri/CHANGELOG.md, not here.
 
 ## Unreleased
 
+### Added
+- AI assistants such as Claude, Cursor and Claude Code can connect to your AlgorithVoice account to answer questions about your usage, plan and computers; they can only read, and never see what you dictated.
+
 ## 0.5.33 — 2026-10-31
 
 ### Added

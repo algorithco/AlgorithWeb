@@ -20,6 +20,11 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## Unreleased
+
+### Added
+- **AI assistants such as Claude and Cursor can connect to AlgorithVoice with your Algorithco Account.** You approve each one, it can only read your usage, plan and computers, and you can sign it out from your connected apps.
+
 ## 2026-10-28 — Your account is now at algorithco.trqsh.uz
 
 ### Changed

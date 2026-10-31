@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { McpTeaser } from "@/components/ai/mcp-teaser";
 import {
   ProductOverview,
   productMetadata,
@@ -11,5 +12,9 @@ export const metadata = product ? productMetadata(product) : {};
 
 export default function GuardPage() {
   if (!product) notFound();
-  return <ProductOverview product={product} />;
+  return (
+    <ProductOverview product={product}>
+      <McpTeaser slug="guard" />
+    </ProductOverview>
+  );
 }
