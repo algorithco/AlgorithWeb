@@ -18,7 +18,7 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
-## 2026-10-31 — Connect your AI assistant
+## 2026-10-31 — Connect your AI assistant, and a site that fits phones
 
 ### Added
 - **A new [MCP page](/ai) shows how to connect Claude, Cursor or another AI assistant to your Algorithco products**: a drawing walks through one question from your assistant to its answer, with every tool it can read and the steps for each assistant.
