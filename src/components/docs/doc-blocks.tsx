@@ -59,6 +59,7 @@ function Block({ block }: { block: DocBlock }) {
       return (
         <div
           className="docs-table"
+          data-columns={block.head.length}
           style={{ "--docs-columns": block.head.length } as CSSProperties}
         >
           <table>
@@ -85,7 +86,12 @@ function Block({ block }: { block: DocBlock }) {
                         {content}
                       </th>
                     ) : (
-                      <td key={index}>{content}</td>
+                      <td
+                        data-label={block.head[index] || undefined}
+                        key={index}
+                      >
+                        {content}
+                      </td>
                     );
                   })}
                 </tr>

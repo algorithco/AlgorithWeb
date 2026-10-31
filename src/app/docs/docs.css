@@ -39,8 +39,13 @@ html:has(.docs-layout) {
 .docs-layout kbd {
   font-family: var(--docs-mono);
 }
+/* Inline code moves to the next line whole (a flag never splits at its
+   hyphen); only code wider than the column breaks, anywhere. */
 .docs-layout :not(pre) > code {
+  display: inline-block;
+  max-width: 100%;
   padding: 0.08rem 0.35rem;
+  line-height: 1.4;
   border-radius: 0.3rem;
   background: color-mix(in srgb, var(--color-text) 7%, transparent);
   color: var(--color-text);
@@ -464,6 +469,12 @@ html:has(.docs-layout) {
   color: var(--color-subtle);
   content: "/";
 }
+/* The crumbs stay small but take a thumb. */
+.docs-breadcrumb a {
+  display: inline-block;
+  margin-block: -0.75rem;
+  padding-block: 0.75rem;
+}
 .docs-breadcrumb a:hover {
   color: var(--color-text);
 }
@@ -490,7 +501,15 @@ html:has(.docs-layout) {
   line-height: 1.6;
 }
 .docs-article__header .text-link {
-  margin-top: 1.25rem;
+  display: inline-block;
+  margin-top: 1rem;
+}
+.docs-article__header .text-link,
+.docs-home__product .text-link {
+  background-origin: content-box;
+}
+.docs-article__header .text-link .keep-case {
+  margin-left: 0;
 }
 
 .docs-section {
@@ -514,6 +533,12 @@ html:has(.docs-layout) {
 }
 .docs-section h2:hover .docs-anchor {
   opacity: 1;
+}
+/* Without hover the mark can never show, and it hangs past the edge. */
+@media (hover: none) {
+  .docs-anchor {
+    display: none;
+  }
 }
 .docs-section > p,
 .docs-section li,
@@ -622,6 +647,7 @@ html:has(.docs-layout) {
   margin: 0;
   padding: 0.95rem 1rem;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   font-size: 0.86rem;
   line-height: 1.65;
 }
@@ -629,6 +655,7 @@ html:has(.docs-layout) {
   white-space: pre;
 }
 .docs-copy {
+  position: relative;
   padding: 0.25rem 0.6rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -645,10 +672,25 @@ html:has(.docs-layout) {
 .docs-copy[data-copied] {
   border-color: var(--color-text);
 }
+/* On a touch screen the button is bigger and its hit area reaches 44px. */
+@media (pointer: coarse) {
+  .docs-copy {
+    min-width: 4.5rem;
+    min-height: 2.25rem;
+    padding-inline: 0.9rem;
+    font-size: 0.8rem;
+  }
+  .docs-copy::after {
+    position: absolute;
+    inset: -0.25rem;
+    content: "";
+  }
+}
 
 .docs-table {
   margin: 0 0 1.25rem;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
@@ -744,12 +786,10 @@ html:has(.docs-layout) {
   margin-top: var(--space-8);
   padding-top: var(--space-5);
   border-top: 1px solid var(--color-border);
+  /* Previous on the left, next on the right, at every width: each is one
+     thumb's reach from its own edge. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1rem;
-}
-@media (min-width: 40rem) {
-  .docs-pager {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 .docs-pager__link {
   display: grid;
@@ -919,4 +959,154 @@ html:has(.docs-layout) {
   color: var(--color-text);
   text-decoration: underline;
   text-underline-offset: 0.2em;
+}
+
+/* Phones */
+@media (max-width: 39.99rem) {
+  .docs-article__header {
+    margin-top: 1rem;
+  }
+  .docs-article h1,
+  .docs-home h1 {
+    font-size: clamp(2rem, 9.5vw, 2.5rem);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    overflow-wrap: break-word;
+  }
+  .docs-article__summary {
+    font-size: 1.06rem;
+    line-height: 1.55;
+  }
+  .docs-section {
+    margin-top: 2.5rem;
+  }
+  .docs-section h2 {
+    font-size: 1.4rem;
+  }
+
+  .docs-steps li {
+    padding-left: 2.75rem;
+  }
+
+  .docs-code pre {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.82rem;
+  }
+
+  /* A table becomes a list of rows: the row's name, then each cell under its
+     column's name. Nothing scrolls sideways. */
+  .docs-table {
+    overflow: visible;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+  }
+  .docs-table table,
+  .docs-table tbody,
+  .docs-table tr,
+  .docs-table th,
+  .docs-table td {
+    display: block;
+    width: auto;
+    min-width: 0;
+  }
+  .docs-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .docs-table tbody tr {
+    display: grid;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--color-border);
+    gap: 0.35rem;
+  }
+  .docs-table th,
+  .docs-table td,
+  .docs-table tbody tr:last-child > * {
+    padding: 0;
+    border: 0;
+  }
+  .docs-table tbody th {
+    font-size: 1rem;
+  }
+  .docs-table td {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 34%) minmax(0, 1fr);
+    gap: 0.75rem;
+    font-size: 0.94rem;
+  }
+  .docs-table td::before {
+    padding-top: 0.12rem;
+    color: var(--color-subtle);
+    content: attr(data-label);
+    font-size: 0.74rem;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  /* A two-column table is a term and its text: no label needed. */
+  .docs-table[data-columns="2"] td,
+  .docs-table td:not([data-label]) {
+    display: block;
+    color: var(--color-muted);
+  }
+  .docs-table[data-columns="2"] td::before,
+  .docs-table td:not([data-label])::before {
+    display: none;
+  }
+
+  .docs-note {
+    padding: 0.85rem 0.95rem;
+  }
+
+  .docs-pager {
+    margin-top: var(--space-7);
+    gap: 0.75rem;
+  }
+  .docs-pager__link {
+    align-content: start;
+    padding: 0.85rem 0.9rem;
+    overflow-wrap: break-word;
+  }
+  .docs-pager__link span {
+    font-size: 0.94rem;
+    letter-spacing: -0.01em;
+  }
+
+  .docs-home__header h1 {
+    margin-top: 0.75rem;
+  }
+  .docs-home__products {
+    margin-top: var(--space-6);
+  }
+  .docs-home__product {
+    padding: 1.15rem 1.15rem 0.6rem;
+  }
+  .docs-home__popular a {
+    align-items: center;
+    min-height: 3rem;
+  }
+}
+
+/* Touch screens: the docs home lists take a thumb at any width. */
+@media (pointer: coarse) {
+  .docs-home__product h2 a {
+    display: block;
+    margin-block: -0.4rem;
+    padding-block: 0.6rem;
+  }
+  .docs-home__product li a {
+    padding: 0.7rem 0;
+  }
+  .docs-article__header .text-link,
+  .docs-home__product .text-link {
+    padding-block: 0.875rem;
+  }
+  .docs-article__header .text-link {
+    margin-top: 0.25rem;
+  }
 }
