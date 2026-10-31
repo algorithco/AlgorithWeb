@@ -7694,6 +7694,7 @@ kbd {
    and adds its own parts below; its motion is in motion.css. */
 .mcp-hero__foot {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
   justify-items: end;
 }
@@ -7741,6 +7742,17 @@ kbd {
 .mcp-copy:hover {
   border-color: var(--color-border-strong);
 }
+/* A finger gets a 44px target without making the pill taller. */
+@media (pointer: coarse) {
+  .mcp-copy {
+    position: relative;
+  }
+  .mcp-copy::after {
+    content: "";
+    position: absolute;
+    inset: -0.5rem -0.25rem;
+  }
+}
 .mcp-copy[data-copied] {
   border-color: var(--color-guard);
   background: var(--color-guard);
@@ -7752,6 +7764,14 @@ kbd {
   }
   .mcp-address__label {
     display: none;
+  }
+  /* The whole address stays readable down to a 320px phone. */
+  .mcp-address {
+    gap: 0.5rem;
+    padding-left: 0.85rem;
+  }
+  .mcp-address__url {
+    font-size: clamp(0.7rem, 3.25vw, 0.92rem);
   }
 }
 
@@ -7781,6 +7801,25 @@ kbd {
 .mcp-intro__art {
   grid-area: art;
   min-width: 0;
+  /* The paper grid reaches past the drawing; it must not widen a phone page. */
+  overflow-x: clip;
+}
+/* On a phone the drawing stands tall (mcp-drawing.tsx); it stays narrow
+   enough that its labels keep the size of the text around them. */
+.machine.is-tall {
+  max-width: 26rem;
+}
+@media (max-width: 40rem) {
+  .mcp-intro .machine__status {
+    align-items: flex-start;
+    justify-content: flex-start;
+    max-width: 26rem;
+    margin-inline: auto;
+    text-align: left;
+  }
+  .mcp-intro .machine__status > span {
+    margin-top: 0.42em;
+  }
 }
 .mcp-intro__parts {
   grid-area: parts;
@@ -8101,6 +8140,18 @@ kbd {
 .mcp-connect__tab[aria-selected="true"] {
   color: var(--color-text);
 }
+/* On a phone the four tabs share the row instead of scrolling out of it. */
+@media (max-width: 40rem) {
+  .mcp-connect__tabs {
+    gap: 0;
+  }
+  .mcp-connect__tab {
+    flex: 1 0 auto;
+    min-height: 2.75rem;
+    padding-inline: clamp(0.3rem, 2vw, 0.9rem);
+    font-size: clamp(0.84rem, 3.6vw, 0.95rem);
+  }
+}
 .mcp-connect__bar {
   position: absolute;
   bottom: 0;
@@ -8168,6 +8219,16 @@ kbd {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.86rem;
   line-height: 1.65;
+}
+/* On a phone a command wraps instead of hiding past the edge; Copy still
+   copies it as one line. */
+@media (max-width: 40rem) {
+  .mcp-code pre {
+    padding: 0.85rem 0.9rem;
+    font-size: 0.8rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 }
 .mcp-connect__address {
   margin-top: var(--space-5);
