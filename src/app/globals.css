@@ -561,18 +561,6 @@ summary {
 .text-link span {
   margin-left: 0.4rem;
 }
-/* A standalone link is one short line; a finger gets a 44px target around
-   it without moving its underline. */
-@media (pointer: coarse) {
-  .text-link {
-    position: relative;
-  }
-  .text-link::before {
-    content: "";
-    position: absolute;
-    inset: -0.7rem -0.25rem;
-  }
-}
 .principles-grid {
   display: grid;
   border-top: 1px solid var(--color-border);
@@ -605,6 +593,16 @@ summary {
 }
 .principle:hover {
   background: color-mix(in srgb, var(--color-text) 3%, transparent);
+}
+/* On a phone the number needs no wide gutter: the text takes the room. */
+@media (max-width: 40rem) {
+  .principle {
+    grid-template-columns: 1.75rem 1fr;
+    gap: 0 0.6rem;
+  }
+  .principle h3 {
+    font-size: 1.2rem;
+  }
 }
 .why-section .text-link {
   display: inline-block;
