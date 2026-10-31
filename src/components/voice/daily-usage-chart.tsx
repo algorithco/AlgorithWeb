@@ -26,10 +26,12 @@ export function DailyUsageChart({
   const peak = Math.max(...daily.map((day) => day.seconds), 0);
   const total = daily.reduce((sum, day) => sum + day.seconds, 0);
   const shown = active === null ? undefined : daily[active];
+  // A year labels every month; a phone has room for every other one.
+  const long = daily.length > 92;
 
   return (
     <div
-      className={`voice-chart${daily.length > 14 && daily.length <= 31 ? " voice-chart--dense" : ""}`}
+      className={`voice-chart${daily.length > 14 && daily.length <= 31 ? " voice-chart--dense" : ""}${long ? " voice-chart--long" : ""}`}
     >
       <p className="voice-chart__readout" aria-hidden="true">
         <strong>{formatSeconds(shown ? shown.seconds : total)}</strong>
@@ -62,7 +64,9 @@ export function DailyUsageChart({
                 />
               ) : null}
             </span>
-            <span className="voice-chart__tick">
+            <span
+              className={`voice-chart__tick${long && Number(day.date.slice(5, 7)) % 2 === 0 ? " is-minor" : ""}`}
+            >
               {dayTick(day.date, daily.length)}
             </span>
           </div>

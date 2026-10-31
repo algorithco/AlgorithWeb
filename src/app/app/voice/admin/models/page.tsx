@@ -125,7 +125,7 @@ export default function VoiceAdminModelsPage() {
         </div>
         {configs.data?.all.length ? (
           <div className="voice-admin__table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">Model</th>
@@ -148,8 +148,8 @@ export default function VoiceAdminModelsPage() {
                         <br />
                         <code>{model.modelId}</code>
                       </td>
-                      <td>{model.provider}</td>
-                      <td>
+                      <td data-label="Provider">{model.provider}</td>
+                      <td data-label="Role">
                         <span className="voice-admin__roles">
                           {model.isActive ? (
                             <span className="status-pill status-pill--ok">
@@ -164,7 +164,7 @@ export default function VoiceAdminModelsPage() {
                           )}
                         </span>
                       </td>
-                      <td>
+                      <td className="is-action">
                         <span className="voice-admin__actions">
                           <button
                             className="button button--secondary"
@@ -222,7 +222,7 @@ export default function VoiceAdminModelsPage() {
         </div>
         {stats.data?.data.length ? (
           <div className="voice-admin__table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">Model</th>
@@ -246,10 +246,16 @@ export default function VoiceAdminModelsPage() {
                     <td>
                       <code>{row.model}</code>
                     </td>
-                    <td className="is-number">{row.requests}</td>
-                    <td className="is-number">{row.avgLatencyMs} ms</td>
-                    <td className="is-number">{usd(row.costUsd)}</td>
-                    <td className="is-number">
+                    <td className="is-number" data-label="Requests">
+                      {row.requests}
+                    </td>
+                    <td className="is-number" data-label="Avg latency">
+                      {row.avgLatencyMs} ms
+                    </td>
+                    <td className="is-number" data-label="Cost">
+                      {usd(row.costUsd)}
+                    </td>
+                    <td className="is-number" data-label="Errors">
                       {row.errorCount} ({row.errorRate}%)
                     </td>
                   </tr>

@@ -16,7 +16,7 @@ export function AuditTable({ records }: { records: AuditRecord[] }) {
   }
   return (
     <div className="guard-table-wrap">
-      <table className="guard-table">
+      <table className="guard-table dashboard-stack-table">
         <thead>
           <tr>
             <th>Time</th>
@@ -38,15 +38,23 @@ export function AuditTable({ records }: { records: AuditRecord[] }) {
                 <td className="guard-table__time">
                   {displayDateTime(record.timestamp)}
                 </td>
-                <td>{tool(record.tool_kind)}</td>
-                <td>
+                <td data-label="Tool">{tool(record.tool_kind)}</td>
+                <td data-label="Action">
                   <span className={`decision decision--${label}`}>{label}</span>
                 </td>
-                <td className="guard-code">{record.redacted_payload}</td>
-                <td>{record.decision?.reason || "—"}</td>
-                <td>{(record.decision?.confidence_0_1 ?? 0).toFixed(2)}</td>
-                <td>{record.decision?.latency_ms ?? 0} ms</td>
-                <td>
+                <td className="guard-code is-block" data-label="Payload">
+                  {record.redacted_payload}
+                </td>
+                <td className="is-block" data-label="Reason">
+                  {record.decision?.reason || "—"}
+                </td>
+                <td data-label="Confidence">
+                  {(record.decision?.confidence_0_1 ?? 0).toFixed(2)}
+                </td>
+                <td data-label="Latency">
+                  {record.decision?.latency_ms ?? 0} ms
+                </td>
+                <td data-label="Why">
                   <button
                     type="button"
                     className="text-button"

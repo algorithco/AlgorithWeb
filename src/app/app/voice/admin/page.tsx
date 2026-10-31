@@ -134,7 +134,7 @@ export default function VoiceAdminPage() {
         </form>
         {users.data?.data.length ? (
           <div className="voice-admin__table">
-            <table>
+            <table className="dashboard-stack-table">
               <thead>
                 <tr>
                   <th scope="col">Account ID</th>
@@ -157,16 +157,18 @@ export default function VoiceAdminPage() {
                       <td>
                         <code>{user.accountSubject}</code>
                       </td>
-                      <td>{user._count.devices}</td>
-                      <td>{displayDate(user.createdAt)}</td>
-                      <td>
+                      <td data-label="Devices">{user._count.devices}</td>
+                      <td data-label="First seen">
+                        {displayDate(user.createdAt)}
+                      </td>
+                      <td data-label="Status">
                         <span
                           className={`status-pill${blocked ? "" : " status-pill--ok"}`}
                         >
                           {blocked ? "blocked" : "active"}
                         </span>
                       </td>
-                      <td>
+                      <td className="is-action">
                         <button
                           className="button button--secondary"
                           disabled={pending || (self && !blocked)}

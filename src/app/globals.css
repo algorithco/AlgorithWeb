@@ -2447,6 +2447,8 @@ summary {
   flex: none;
 }
 .social-button--google {
+  /* The edge shows the white button on a white card, as GitHub's does. */
+  border-color: var(--color-border-strong);
   background: #ffffff;
   color: #111111;
 }
@@ -2485,7 +2487,7 @@ summary {
   font-size: 0.88rem;
 }
 .login-card .form-error a {
-  color: var(--color-guard);
+  color: var(--color-guard-ink);
   font-weight: 650;
 }
 .login-card .form-error a:hover {
@@ -2654,7 +2656,7 @@ dialog.social-completion::backdrop {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--color-guard);
+  color: var(--color-guard-ink);
   font: inherit;
   font-weight: 650;
   cursor: pointer;
@@ -2797,6 +2799,64 @@ dialog.social-completion::backdrop {
   }
   .login-card {
     justify-self: stretch;
+  }
+  /* 16px keeps iOS from zooming in on a field; links and the eye are
+     big enough for a thumb. */
+  .field__control input {
+    font-size: 1rem;
+  }
+  .field__toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.75rem;
+  }
+  .login-card__forgot {
+    margin: -0.9rem 0 0.5rem;
+  }
+  .login-card__forgot button,
+  .login-card__switch button,
+  .auth-inline-action {
+    min-height: 2.75rem;
+  }
+  .login-card__switch {
+    margin-top: 0.8rem;
+  }
+}
+@media (max-width: 30rem) {
+  .auth-page--signin {
+    width: min(calc(100% - 2rem), 90rem);
+    padding-block: var(--space-6) var(--space-7);
+  }
+  .signin-hero {
+    gap: var(--space-6);
+  }
+  .signin-hero__lead {
+    margin-top: 1.25rem;
+  }
+  /* On a phone the form comes first: the three promises stay on wider
+     screens, where they sit beside it. */
+  .signin-benefits {
+    display: none;
+  }
+  .login-card {
+    padding: 1.6rem 1.25rem 1.4rem;
+    border-radius: 1.1rem;
+  }
+  .login-card h2 {
+    font-size: 1.85rem;
+  }
+  .login-card__social {
+    margin-top: 1.5rem;
+  }
+  .social-button {
+    padding-inline: 1rem;
+  }
+  .field__control {
+    padding-inline: 0.95rem;
+  }
+  .login-card__name-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 
@@ -3228,7 +3288,9 @@ html:has(.app-route-shell) {
   max-height: calc(100dvh - 2rem);
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* A tall dialog on a short screen scrolls inside, never behind it. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--dashboard-line);
   border-radius: 1.1rem;
   background: var(--dashboard-panel);
@@ -3408,6 +3470,14 @@ html:has(.app-route-shell) {
   min-width: 0;
   align-content: start;
   gap: 1.1rem;
+}
+/* Nothing inside a page or a panel may widen it past the screen: a chart or
+   a table gives way instead (a grid item's width defaults to its content). */
+.dashboard-shell .platform-dashboard > *,
+.guard-dashboard-layout > *,
+.dashboard-shell .dashboard-section > *,
+.dashboard-shell .dashboard-panel > * {
+  min-width: 0;
 }
 .dashboard-shell .dashboard-section__heading,
 .dashboard-shell .dashboard-panel__heading {
@@ -4312,10 +4382,24 @@ html:has(.app-route-shell) {
     place-items: center;
   }
   .dashboard-sidebar__close {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-right: -0.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.6rem;
     border-radius: 0.6rem;
+  }
+  /* The drawer scrolls on its own; the page under it stays put. */
+  .dashboard-sidebar__nav {
+    overscroll-behavior: contain;
+  }
+  .dashboard-sidebar__brand {
+    padding-top: env(safe-area-inset-top);
+  }
+  .dashboard-sidebar__account {
+    padding-bottom: max(0.8rem, env(safe-area-inset-bottom));
+  }
+  .dashboard-sidebar__signout {
+    width: 2.75rem;
+    height: 2.75rem;
   }
   .dashboard-sidebar__close:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -4342,8 +4426,8 @@ html:has(.app-route-shell) {
     margin-left: 0;
   }
   .dashboard-menu-button {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     flex: none;
     margin-right: 0.25rem;
     border: 1px solid var(--dashboard-line);
@@ -4365,7 +4449,46 @@ html:has(.app-route-shell) {
 
 @media (max-width: 46rem) {
   .dashboard-topbar {
-    padding-inline: 1rem;
+    padding-inline: max(1rem, env(safe-area-inset-left))
+      max(1rem, env(safe-area-inset-right));
+  }
+  /* A finger, not a pointer: every control is at least 44px tall. */
+  .dashboard-topbar .theme-toggle,
+  .dashboard-shell .button,
+  .guard-workspace-toolbar__plan,
+  .guard-dashboard-content .guard-actions button {
+    min-height: 2.75rem;
+  }
+  .account-sections a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
+  .dashboard-shell .dashboard-panel .text-link,
+  .dashboard-shell .dashboard-section__heading > a,
+  .guard-subheading a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+  /* 16px text in a field keeps iOS from zooming the page on focus. */
+  .guard-workspace-toolbar__control input,
+  .guard-workspace-toolbar__control select,
+  .account-delete-dialog form > input,
+  .guard-dashboard-content .guard-field textarea {
+    font-size: 1rem;
+  }
+  .guard-workspace-toolbar__control input,
+  .guard-workspace-toolbar__control select {
+    min-height: 2.75rem;
+  }
+  /* Policy lines keep their indentation: the field scrolls sideways. */
+  .guard-dashboard-content .guard-field textarea {
+    padding: 0.85rem;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    white-space: pre;
   }
   .dashboard-topbar__crumb,
   .dashboard-topbar__trail > .dashboard-icon {
@@ -4386,6 +4509,11 @@ html:has(.app-route-shell) {
   }
   .dashboard-welcome__actions .button {
     flex: 1 1 12rem;
+  }
+  /* Plain actions (exports) sit side by side, their words centred. */
+  .dashboard-welcome__actions .button:not(:has(.button__mark)) {
+    flex-basis: 8rem;
+    justify-content: center;
   }
   .dashboard-shell .dashboard-panel,
   .dashboard-shell .dashboard-product,
@@ -4459,8 +4587,39 @@ html:has(.app-route-shell) {
   .dashboard-sidebar {
     width: min(20rem, calc(100vw - 1.25rem));
   }
+  /* Figures two to a row, smaller, so a page of them is not a screen each. */
   .dashboard-summary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .dashboard-summary-card {
+    min-height: 0;
+    gap: 0.7rem;
+    padding: 0.95rem;
+    border-radius: 0.9rem;
+  }
+  .dashboard-summary-card > div {
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+  .dashboard-summary-card__icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: none;
+    border-radius: 0.45rem;
+  }
+  .dashboard-summary-card > strong {
+    font-size: 1.6rem;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-summary-card > strong.is-wide {
+    font-size: 1.2rem;
+  }
+  .dashboard-summary-card > small {
+    font-size: 0.74rem;
+    line-height: 1.4;
   }
   .dashboard-shell .dashboard-account-list > div {
     grid-template-columns: 1fr;
@@ -4475,7 +4634,11 @@ html:has(.app-route-shell) {
     justify-content: center;
   }
   .dashboard-shell .dashboard-product__actions > a:last-child {
-    padding-block: 0.4rem;
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
     text-align: center;
   }
   /* Two to a row; a third button takes a row of its own. */
@@ -4643,6 +4806,15 @@ html:has(.app-route-shell) {
   .account-copy {
     justify-content: flex-start;
   }
+  .account-copy__button {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    font-size: 0.78rem;
+  }
+  .account-password-dialog input:not([type="checkbox"]) {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
 }
 
 /* Account center: profile editing, two-step setup, devices, billing actions */
@@ -4674,6 +4846,16 @@ html:has(.app-route-shell) {
   justify-content: flex-end;
   gap: 0.6rem;
   margin-top: 0.3rem;
+}
+@media (max-width: 46rem) {
+  .account-inline-form input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  .account-inline-form__actions .button {
+    flex: 1;
+    justify-content: center;
+  }
 }
 .account-badge {
   display: inline-block;
@@ -4969,6 +5151,25 @@ html:has(.app-route-shell) {
 .voice-devices__remove {
   min-height: 2.4rem;
 }
+/* On a phone a computer's full name wraps instead of being cut short. */
+@media (max-width: 40rem) {
+  .voice-devices li {
+    align-items: start;
+    gap: 0.75rem;
+  }
+  .voice-devices__body strong {
+    overflow: visible;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .voice-devices__mark {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .voice-devices__remove {
+    min-height: 2.75rem;
+  }
+}
 .voice-note {
   margin: 0;
   padding: 0.75rem 0.9rem;
@@ -5106,6 +5307,10 @@ html:has(.app-route-shell) {
 .voice-chart {
   display: grid;
   gap: 0.9rem;
+}
+/* Thirty columns share the width they are given instead of setting it. */
+.voice-chart > * {
+  min-width: 0;
 }
 .voice-chart__readout {
   display: flex;
@@ -7859,8 +8064,154 @@ kbd {
   .voice-chart--dense .voice-chart__day:nth-child(odd) .voice-chart__tick {
     visibility: hidden;
   }
+  .voice-chart--long .voice-chart__tick.is-minor {
+    visibility: hidden;
+  }
+  .voice-chart__plot {
+    height: 9.5rem;
+  }
+  .voice-chart__table summary {
+    padding-block: 0.75rem;
+  }
+  /* The ranges share the width of the screen, one equal button each. */
+  .voice-range {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+  }
+  .voice-range button {
+    min-height: 2.75rem;
+    padding-inline: 0.4rem;
+  }
+  /* From and To side by side, the model and the buttons each a row. */
+  .voice-filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .voice-filters label {
+    min-width: 0;
+  }
+  .voice-filters label:nth-of-type(3),
   .voice-filters__actions {
-    flex-basis: 100%;
+    grid-column: 1 / -1;
+  }
+  .voice-filters__actions .button {
+    flex: 1;
+    justify-content: center;
+  }
+  .voice-filters input,
+  .voice-filters select,
+  .voice-admin__search input {
+    width: 100%;
+    min-width: 0;
+    font-size: 1rem;
+  }
+  .voice-admin__search .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .voice-admin__table .button {
+    min-height: 2.75rem;
+  }
+  .voice-admin-tabs a {
+    flex: 1;
+    text-align: center;
+  }
+  .voice-share__track {
+    width: 4.5rem;
+  }
+
+  /* A table becomes one block per row: its first cell as the title, then
+     each other cell beside the name of its column. */
+  .dashboard-shell table.dashboard-stack-table {
+    display: block;
+    min-width: 0;
+  }
+  .dashboard-stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .dashboard-stack-table tbody,
+  .dashboard-stack-table tr {
+    display: block;
+  }
+  .dashboard-shell .dashboard-stack-table tr {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--dashboard-line, var(--color-border));
+  }
+  .dashboard-shell .dashboard-stack-table tr:last-child {
+    border-bottom: 0;
+  }
+  .dashboard-shell .dashboard-stack-table :is(td, th) {
+    display: flex;
+    min-width: 0;
+    max-width: none;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.2rem 0;
+    border: 0;
+    overflow-wrap: anywhere;
+    text-align: right;
+    white-space: normal;
+  }
+  .dashboard-shell .dashboard-stack-table tr > :first-child {
+    display: block;
+    padding-bottom: 0.35rem;
+    color: var(--dashboard-ink, var(--color-text));
+    font-weight: 650;
+    text-align: left;
+  }
+  .dashboard-shell .dashboard-stack-table td[data-label]::before {
+    flex: none;
+    max-width: 50%;
+    color: var(--dashboard-muted, var(--color-muted));
+    content: attr(data-label);
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: left;
+    text-transform: none;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-action {
+    justify-content: flex-start;
+    padding-top: 0.6rem;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-action > * {
+    width: 100%;
+  }
+  .dashboard-stack-table .voice-admin__actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  }
+  .dashboard-stack-table .voice-admin__actions .button {
+    justify-content: center;
+  }
+  /* Long text reads from the left, under the name of its column. */
+  .dashboard-shell .dashboard-stack-table td.is-block {
+    display: grid;
+    gap: 0.15rem;
+    padding-block: 0.35rem;
+    text-align: left;
+  }
+  .dashboard-shell .dashboard-stack-table td.is-block::before {
+    max-width: none;
+  }
+  .dashboard-stack-table .voice-share {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    row-gap: 0.3rem;
+  }
+  .dashboard-stack-table .text-button {
+    min-height: 2.75rem;
+    margin-block: -0.6rem;
+    overflow-wrap: anywhere;
+    text-align: right;
   }
 }
 

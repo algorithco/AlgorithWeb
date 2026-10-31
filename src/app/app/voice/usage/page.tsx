@@ -211,7 +211,7 @@ export default function VoiceUsagePage() {
           </div>
           {monthly.data ? (
             <div className="voice-admin__table voice-table">
-              <table>
+              <table className="dashboard-stack-table">
                 <thead>
                   <tr>
                     <th scope="col">Month</th>
@@ -223,7 +223,7 @@ export default function VoiceUsagePage() {
                   {[...monthly.data.months].reverse().map((month) => (
                     <tr key={month.month}>
                       <th scope="row">{formatMonth(month.month, "long")}</th>
-                      <td>
+                      <td data-label="Cloud time">
                         <span className="voice-share">
                           <span
                             aria-hidden="true"
@@ -239,7 +239,7 @@ export default function VoiceUsagePage() {
                           <span>{formatSeconds(month.seconds)}</span>
                         </span>
                       </td>
-                      <td>{month.requests}</td>
+                      <td data-label="Requests">{month.requests}</td>
                     </tr>
                   ))}
                 </tbody>
