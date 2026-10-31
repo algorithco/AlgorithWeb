@@ -3172,7 +3172,9 @@ html:has(.app-route-shell) {
   max-height: calc(100dvh - 2rem);
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  /* A tall dialog on a short screen scrolls inside, never behind it. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
   border: 1px solid var(--dashboard-line);
   border-radius: 1.1rem;
   background: var(--dashboard-panel);
@@ -3352,6 +3354,14 @@ html:has(.app-route-shell) {
   min-width: 0;
   align-content: start;
   gap: 1.1rem;
+}
+/* Nothing inside a page or a panel may widen it past the screen: a chart or
+   a table gives way instead (a grid item's width defaults to its content). */
+.dashboard-shell .platform-dashboard > *,
+.guard-dashboard-layout > *,
+.dashboard-shell .dashboard-section > *,
+.dashboard-shell .dashboard-panel > * {
+  min-width: 0;
 }
 .dashboard-shell .dashboard-section__heading,
 .dashboard-shell .dashboard-panel__heading {
@@ -4256,10 +4266,24 @@ html:has(.app-route-shell) {
     place-items: center;
   }
   .dashboard-sidebar__close {
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-right: -0.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.6rem;
     border-radius: 0.6rem;
+  }
+  /* The drawer scrolls on its own; the page under it stays put. */
+  .dashboard-sidebar__nav {
+    overscroll-behavior: contain;
+  }
+  .dashboard-sidebar__brand {
+    padding-top: env(safe-area-inset-top);
+  }
+  .dashboard-sidebar__account {
+    padding-bottom: max(0.8rem, env(safe-area-inset-bottom));
+  }
+  .dashboard-sidebar__signout {
+    width: 2.75rem;
+    height: 2.75rem;
   }
   .dashboard-sidebar__close:hover {
     background: rgba(255, 255, 255, 0.08);
@@ -4286,8 +4310,8 @@ html:has(.app-route-shell) {
     margin-left: 0;
   }
   .dashboard-menu-button {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
     flex: none;
     margin-right: 0.25rem;
     border: 1px solid var(--dashboard-line);
@@ -4309,7 +4333,46 @@ html:has(.app-route-shell) {
 
 @media (max-width: 46rem) {
   .dashboard-topbar {
-    padding-inline: 1rem;
+    padding-inline: max(1rem, env(safe-area-inset-left))
+      max(1rem, env(safe-area-inset-right));
+  }
+  /* A finger, not a pointer: every control is at least 44px tall. */
+  .dashboard-topbar .theme-toggle,
+  .dashboard-shell .button,
+  .guard-workspace-toolbar__plan,
+  .guard-dashboard-content .guard-actions button {
+    min-height: 2.75rem;
+  }
+  .account-sections a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    padding-inline: 0.95rem;
+  }
+  .dashboard-shell .dashboard-panel .text-link,
+  .dashboard-shell .dashboard-section__heading > a,
+  .guard-subheading a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+  /* 16px text in a field keeps iOS from zooming the page on focus. */
+  .guard-workspace-toolbar__control input,
+  .guard-workspace-toolbar__control select,
+  .account-delete-dialog form > input,
+  .guard-dashboard-content .guard-field textarea {
+    font-size: 1rem;
+  }
+  .guard-workspace-toolbar__control input,
+  .guard-workspace-toolbar__control select {
+    min-height: 2.75rem;
+  }
+  /* Policy lines keep their indentation: the field scrolls sideways. */
+  .guard-dashboard-content .guard-field textarea {
+    padding: 0.85rem;
+    overflow-x: auto;
+    overflow-wrap: normal;
+    white-space: pre;
   }
   .dashboard-topbar__crumb,
   .dashboard-topbar__trail > .dashboard-icon {
@@ -4330,6 +4393,11 @@ html:has(.app-route-shell) {
   }
   .dashboard-welcome__actions .button {
     flex: 1 1 12rem;
+  }
+  /* Plain actions (exports) sit side by side, their words centred. */
+  .dashboard-welcome__actions .button:not(:has(.button__mark)) {
+    flex-basis: 8rem;
+    justify-content: center;
   }
   .dashboard-shell .dashboard-panel,
   .dashboard-shell .dashboard-product,
@@ -4403,8 +4471,39 @@ html:has(.app-route-shell) {
   .dashboard-sidebar {
     width: min(20rem, calc(100vw - 1.25rem));
   }
+  /* Figures two to a row, smaller, so a page of them is not a screen each. */
   .dashboard-summary {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .dashboard-summary-card {
+    min-height: 0;
+    gap: 0.7rem;
+    padding: 0.95rem;
+    border-radius: 0.9rem;
+  }
+  .dashboard-summary-card > div {
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    line-height: 1.35;
+  }
+  .dashboard-summary-card__icon {
+    width: 1.6rem;
+    height: 1.6rem;
+    flex: none;
+    border-radius: 0.45rem;
+  }
+  .dashboard-summary-card > strong {
+    font-size: 1.6rem;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-summary-card > strong.is-wide {
+    font-size: 1.2rem;
+  }
+  .dashboard-summary-card > small {
+    font-size: 0.74rem;
+    line-height: 1.4;
   }
   .dashboard-shell .dashboard-account-list > div {
     grid-template-columns: 1fr;
@@ -4419,7 +4518,11 @@ html:has(.app-route-shell) {
     justify-content: center;
   }
   .dashboard-shell .dashboard-product__actions > a:last-child {
-    padding-block: 0.4rem;
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
     text-align: center;
   }
   /* Two to a row; a third button takes a row of its own. */
@@ -4587,6 +4690,15 @@ html:has(.app-route-shell) {
   .account-copy {
     justify-content: flex-start;
   }
+  .account-copy__button {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    font-size: 0.78rem;
+  }
+  .account-password-dialog input:not([type="checkbox"]) {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
 }
 
 /* Account center: profile editing, two-step setup, devices, billing actions */
@@ -4618,6 +4730,16 @@ html:has(.app-route-shell) {
   justify-content: flex-end;
   gap: 0.6rem;
   margin-top: 0.3rem;
+}
+@media (max-width: 46rem) {
+  .account-inline-form input {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+  .account-inline-form__actions .button {
+    flex: 1;
+    justify-content: center;
+  }
 }
 .account-badge {
   display: inline-block;

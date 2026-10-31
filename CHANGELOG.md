@@ -25,6 +25,9 @@ with the next deploy.
 - The home page and the AlgorithVoice and AlgorithGuard pages point to it, and the header has an MCP link.
 - The account documentation has a guide to connecting an AI assistant and signing it out.
 
+### Fixed
+- The dashboard and sign-in pages fit and work well on phones: tables become easy-to-read rows, charts fit the screen, and every button is easy to tap.
+
 ## 2026-10-30 — How it works, what we believe, and a lighter footer
 
 ### Added
