@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { McpAddress } from "@/components/ai/mcp-connect";
 import { ButtonLink } from "@/components/button-link";
 import { Container } from "@/components/container";
 import { MachineDrawing } from "@/components/home/machine-drawing";
@@ -130,6 +131,24 @@ export default function Home() {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        className="home-mcp"
+        eyebrow="For AI assistants"
+        title="One address for every product."
+      >
+        <div className="mcp-teaser home-mcp__body">
+          <p>
+            Connect Claude, Cursor or any assistant that speaks MCP to
+            Algorithco. You approve it once, it can only read, and each product
+            adds its tools behind the same address.
+          </p>
+          <McpAddress />
+          <Link className="text-link" href="/ai">
+            See what it can do <span aria-hidden="true">→</span>
+          </Link>
+        </div>
       </Section>
 
       <Manifesto />

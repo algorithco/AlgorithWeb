@@ -880,6 +880,166 @@ dialog.social-completion[open]::backdrop {
 }
 
 /* ---------------------------------------------------------------------------
+   9b. /ai: the drawing of an assistant connected to Algorithco
+   It enters like the home drawing (.machine rules above); the loop in
+   components/ai/mcp-drawing.tsx then asks, approves, reads and answers.
+   ------------------------------------------------------------------------- */
+.mcpd__bubble,
+.mcpd__chip,
+.mcpd__tool {
+  opacity: 0;
+  transform: translateY(6px);
+  transform-box: fill-box;
+  transition:
+    opacity 350ms ease,
+    transform var(--dur-slow) var(--ease-spring);
+}
+.mcpd__bubble.is-shown,
+.mcpd__chip.is-shown,
+.mcpd__tool.is-shown {
+  opacity: 1;
+  transform: none;
+}
+.mcpd__bubble {
+  transform-origin: right bottom;
+}
+.mcpd__bubble:not(.is-shown) {
+  transform: translateY(6px) scale(0.96);
+}
+/* The approval card pops up over the wire and goes once Approve is pressed. */
+.mcpd__consent {
+  opacity: 0;
+  transform: translateY(10px) scale(0.94);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  transition:
+    opacity 300ms ease,
+    transform 500ms var(--ease-spring);
+  pointer-events: none;
+}
+.mcpd__consent.is-ask,
+.mcpd__consent.is-press {
+  opacity: 1;
+  transform: none;
+}
+.mcpd__approve,
+.mcpd__approve-text {
+  transition: fill 160ms ease;
+}
+.mcpd__consent.is-press .mcpd__approve {
+  transform: scale(0.95);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+/* The gate turns from a lock into a check when you approve. */
+.mcpd__gate circle {
+  transition:
+    fill var(--dur-slow) ease,
+    stroke var(--dur-slow) ease;
+}
+.mcpd__lock,
+.mcpd__lock-body,
+.mcpd__check {
+  transition:
+    opacity 300ms ease,
+    transform 450ms var(--ease-spring);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.mcpd__check {
+  opacity: 0;
+  transform: scale(0.6);
+}
+.mcpd.is-approved .mcpd__check {
+  opacity: 1;
+  transform: none;
+}
+.mcpd.is-approved .mcpd__lock,
+.mcpd.is-approved .mcpd__lock-body {
+  opacity: 0;
+  transform: scale(0.6);
+}
+.mcpd__row rect,
+.mcpd__row text {
+  transition:
+    fill 300ms ease,
+    stroke 300ms ease;
+}
+.mcpd__row.is-read {
+  transform: translateX(-4px);
+}
+.mcpd__row {
+  transform-box: fill-box;
+  transition:
+    opacity 900ms var(--ease-out-expo) var(--dl, 0s),
+    transform 400ms var(--ease-spring);
+}
+.mcpd__never path {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  transition: stroke-dashoffset 900ms var(--ease-out-expo) 2.4s;
+}
+.machine.is-in .mcpd__never path {
+  stroke-dashoffset: 0;
+}
+.mcpd .machine__line.is-busy {
+  transition: stroke var(--dur-base) ease;
+}
+.mcpd.is-paused .machine__caret {
+  animation-play-state: paused;
+}
+
+/* Connect tabs: the bar slides to the chosen tab; its steps come in in turn. */
+.mcp-connect__bar {
+  transition:
+    transform 450ms var(--ease-out-expo),
+    width 450ms var(--ease-out-expo);
+}
+.mcp-connect__tab {
+  transition: color var(--dur-fast) ease;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mcp-steps li,
+  .mcp-code,
+  .mcp-connect__address {
+    animation: mcp-step-in 600ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * var(--stagger));
+  }
+}
+@keyframes mcp-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.mcp-copy {
+  transition:
+    background var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    transform 300ms var(--ease-spring);
+}
+.mcp-copy:active {
+  transform: scale(0.94);
+}
+.mcp-tools li::before {
+  transition: transform 450ms var(--ease-out-expo);
+}
+.mcp-tools__name {
+  transition:
+    background var(--dur-base) ease,
+    color var(--dur-base) ease;
+}
+.mcp-product {
+  transition:
+    border-color var(--dur-base) ease,
+    transform 450ms var(--ease-out-expo);
+}
+.mcp-product--live:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* ---------------------------------------------------------------------------
    10. Reduced motion — keep every state change, drop the travel.
    ------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

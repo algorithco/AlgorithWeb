@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { McpTeaser } from "@/components/ai/mcp-teaser";
 import {
   ProductOverview,
   productMetadata,
@@ -14,6 +15,7 @@ export default function VoicePage() {
   if (!product) notFound();
   return (
     <ProductOverview product={product}>
+      <McpTeaser slug="voice" />
       <div className="detail-row" data-reveal>
         <div>
           <p className="eyebrow">Questions</p>

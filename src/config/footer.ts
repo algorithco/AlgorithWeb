@@ -26,6 +26,7 @@ export const footerColumns: readonly FooterColumn[] = [
     title: "Resources",
     links: [
       { label: "Documentation", href: "/docs" },
+      { label: "MCP for AI assistants", href: "/ai" },
       { label: "Download AlgorithVoice", href: "/voice/download" },
       { label: "Benchmarks", href: "/voice/benchmarks" },
       { label: "Changelog", href: "/changelog" },

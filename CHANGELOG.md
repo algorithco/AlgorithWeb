@@ -18,6 +18,13 @@ is not there yet. Use `## Unreleased` only for work that will not go live
 with the next deploy.
 -->
 
+## 2026-10-31 — Connect your AI assistant
+
+### Added
+- **A new [MCP page](/ai) shows how to connect Claude, Cursor or another AI assistant to your Algorithco products**: a drawing walks through one question from your assistant to its answer, with every tool it can read and the steps for each assistant.
+- The home page and the AlgorithVoice and AlgorithGuard pages point to it, and the header has an MCP link.
+- The account documentation has a guide to connecting an AI assistant and signing it out.
+
 ## 2026-10-30 — How it works, what we believe, and a lighter footer
 
 ### Added
