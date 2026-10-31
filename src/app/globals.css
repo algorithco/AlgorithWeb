@@ -591,6 +591,29 @@ summary {
 .detail-row:first-child {
   padding-top: 0;
 }
+@media (max-width: 47.99rem) {
+  /* Stacked, the heading sits closer to what it introduces. */
+  .detail-row {
+    gap: 2rem;
+  }
+  .product-hero h1 {
+    margin: clamp(3rem, 14vw, 5rem) 0 2.5rem;
+  }
+  /* The path and the status badge each keep one line; the badge drops
+     below when both do not fit. */
+  .product-hero__meta {
+    flex-wrap: wrap;
+    row-gap: 0.6rem;
+  }
+  .product-hero__meta > * {
+    white-space: nowrap;
+  }
+}
+/* "Read the <product> documentation": the product name is a span, not the
+   arrow, so it takes no arrow gap. */
+.text-link .keep-case {
+  margin-left: 0;
+}
 .detail-row h2,
 .preview-note h2 {
   max-width: 14ch;
@@ -5535,8 +5558,9 @@ kbd {
   padding: 1.25rem 0;
   border-bottom: 1px solid var(--color-border);
 }
-.bench-row__model,
-.bench-measure {
+/* Stacked (below 62rem): the model on its own line, then two measures side
+   by side, then memory and download, so a row stays short on a phone. */
+.bench-row__model {
   grid-column: 1 / -1;
 }
 .bench-row__model {
@@ -5649,6 +5673,14 @@ kbd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+/* A tablet has room for all four figures on one line under the model. */
+@media (min-width: 48rem) and (max-width: 61.99rem) {
+  .bench-row {
+    grid-template-columns:
+      minmax(0, 1.4fr) minmax(0, 1.4fr) minmax(0, 0.6fr)
+      minmax(0, 0.6fr);
+  }
+}
 @media (min-width: 62rem) {
   .bench-table__head,
   .bench-row {
@@ -5675,8 +5707,7 @@ kbd {
   .bench-row {
     padding: 1.1rem 0;
   }
-  .bench-row__model,
-  .bench-measure {
+  .bench-row__model {
     grid-column: auto;
   }
   .bench-measure__label,
