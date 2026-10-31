@@ -23,6 +23,9 @@ with the next deploy.
 ### Added
 - **A new [MCP page](/ai) shows how to connect Claude, Cursor or another AI assistant to your Algorithco products**: a drawing walks through one question from your assistant to its answer, with every tool it can read and the steps for each assistant.
 - The home page and the AlgorithVoice and AlgorithGuard pages point to it, and the header has an MCP link.
+
+### Fixed
+- The header, menu, footer and home page now fit and read well on phones.
 - The account documentation has a guide to connecting an AI assistant and signing it out.
 
 ## 2026-10-30 — How it works, what we believe, and a lighter footer
