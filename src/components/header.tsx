@@ -40,6 +40,29 @@ export function Header() {
     if (pathname) menuRef.current?.removeAttribute("open");
   }, [pathname]);
 
+  // An open menu closes on a tap anywhere else, and on Escape (which hands
+  // focus back to the button that opened it).
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      const menu = menuRef.current;
+      if (menu?.open && !menu.contains(event.target as Node)) {
+        menu.removeAttribute("open");
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      const menu = menuRef.current;
+      if (event.key !== "Escape" || !menu?.open) return;
+      menu.removeAttribute("open");
+      menu.querySelector("summary")?.focus();
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
   return (
     <header className="site-header">
       <Container className="site-header__inner">
