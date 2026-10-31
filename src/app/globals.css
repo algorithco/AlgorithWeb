@@ -6486,6 +6486,13 @@ kbd {
   display: grid;
   gap: var(--space-6);
 }
+/* A product changelog is headed by one long word ("AlgorithGuard."); on the
+   narrowest phones it shrinks to fit rather than run off the screen. */
+@media (max-width: 30rem) {
+  .page-hero:has(+ .changelog) h1 {
+    font-size: min(3.2rem, 13.5vw);
+  }
+}
 .changelog__aside {
   min-width: 0;
 }
